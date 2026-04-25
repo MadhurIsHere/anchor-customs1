@@ -1,0 +1,90 @@
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+import { Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
+
+const Cart = () => {
+  const { cartItems, removeFromCart, cartTotal } = useCart();
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+
+  const handleCheckout = () => {
+    if (!currentUser) {
+      toast.error('Please login to checkout');
+      navigate('/login');
+      return;
+    }
+    navigate('/checkout');
+  };
+
+  if (cartItems.length === 0) {
+    return (
+      <div className="section-padding" style={{ textAlign: 'center' }}>
+        <div className="container">
+          <ShoppingBag size={64} style={{ color: 'var(--border)', marginBottom: '2rem' }} />
+          <h1>Your cart is empty</h1>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Ready to create your first magazine?</p>
+          <Link to="/gallery" className="btn btn-primary">Browse Templates</Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="section-padding">
+      <div className="container">
+        <h1 style={{ marginBottom: '3rem' }}>Your Shopping Cart</h1>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'start' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {cartItems.map((item) => (
+              <div key={item.id} className="card" style={{ padding: '1.5rem', display: 'flex', gap: '1.5rem' }}>
+                <img src={item.coverPhoto} alt="Cover" style={{ width: '100px', height: '130px', objectFit: 'cover', borderRadius: '4px' }} />
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{item.templateName}</h3>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+                    {item.pages} Pages Magazine
+                  </p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 'bold' }}>₹{item.price}</span>
+                    <button 
+                      onClick={() => removeFromCart(item.id)}
+                      style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer' }}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="card glass" style={{ padding: '2rem', position: 'sticky', top: '120px' }}>
+            <h3 style={{ marginBottom: '1.5rem' }}>Order Summary</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Subtotal</span>
+                <span>₹{cartTotal}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Shipping</span>
+                <span style={{ color: '#00a86b' }}>FREE</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border)', paddingTop: '1rem', fontWeight: 'bold', fontSize: '1.2rem' }}>
+                <span>Total</span>
+                <span>₹{cartTotal}</span>
+              </div>
+            </div>
+            <button onClick={handleCheckout} className="btn btn-accent" style={{ width: '100%', padding: '1rem' }}>
+              Proceed to Checkout <ArrowRight size={20} />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Cart;
