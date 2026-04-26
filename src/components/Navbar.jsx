@@ -130,7 +130,24 @@ const Navbar = () => {
           <Link to="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link>
           <Link to="/cart" onClick={() => setIsMenuOpen(false)}>Cart ({cartItems.length})</Link>
           {currentUser ? (
-            <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
+            <>
+              <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
+              <button 
+                onClick={() => { handleLogout(); setIsMenuOpen(false); }} 
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  color: 'var(--accent)', 
+                  textAlign: 'left', 
+                  padding: 0, 
+                  fontSize: '1.1rem', 
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                LOGOUT
+              </button>
+            </>
           ) : (
             <Link to="/login" onClick={() => setIsMenuOpen(false)}>Login</Link>
           )}
