@@ -111,14 +111,17 @@ a {
 }
 
 .card {
-  background: rgba(10, 14, 23, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: var(--radius);
+  background: var(--primary-light);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
   border: 1px solid var(--border);
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  position: relative;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 1.5rem !important;
+  }
 }
 
 .card:hover {
@@ -262,6 +265,19 @@ body::before {
     margin-top: 2rem;
     border-radius: var(--radius-lg);
     overflow: hidden;
+  }
+  .cart-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+  .cart-item-card {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+  }
+  .cart-item-card img {
+    width: 100% !important;
+    height: 200px !important;
   }
 }
 
