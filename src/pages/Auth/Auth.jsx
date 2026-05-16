@@ -48,7 +48,7 @@ const Auth = ({ type: initialType }) => {
         });
         if (error) throw error;
         toast.success('Logged in successfully!');
-        navigate('/dashboard');
+        navigate('/');
       }
     } catch (error) {
       toast.error(error.message);
