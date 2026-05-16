@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
   const handleUser = (user) => {
     setCurrentUser(user);
     // Hardcoded admin email for Anchor Customs
-    if (user && user.email === 'admin@anchorcustoms.com') {
+    if (user && user.email?.toLowerCase() === 'karampreets090@gmail.com') {
       setIsAdmin(true);
     } else {
       setIsAdmin(false);

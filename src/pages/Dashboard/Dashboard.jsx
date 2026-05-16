@@ -46,7 +46,7 @@ const Dashboard = () => {
       <div className="container">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
           <div>
-            <h1>Hello, {currentUser?.displayName || 'Customer'}</h1>
+            <h1>Hello, {currentUser?.user_metadata?.full_name || 'Customer'}</h1>
             <p style={{ color: 'var(--text-muted)' }}>Manage your orders and account details</p>
           </div>
           <div className="card" style={{ padding: '1rem 2rem', background: 'var(--bg-offset)' }}>
@@ -97,9 +97,6 @@ const Dashboard = () => {
                     <h4 style={{ fontSize: '1.1rem' }}>{order.template_name}</h4>
                     <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{order.pages} Page Magazine</p>
                   </div>
-                  <a href={order.images?.[0]} target="_blank" className="btn btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.8rem' }}>
-                    View Photos <ExternalLink size={14} />
-                  </a>
                 </div>
               </div>
             ))}

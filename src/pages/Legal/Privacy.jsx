@@ -5,17 +5,12 @@ const Privacy = () => (
     <div className="container" style={{ maxWidth: '800px' }}>
       <h1>Privacy Policy</h1>
       <div style={{ lineHeight: '1.8', color: 'var(--text-muted)' }}>
-        <p>Last Updated: April 2024</p>
-        <p>At Anchor Customs, we prioritize the privacy of your personal photos and data.</p>
-        
-        <h3>1. Data Collection</h3>
-        <p>We collect your name, email, phone number, and delivery address to process your orders. Your uploaded photos are stored securely and only used for printing your custom magazine.</p>
-        
-        <h3>2. Storage & Security</h3>
-        <p>We use industry-standard encryption to protect your data. Photos are deleted from our active production servers 30 days after the order is delivered.</p>
-        
-        <h3>3. Third-Party Sharing</h3>
-        <p>We do not sell or trade your personal information. We only share data with shipping partners and payment processors (like Razorpay) to complete your transaction.</p>
+        <p>At Anchor Customs, your privacy means everything to us.</p>
+        <p>We understand that the photos, messages, and memories you share are deeply personal, and we treat them with the utmost care and respect.</p>
+        <p>All content shared with us — including images, chats, and personal details — is used only for creating your customized product. We do not share, sell, or publish your data anywhere without your explicit permission.</p>
+        <p>Your designs and personal content will never be posted on our social media or used for promotional purposes unless you clearly allow us to do so.</p>
+        <p>We also ensure that your data is handled securely and is not stored or misused beyond the purpose of your order.</p>
+        <p>Your trust is important to us, and we are committed to keeping your memories safe, private, and protected.</p>
       </div>
     </div>
   </div>

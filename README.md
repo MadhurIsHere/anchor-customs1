@@ -26,7 +26,7 @@ A full-stack React application for a custom photo magazine business.
    - Get your Test/Live Key ID from [Razorpay Dashboard](https://dashboard.razorpay.com/).
    - Add it to your `.env` file.
 4. **Admin Access**:
-   - To access the admin dashboard, create a user with the email `admin@anchorcustoms.com` (as per the logic in `AuthContext.jsx`) or update the logic in the context file.
+   - To access the admin dashboard, create a user with the email `karampreets090@gmail.com` (as per the logic in `AuthContext.jsx`) or update the logic in the context file.
 5. **Run Locally**:
    ```bash
    npm run dev

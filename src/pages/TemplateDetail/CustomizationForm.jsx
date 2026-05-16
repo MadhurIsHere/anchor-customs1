@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Upload, X, Image as ImageIcon, Send, Loader } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, Send, Loader, ArrowLeft } from 'lucide-react';
 import { TEMPLATES } from '../../utils/data';
 import { supabase } from '../../supabase/config';
 import { useAuth } from '../../context/AuthContext';
@@ -100,41 +100,47 @@ const CustomizationForm = () => {
       return;
     }
     
-    const addr = formData.address.toLowerCase();
-    const hasPincode = /[0-9]{6}/.test(addr);
-    
-    if (!formData.address.trim() || !hasPincode || addr.length < 15) {
-      toast.error('Please provide a complete address (including City, State, and 6-digit Pincode)');
+    if (!formData.address.trim()) {
+      toast.error('Please provide a delivery address');
       return;
     }
 
-    if (!coverPhoto) {
-      toast.error('Please upload a cover photo');
-      return;
-    }
-    if (photos.length === 0) {
-      toast.error('Please upload at least one photo');
-      return;
+    if (template.id !== 'kaleshi_aurat') {
+      if (!coverPhoto) {
+        toast.error('Please upload a cover photo');
+        return;
+      }
+      if (photos.length === 0) {
+        toast.error('Please upload at least one photo');
+        return;
+      }
     }
 
     setIsUploading(true);
     setUploadProgress(5);
 
     try {
-      // Create a unique folder name for this customer and order
-      const safeName = formData.fullName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-      const folderPath = `${safeName}_${Date.now()}`;
+      let finalImages = [];
+      
+      if (template.id !== 'kaleshi_aurat') {
+        // Create a unique folder name for this customer and order
+        const safeName = formData.fullName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const folderPath = `${safeName}_${Date.now()}`;
 
-      const coverUrl = await uploadFile(coverPhoto, 'photos', 'cover', formData, folderPath);
-      setUploadProgress(30);
-      
-      const photoUrls = [];
-      const totalPhotos = photos.length;
-      
-      for (let i = 0; i < totalPhotos; i++) {
-        const url = await uploadFile(photos[i], 'photos', 'inner', formData, folderPath);
-        photoUrls.push(url);
-        setUploadProgress(30 + ((i + 1) / totalPhotos) * 65);
+        const coverUrl = await uploadFile(coverPhoto, 'photos', 'cover', formData, folderPath);
+        setUploadProgress(30);
+        
+        const photoUrls = [];
+        const totalPhotos = photos.length;
+        
+        for (let i = 0; i < totalPhotos; i++) {
+          const url = await uploadFile(photos[i], 'photos', 'inner', formData, folderPath);
+          photoUrls.push(url);
+          setUploadProgress(30 + ((i + 1) / totalPhotos) * 65);
+        }
+        finalImages = [coverUrl, ...photoUrls];
+      } else {
+        finalImages = [template.image]; // Just use the product image
       }
 
       const customOrder = {
@@ -144,7 +150,7 @@ const CustomizationForm = () => {
         pages: parseInt(pages),
         price: pages === '10' ? template.price10 : template.price12,
         customerDetails: formData,
-        images: [coverUrl, ...photoUrls],
+        images: finalImages,
         status: 'pending_payment',
         created_at: new Date().toISOString()
       };
@@ -165,7 +171,31 @@ const CustomizationForm = () => {
   return (
     <div className="section-padding">
       <div className="container" style={{ maxWidth: '800px' }}>
-        <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Personalize Your {template.name}</h1>
+        <button 
+          onClick={() => navigate(`/template/${template.id}`)} 
+          style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '0.5rem', 
+            padding: '0', 
+            marginTop: '-4rem',
+            marginBottom: '2.5rem', 
+            fontSize: '1rem', 
+            border: 'none', 
+            background: 'transparent', 
+            cursor: 'pointer', 
+            color: 'var(--text-muted)',
+            fontFamily: 'var(--font-sans)',
+            textTransform: 'uppercase',
+            letterSpacing: '1px',
+            transition: 'color 0.2s ease'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent)'}
+          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+        >
+          <ArrowLeft size={18} /> Back to Product
+        </button>
+        <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>{template.name}</h1>
         
         <form onSubmit={handleSubmit} className="card form-container">
           <div className="responsive-grid">
@@ -199,8 +229,10 @@ const CustomizationForm = () => {
             <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.3rem', display: 'block' }}>Must include City, State, and 6-digit Pincode.</span>
           </div>
 
-          <div style={{ margin: '2rem 0' }}>
-            <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Cover Photo</h3>
+          {template.id !== 'kaleshi_aurat' && (
+            <>
+              <div style={{ margin: '2rem 0' }}>
+                <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Cover Photo</h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
               <input 
                 type="file" 
@@ -299,6 +331,8 @@ const CustomizationForm = () => {
             <label className="input-label">Special Instructions</label>
             <input type="text" name="specialNotes" className="input-field" placeholder="e.g. sequence of photos, color preferences" onChange={handleInputChange} />
           </div>
+            </>
+          )}
 
           {isUploading && (
             <div style={{ margin: '2rem 0' }}>

@@ -19,8 +19,8 @@ const Navbar = () => {
     <nav className="glass" style={{ position: 'sticky', top: 0, zIndex: 1000, padding: '1rem 0' }}>
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <h1 style={{ fontSize: '1.5rem', marginBottom: 0, letterSpacing: '1px' }}>
-            ANCHOR <span style={{ color: 'var(--accent)' }}>CUSTOMS</span>
+          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', marginBottom: 0, letterSpacing: '1px', fontWeight: 'bold' }}>
+            Anchor <span style={{ color: 'var(--accent)' }}>Customs</span>
           </h1>
         </Link>
 

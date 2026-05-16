@@ -5,18 +5,19 @@ const Terms = () => (
     <div className="container" style={{ maxWidth: '800px' }}>
       <h1>Terms & Conditions</h1>
       <div style={{ lineHeight: '1.8', color: 'var(--text-muted)' }}>
-        <p>Last Updated: April 2024</p>
-        <h3>1. Acceptance of Terms</h3>
-        <p>By accessing and using Anchor Customs, you agree to be bound by these Terms and Conditions and all applicable laws and regulations.</p>
-        
-        <h3>2. Customization & Content</h3>
-        <p>Users are responsible for the photos they upload. You must own the rights to all images provided. We reserve the right to refuse printing any content that is illegal, offensive, or violates copyright laws.</p>
-        
-        <h3>3. Payment</h3>
-        <p>All payments are processed securely. Orders will only be processed once full payment is received.</p>
-        
-        <h3>4. Intellectual Property</h3>
-        <p>The design, branding, and layout of Anchor Customs are the property of Anchor Customs. You retain ownership of your uploaded photos.</p>
+        <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
+          <li>All products are fully customized based on the content (photos, text, details) provided by the customer. Please ensure everything shared is accurate and final.</li>
+          <li>We provide limited revisions during the design process. Any major changes after final approval may not be possible or may require extra charges.</li>
+          <li>Advance payment is required to confirm your order. Work will begin only after payment is received.</li>
+          <li>Since all products are personalized, no cancellations, returns, or refunds will be accepted once the order is placed or the design process has started.</li>
+          <li>We aim to complete and dispatch orders within the promised timeline (10-12 days). However, timelines may vary slightly depending on workload and customization requirements.</li>
+          <li>Once your order is shipped on time from our end, any delays caused by the courier company are not our responsibility.</li>
+          <li>Customers are responsible for providing clear images and correct information. We are not liable for errors due to incorrect or incomplete details shared.</li>
+          <li>Slight variations in color, layout, or print quality may occur due to screen and printing differences.</li>
+          <li>All personal data, photos, and content shared with us are kept private and used only for your order. We do not post or share your content without your permission.</li>
+          <li>We reserve the right to refuse or cancel any order if necessary, with proper communication.</li>
+          <li>By placing an order, you confirm that you have read and agreed to all the above terms and conditions.</li>
+        </ul>
       </div>
     </div>
   </div>
