@@ -81,6 +81,15 @@ const AdminDashboard = () => {
                     <td style={{ padding: '1rem' }}>
                       <span style={{ fontWeight: '600', display: 'block' }}>{order.customer_details.fullName}</span>
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.5rem' }}>Phone: {order.customer_details.whatsapp}</span>
+                      <a 
+                        href={order.images?.[0]} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="btn btn-outline"
+                        style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
+                      >
+                        View Photos
+                      </a>
                     </td>
                     <td style={{ padding: '1rem' }}>
                       <span style={{ fontWeight: '500' }}>{order.template_name}</span>
