@@ -27,7 +27,7 @@ const CustomizationForm = () => {
   });
 
   const [coverPhoto, setCoverPhoto] = useState(null);
-  const [photos, setPhotos] = useState([]);
+  const [photos, setPhotos] = useState([]); // Array of { file, preview }
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -46,7 +46,11 @@ const CustomizationForm = () => {
   }, [photos]);
 
   const removePhoto = (index) => {
-    setPhotos(prev => prev.filter((_, i) => i !== index));
+    setPhotos(prev => {
+      const newPhotos = [...prev];
+      URL.revokeObjectURL(newPhotos[index].preview);
+      return newPhotos.filter((_, i) => i !== index);
+    });
   };
 
   const handleInputChange = (e) => {
@@ -134,7 +138,7 @@ const CustomizationForm = () => {
         const totalPhotos = photos.length;
         
         for (let i = 0; i < totalPhotos; i++) {
-          const url = await uploadFile(photos[i], 'photos', 'inner', formData, folderPath);
+          const url = await uploadFile(photos[i].file, 'photos', 'inner', formData, folderPath);
           photoUrls.push(url);
           setUploadProgress(30 + ((i + 1) / totalPhotos) * 65);
         }
@@ -282,7 +286,12 @@ const CustomizationForm = () => {
                     return;
                   }
                   
-                  setPhotos(prev => [...prev, ...files]);
+                  const newPhotos = files.map(file => ({
+                    file,
+                    preview: URL.createObjectURL(file)
+                  }));
+                  
+                  setPhotos(prev => [...prev, ...newPhotos]);
                   toast.success(`${files.length} photos added!`);
                 }} 
               />
@@ -298,12 +307,12 @@ const CustomizationForm = () => {
                 Selected: <span style={{ fontWeight: 'bold', color: 'var(--navy)' }}>{photos.length}</span> / 50
               </p>
             </div>
-
+ 
             {photos.length > 0 && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '0.8rem', marginTop: '1.5rem' }}>
-                {photos.map((file, idx) => (
+                {photos.map((photo, idx) => (
                   <div key={idx} style={{ position: 'relative', aspectRatio: '1', borderRadius: '8px', overflow: 'hidden', border: '1px solid #eee' }}>
-                    <img src={URL.createObjectURL(file)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={photo.preview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Preview" />
                     <button 
                       type="button" 
                       onClick={() => removePhoto(idx)}
