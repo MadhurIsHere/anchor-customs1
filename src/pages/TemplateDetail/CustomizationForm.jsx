@@ -134,15 +134,19 @@ const CustomizationForm = () => {
         const coverUrl = await uploadFile(coverPhoto, 'photos', 'cover', formData, folderPath);
         setUploadProgress(30);
         
-        const photoUrls = [];
-        const totalPhotos = photos.length;
+        // Upload all inner photos in parallel for much faster speeds
+        const uploadPromises = photos.map((photo, i) => 
+          uploadFile(photo.file, 'photos', 'inner', formData, folderPath)
+            .then(url => {
+              // Update progress as each one finishes
+              setUploadProgress(prev => prev + (65 / photos.length));
+              return url;
+            })
+        );
         
-        for (let i = 0; i < totalPhotos; i++) {
-          const url = await uploadFile(photos[i].file, 'photos', 'inner', formData, folderPath);
-          photoUrls.push(url);
-          setUploadProgress(30 + ((i + 1) / totalPhotos) * 65);
-        }
+        const photoUrls = await Promise.all(uploadPromises);
         finalImages = [coverUrl, ...photoUrls];
+        setUploadProgress(95); // Nearly done
       } else {
         finalImages = [template.image]; // Just use the product image
       }
