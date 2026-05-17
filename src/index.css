@@ -38,7 +38,8 @@
 
 @media (max-width: 1024px) {
   .scribble-text {
-    display: none !important;
+    opacity: 0.18;
+    font-size: clamp(1.1rem, 4vw, 1.8rem);
   }
 }
 
