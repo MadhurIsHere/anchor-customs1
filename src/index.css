@@ -419,8 +419,8 @@ body::before {
   h1 { font-size: 2rem !important; }
   h2 { font-size: 1.6rem !important; }
   h3 { font-size: 1.2rem !important; }
-  h1.hero-title { font-size: 1.6rem !important; }
-  .hero-desc { font-size: 1rem !important; }
+  h1.hero-title { font-size: 1.8rem !important; }
+  .hero-desc { font-size: 1.05rem !important; }
   h3.no-clamp { font-size: 2.2rem !important; }
 }
 

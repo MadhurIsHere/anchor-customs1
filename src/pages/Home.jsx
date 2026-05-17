@@ -33,7 +33,7 @@ const ProductCardContent = ({ template }) => (
       </h3>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.2rem' }}>
         <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--accent)' }}>
-          ₹{template.price10}
+          Price: ₹{template.price10}
         </span>
         {template.originalPrice && (
           <span style={{ fontSize: '0.75rem', textDecoration: 'line-through', color: 'var(--text-muted)' }}>
@@ -147,7 +147,7 @@ const Home = () => {
               You might cry <span className="hero-desc-accent">(in a cute way)</span>. Turning your memories into something you can <span className="hero-desc-accent">hold forever</span>
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '3rem' }}>
-              <button onClick={scrollToCollection} className="btn btn-primary hero-btn">
+              <button onClick={scrollToCollection} className="btn btn-primary hero-btn" style={{ opacity: 1, boxShadow: '0 4px 15px rgba(177, 145, 113, 0.5)' }}>
                 View Collection <ArrowDown size={18} />
               </button>
             </div>

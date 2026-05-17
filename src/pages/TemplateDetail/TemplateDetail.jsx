@@ -413,7 +413,7 @@ const TemplateDetail = () => {
                   </span>
                 )}
                 <span style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--navy)' }}>
-                  ₹{currentPrice}
+                  Price: ₹{currentPrice}
                 </span>
                 {template.originalPrice && (
                   <span style={{ 
@@ -565,7 +565,7 @@ const TemplateDetail = () => {
                     <div style={{ padding: '1rem', background: '#fff' }}>
                       <h4 style={{ fontSize: '0.9rem', margin: '0 0 0.5rem 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--navy)' }}>{item.name}</h4>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <p style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--accent)', margin: 0 }}>₹{item.price10}</p>
+                        <p style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--accent)', margin: 0 }}>Price: ₹{item.price10}</p>
                         <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', border: '1px solid var(--border)', padding: '2px 6px', borderRadius: '4px' }}>View</span>
                       </div>
                     </div>
