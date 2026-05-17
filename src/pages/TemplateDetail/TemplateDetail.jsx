@@ -547,7 +547,7 @@ const TemplateDetail = () => {
 
         {/* Recommended Products Section Moved below description */}
         <div style={{ marginTop: '6rem', textAlign: 'left', borderTop: '1px solid var(--border)', paddingTop: '4rem' }}>
-          <h3 style={{ fontSize: '2rem', marginBottom: '2.5rem', fontFamily: 'var(--font-display)', textAlign: 'center' }}>You may also like</h3>
+          <h3 style={{ fontSize: '2.8rem', marginBottom: '2.5rem', fontFamily: 'var(--font-display)', textAlign: 'center' }}>You may also like</h3>
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', 
