@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
-import { Camera, Heart, Truck, CheckCircle, ArrowDown, Star, User, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Camera, Heart, Truck, CheckCircle, ArrowDown, Star, User, ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react';
 import { TEMPLATES } from '../utils/data';
 
 const ProductCardContent = ({ template }) => (
@@ -63,6 +63,7 @@ const Home = () => {
   const location = useLocation();
   const [selectedCategory, setSelectedCategory] = React.useState(null);
   const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+  const [openFaq, setOpenFaq] = React.useState(null);
 
   React.useEffect(() => {
     const handleResize = () => {
@@ -293,27 +294,67 @@ const Home = () => {
             <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Got questions? We've got answers.</p>
           </div>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', maxWidth: '900px', margin: '0 auto' }}>
-            <div className="card" style={{ padding: '2rem' }}>
-              <h4 style={{ fontSize: '1rem', marginBottom: '0.6rem', color: 'var(--accent)' }}>How long does delivery take?</h4>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: '1.5' }}>Orders are generally delivered within 5-7 working days across India.</p>
-            </div>
-            <div className="card" style={{ padding: '2rem' }}>
-              <h4 style={{ fontSize: '1rem', marginBottom: '0.6rem', color: 'var(--accent)' }}>Is my privacy protected?</h4>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: '1.5' }}>Absolutely! We value your trust. Your photos will never be posted publicly without your explicit permission.</p>
-            </div>
-            <div className="card" style={{ padding: '2rem' }}>
-              <h4 style={{ fontSize: '1rem', marginBottom: '0.6rem', color: 'var(--accent)' }}>Do you offer free shipping?</h4>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: '1.5' }}>Yes! We proudly offer 100% free shipping across India on all our products.</p>
-            </div>
-            <div className="card" style={{ padding: '2rem' }}>
-              <h4 style={{ fontSize: '1rem', marginBottom: '0.6rem', color: 'var(--accent)' }}>Refund Policy</h4>
-              <div style={{ lineHeight: '1.5', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                <p style={{ marginBottom: '0.5rem' }}>NO REFUND POLICY.</p>
-                <p style={{ marginBottom: '0.5rem' }}>Returns are only accepted when the product is delivered damaged.</p>
-                <p><strong>Important:</strong> Please make a continuous, unedited video while opening the parcel showing the seal from the outer packaging.</p>
+          <div style={{ maxWidth: '750px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '0' }}>
+            {[
+              { q: 'How long does delivery take?', a: 'Orders are generally delivered within 5-7 working days across India.' },
+              { q: 'Is my privacy protected?', a: 'Absolutely! We value your trust. Your photos will never be posted publicly without your explicit permission.' },
+              { q: 'Do you offer free shipping?', a: 'Yes! We proudly offer 100% free shipping across India on all our products.' },
+              { q: 'Refund Policy', a: 'NO REFUND POLICY. Returns are only accepted when the product is delivered damaged. Important: Please make a continuous, unedited video while opening the parcel showing the seal from the outer packaging.' }
+            ].map((faq, i) => (
+              <div 
+                key={i} 
+                style={{ 
+                  borderBottom: '1px solid var(--border)',
+                  ...(i === 0 ? { borderTop: '1px solid var(--border)' } : {})
+                }}
+              >
+                <button 
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  style={{ 
+                    width: '100%', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    padding: '1.3rem 0.5rem',
+                    background: 'transparent', 
+                    border: 'none', 
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    fontFamily: 'var(--font-sans)',
+                    gap: '1rem'
+                  }}
+                >
+                  <span style={{ 
+                    fontSize: '1rem', 
+                    fontWeight: '600', 
+                    color: openFaq === i ? 'var(--accent)' : 'var(--navy)',
+                    transition: 'color 0.2s ease'
+                  }}>{faq.q}</span>
+                  <ChevronDown 
+                    size={18} 
+                    style={{ 
+                      color: 'var(--accent)', 
+                      flexShrink: 0,
+                      transition: 'transform 0.3s ease',
+                      transform: openFaq === i ? 'rotate(180deg)' : 'rotate(0deg)'
+                    }} 
+                  />
+                </button>
+                <div style={{ 
+                  maxHeight: openFaq === i ? '200px' : '0', 
+                  overflow: 'hidden', 
+                  transition: 'max-height 0.35s ease, padding 0.35s ease',
+                  padding: openFaq === i ? '0 0.5rem 1.3rem' : '0 0.5rem 0'
+                }}>
+                  <p style={{ 
+                    color: 'var(--text-muted)', 
+                    fontSize: '0.9rem', 
+                    lineHeight: '1.7', 
+                    margin: 0 
+                  }}>{faq.a}</p>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
