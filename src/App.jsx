@@ -17,7 +17,6 @@ import CustomizationForm from './pages/TemplateDetail/CustomizationForm';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout/Checkout';
 import Auth from './pages/Auth/Auth';
-import ResetPassword from './pages/Auth/ResetPassword';
 import Dashboard from './pages/Dashboard/Dashboard';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 
@@ -42,9 +41,8 @@ function App() {
                 <Route path="/customize/:id/:pages" element={<CustomizationForm />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
-                <Route path="/login" element={<Auth type="login" />} />
-                <Route path="/signup" element={<Auth type="signup" />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/login" element={<Auth />} />
+                <Route path="/signup" element={<Auth />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 

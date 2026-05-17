@@ -126,6 +126,18 @@ const Checkout = () => {
     }
   };
 
+  if (!currentUser) {
+    return (
+      <div className="section-padding" style={{ textAlign: 'center' }}>
+        <div className="container">
+          <h1 style={{ marginBottom: '1.5rem' }}>Login Required</h1>
+          <p style={{ marginBottom: '2rem', color: 'var(--text-muted)' }}>Please login with your phone number to complete the purchase.</p>
+          <button onClick={() => navigate('/login')} className="btn btn-primary">Login Now</button>
+        </div>
+      </div>
+    );
+  }
+
   if (isSuccess) {
     return (
       <div className="section-padding" style={{ textAlign: 'center' }}>

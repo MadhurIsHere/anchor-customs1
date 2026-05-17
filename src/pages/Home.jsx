@@ -1,11 +1,79 @@
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { Camera, Heart, Truck, CheckCircle, ArrowDown, Star, User } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Camera, Heart, Truck, CheckCircle, ArrowDown, Star, User, ArrowLeft } from 'lucide-react';
 import { TEMPLATES } from '../utils/data';
+
+const ProductCardContent = ({ template }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div className="template-img-container" style={{ position: 'relative', overflow: 'hidden', aspectRatio: '1/1', width: '100%' }}>
+      {template.popular && (
+        <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: 'rgba(255, 255, 255, 0.9)', color: 'var(--navy)', padding: '0.2rem 0.5rem', borderRadius: '12px', fontSize: '0.6rem', fontWeight: 'bold', zIndex: 10, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+          <Star size={10} fill="var(--accent)" color="var(--accent)" /> Popular
+        </div>
+      )}
+      
+      <motion.img 
+        src={template.image} 
+        alt={template.name} 
+        loading="lazy"
+        whileHover={{ scale: 1.05 }}
+        style={{ 
+          width: '100%', 
+          height: '100%', 
+          objectFit: 'cover', 
+          display: 'block'
+        }}
+      />
+    </div>
+
+    <div style={{ padding: '0.5rem 0.4rem', background: 'var(--bg)', flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '0' }}>
+      <h3 style={{ fontSize: '0.85rem', margin: 0, padding: 0, fontFamily: 'var(--font-serif)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text)' }}>
+        {template.name}
+      </h3>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.2rem' }}>
+        <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--accent)' }}>
+          ₹{template.price10}
+        </span>
+        {template.originalPrice && (
+          <span style={{ fontSize: '0.75rem', textDecoration: 'line-through', color: 'var(--text-muted)' }}>
+            ₹{template.originalPrice}
+          </span>
+        )}
+        {template.originalPrice && (
+          <span style={{ 
+            background: 'rgba(212, 175, 55, 0.1)', 
+            color: 'var(--accent)', 
+            padding: '0.1rem 0.4rem', 
+            borderRadius: '10px', 
+            fontSize: '0.65rem', 
+            fontWeight: 'bold',
+            border: '1px solid rgba(212, 175, 55, 0.2)'
+          }}>
+            Save ₹{template.originalPrice - template.price10}
+          </span>
+        )}
+      </div>
+    </div>
+  </div>
+);
 
 const Home = () => {
   const collectionRef = useRef(null);
+  const location = useLocation();
+  const [selectedCategory, setSelectedCategory] = React.useState(null);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const category = params.get('category');
+    if (category) {
+      setSelectedCategory(category);
+      // Wait for render then scroll
+      setTimeout(() => {
+        collectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [location]);
 
   const scrollToCollection = () => {
     collectionRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -22,17 +90,16 @@ const Home = () => {
   return (
     <div className="home-page">
       {/* Hero Section */}
-      <section className="starred-bg" style={{ 
-        height: 'calc(100dvh - 70px)', 
-        minHeight: '600px',
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        backgroundColor: 'var(--bg)',
-        overflow: 'hidden',
-        position: 'relative',
-        padding: '0'
-      }}>
+        <section className="starred-bg" style={{ 
+          minHeight: '80vh',
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          backgroundColor: 'var(--bg)',
+          overflow: 'hidden',
+          position: 'relative',
+          padding: '8rem 0 4rem'
+        }}>
         <div className="container hero-grid" style={{ 
           display: 'flex', 
           flexDirection: 'column',
@@ -67,140 +134,145 @@ const Home = () => {
           >
             <h1 className="hero-title">You're not basic. <br /> Your gifts shouldn't be <span className="hero-subtitle">either.</span></h1>
             <p className="hero-desc">
-              You might cry (in a cute way). Turning your memories into something you can hold forever.
+              You might cry <span className="hero-desc-accent">(in a cute way)</span>. Turning your memories into something you can <span className="hero-desc-accent">hold forever</span>
             </p>
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '7rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '3rem' }}>
               <button onClick={scrollToCollection} className="btn btn-primary hero-btn">
                 View Collection <ArrowDown size={18} />
               </button>
             </div>
           </motion.div>
-
-
-        </div>
-      </section>
-
-      {/* Trust / Features Banner */}
-      <section style={{ padding: '3rem 0', background: 'var(--bg)', borderTop: '1px solid var(--border)' }}>
-        <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem', textAlign: 'center' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ background: 'var(--bg-offset)', padding: '1rem', borderRadius: '50%', color: 'var(--accent)', boxShadow: 'var(--shadow)' }}>
-                <CheckCircle size={28} />
-              </div>
-              <h4 style={{ fontSize: '1.2rem', fontFamily: 'var(--font-serif)' }}>Premium Quality</h4>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Handcrafted with high-quality materials to last a lifetime.</p>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ background: 'var(--bg-offset)', padding: '1rem', borderRadius: '50%', color: 'var(--accent)', boxShadow: 'var(--shadow)' }}>
-                <Heart size={28} />
-              </div>
-              <h4 style={{ fontSize: '1.2rem', fontFamily: 'var(--font-serif)' }}>100% Personalized</h4>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Designed exclusively with your favorite memories and text.</p>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ background: 'var(--bg-offset)', padding: '1rem', borderRadius: '50%', color: 'var(--accent)', boxShadow: 'var(--shadow)' }}>
-                <Truck size={28} />
-              </div>
-              <h4 style={{ fontSize: '1.2rem', fontFamily: 'var(--font-serif)' }}>Free Shipping</h4>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Enjoy free delivery across India on all your orders.</p>
-            </div>
-          </div>
         </div>
       </section>
 
       {/* Product Collection Section */}
       <section ref={collectionRef} className="section-padding" style={{ backgroundColor: 'var(--bg-offset)' }}>
         <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '6rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <h2 style={{ fontSize: '3.5rem', marginBottom: '1.5rem', letterSpacing: '-1px' }}>Explore the Collection</h2>
             <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Handcrafted pieces for your most cherished moments.</p>
           </div>
 
-          {Object.entries({
-            'Magazines': TEMPLATES.filter(t => t.category === 'Magazine' || t.category === 'Standing Magazine'),
-            'Premium Gifts': TEMPLATES.filter(t => ['Hamper', 'Scrapbook', 'Calendar'].includes(t.category)),
-            'Combos': TEMPLATES.filter(t => t.category === 'Combo'),
-            'Frames & Polaroids': TEMPLATES.filter(t => t.category === 'Frames' || t.category === 'Frame' || t.category === 'Polaroids'),
-            'Apparel & Accessories': TEMPLATES.filter(t => ['Apparel', 'Cap', 'Keychain'].includes(t.category)),
-            'Other': TEMPLATES.filter(t => !['Magazine', 'Standing Magazine', 'Frames', 'Frame', 'Polaroids', 'Hamper', 'Scrapbook', 'Calendar', 'Apparel', 'Cap', 'Keychain', 'Combo'].includes(t.category))
-          }).map(([title, items]) => {
-            if (items.length === 0) return null;
-            
-            return (
-              <div key={title} style={{ marginBottom: '6rem' }}>
+          {/* Category Selection Grid (Only shown when no category is selected) */}
+          {!selectedCategory && (
+            <div className="product-grid">
+              {Object.entries({
+                'Magazines': TEMPLATES.filter(t => t.category === 'Magazine' || t.category === 'Standing Magazine'),
+                'Premium Gifts': TEMPLATES.filter(t => ['Hamper', 'Scrapbook', 'Calendar'].includes(t.category)),
+                'Combos': TEMPLATES.filter(t => t.category === 'Combo'),
+                'Frames & Decor': TEMPLATES.filter(t => t.category === 'Frames' || t.category === 'Frame' || t.category === 'Aesthetic'),
+                'Apparel & Accessories': TEMPLATES.filter(t => ['Apparel', 'Cap', 'Keychain'].includes(t.category)),
+                'Other': TEMPLATES.filter(t => !['Magazine', 'Standing Magazine', 'Frames', 'Frame', 'Aesthetic', 'Hamper', 'Scrapbook', 'Calendar', 'Apparel', 'Cap', 'Keychain', 'Combo'].includes(t.category))
+              }).map(([title, items], index) => {
+                if (items.length === 0) return null;
+                const coverTemplate = items[0];
+                
+                return (
+                  <motion.div 
+                    key={title}
+                    className="product-card-wrapper"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    onClick={() => {
+                      setSelectedCategory(title);
+                      collectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className="card gift-border" style={{ height: '100%' }}>
+                      <div className="card-content" style={{ textAlign: 'center', padding: '0.6rem 0.8rem 0.4rem' }}>
+                        <h3 style={{ fontSize: '1.1rem', marginBottom: '0.1rem', fontFamily: 'var(--font-serif)', color: 'var(--navy)' }}>{title}</h3>
+                        <span style={{ fontSize: '0.55rem', fontWeight: '600', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '1px' }}>{items.length} Products</span>
+                      </div>
+                      <div className="template-img-container" style={{ position: 'relative', overflow: 'hidden', aspectRatio: '1/1', maxHeight: '250px' }}>
+                        <img 
+                          src={coverTemplate.image} 
+                          alt={title} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                        <div style={{
+                          position: 'absolute',
+                          inset: 0,
+                          background: 'rgba(175, 145, 112, 0.15)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          opacity: 0,
+                          transition: 'opacity 0.3s ease'
+                        }} className="hover-overlay">
+                          <span style={{ background: 'var(--accent)', color: '#fff', padding: '0.6rem 1.2rem', borderRadius: '4px', fontWeight: 'bold' }}>View All</span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Filtered Category View (Only shown when a category IS selected) */}
+          {selectedCategory && (
+            <div>
+              <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
                 <h3 style={{ 
                   fontSize: '2.5rem', 
-                  marginBottom: '3rem', 
+                  marginBottom: '1rem', 
                   fontFamily: 'var(--font-serif)', 
-                  color: 'var(--navy)', 
-                  borderBottom: '1px solid var(--border)', 
-                  paddingBottom: '1rem',
-                  textAlign: 'center' // Centered title
-                }}>{title}</h3>
-                <div className="product-grid">
-                  {items.map((template, index) => (
-                    <motion.div 
-                      key={template.id}
-                      className="product-card-wrapper"
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <Link to={`/template/${template.id}`} className="card gift-border" style={{ 
-                        display: 'block',
-                        cursor: 'pointer',
-                        textDecoration: 'none',
-                        color: 'inherit',
-                        height: '100%'
-                      }}>
-                        <div className="template-img-container" style={{ position: 'relative', overflow: 'hidden' }}>
-                          <div style={{
-                            position: 'absolute',
-                            inset: 0,
-                            background: 'rgba(197, 160, 89, 0.05)',
-                            mixBlendMode: 'sepia',
-                            zIndex: 1,
-                            pointerEvents: 'none'
-                          }}></div>
-                          
-                          {template.popular && (
-                            <div style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'rgba(255, 255, 255, 0.95)', color: 'var(--navy)', padding: '0.4rem 0.8rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold', zIndex: 10, boxShadow: '0 4px 10px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', gap: '0.3rem', backdropFilter: 'blur(4px)' }}>
-                              <Star size={12} fill="var(--accent)" color="var(--accent)" /> Bestseller
-                            </div>
-                          )}
-                          
-                          <img 
-                            src={template.image} 
-                            alt={template.name} 
-                            loading="lazy"
-                            style={{ 
-                              width: '100%', 
-                              height: '100%', 
-                              objectFit: 'cover', 
-                              transition: 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-                            }}
-                            className="template-img"
-                          />
-                        </div>
-                        <div className="card-content">
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                            <span style={{ fontSize: '0.7rem', fontWeight: '600', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '2px' }}>{template.category}</span>
-                            <span style={{ fontSize: '0.9rem', fontWeight: '500', opacity: 0.8 }}>₹{template.price10}</span>
-                          </div>
-                          <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)' }}>{template.name}</h3>
-                          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '0' }}>
-                            {template.description}
-                          </p>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  ))}
-                </div>
+                  color: 'var(--navy)'
+                }}>{selectedCategory}</h3>
+                <button 
+                  onClick={() => setSelectedCategory(null)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.6rem 1.2rem',
+                    borderRadius: '30px',
+                    background: 'transparent',
+                    border: '1px solid var(--accent)',
+                    color: 'var(--accent)',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: '600'
+                  }}
+                >
+                  <ArrowLeft size={16} /> All Categories
+                </button>
               </div>
-            );
-          })}
+
+              <div className="product-grid">
+                {TEMPLATES.filter(t => {
+                  const groups = {
+                    'Magazines': ['Magazine', 'Standing Magazine'],
+                    'Premium Gifts': ['Hamper', 'Scrapbook', 'Calendar'],
+                    'Combos': ['Combo'],
+                    'Frames & Decor': ['Frames', 'Frame', 'Aesthetic'],
+                    'Apparel & Accessories': ['Apparel', 'Cap', 'Keychain']
+                  };
+                  if (groups[selectedCategory]) return groups[selectedCategory].includes(t.category);
+                  return !Object.values(groups).flat().includes(t.category);
+                }).map((template, index) => (
+                  <motion.div 
+                    key={template.id}
+                    className="product-card-wrapper"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Link to={`/template/${template.id}`} className="card gift-border" style={{ 
+                      display: 'block',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      height: '100%'
+                    }}>
+                      <ProductCardContent template={template} />
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -214,20 +286,24 @@ const Home = () => {
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', maxWidth: '900px', margin: '0 auto' }}>
             <div className="card" style={{ padding: '2rem' }}>
-              <h4 style={{ fontSize: '1.2rem', marginBottom: '0.8rem', color: 'var(--accent)' }}>How long does delivery take?</h4>
-              <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>Orders are generally delivered within 5-7 working days across India.</p>
+              <h4 style={{ fontSize: '1rem', marginBottom: '0.6rem', color: 'var(--accent)' }}>How long does delivery take?</h4>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: '1.5' }}>Orders are generally delivered within 5-7 working days across India.</p>
             </div>
             <div className="card" style={{ padding: '2rem' }}>
-              <h4 style={{ fontSize: '1.2rem', marginBottom: '0.8rem', color: 'var(--accent)' }}>Is my privacy protected?</h4>
-              <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>Absolutely! We value your trust. Your photos will never be posted publicly without your explicit permission.</p>
+              <h4 style={{ fontSize: '1rem', marginBottom: '0.6rem', color: 'var(--accent)' }}>Is my privacy protected?</h4>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: '1.5' }}>Absolutely! We value your trust. Your photos will never be posted publicly without your explicit permission.</p>
             </div>
             <div className="card" style={{ padding: '2rem' }}>
-              <h4 style={{ fontSize: '1.2rem', marginBottom: '0.8rem', color: 'var(--accent)' }}>Do you offer free shipping?</h4>
-              <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>Yes! We proudly offer 100% free shipping across India on all our products.</p>
+              <h4 style={{ fontSize: '1rem', marginBottom: '0.6rem', color: 'var(--accent)' }}>Do you offer free shipping?</h4>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: '1.5' }}>Yes! We proudly offer 100% free shipping across India on all our products.</p>
             </div>
             <div className="card" style={{ padding: '2rem' }}>
-              <h4 style={{ fontSize: '1.2rem', marginBottom: '0.8rem', color: 'var(--accent)' }}>Can I add more photos?</h4>
-              <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>Yes! If you have more memories to share, we can increase the number of pages in your magazine or scrapbook accordingly.</p>
+              <h4 style={{ fontSize: '1rem', marginBottom: '0.6rem', color: 'var(--accent)' }}>Refund Policy</h4>
+              <div style={{ lineHeight: '1.5', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                <p style={{ marginBottom: '0.5rem' }}>NO REFUND POLICY.</p>
+                <p style={{ marginBottom: '0.5rem' }}>Returns are only accepted when the product is delivered damaged.</p>
+                <p><strong>Important:</strong> Please make a continuous, unedited video while opening the parcel showing the seal from the outer packaging.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -243,7 +319,6 @@ const Home = () => {
 
           <div className="how-it-works-grid" style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(5, 1fr)', 
             gap: '1.5rem' 
           }}>
             {features.map((f, i) => (
@@ -252,7 +327,7 @@ const Home = () => {
                 whileHover={{ y: -10 }}
                 style={{ 
                   textAlign: 'center', 
-                  padding: '2rem 1.2rem', 
+                  padding: '1.2rem 1rem', 
                   backgroundColor: 'var(--glass)', 
                   backdropFilter: 'blur(10px)',
                   border: '1px solid var(--border)', 
@@ -268,8 +343,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-
     </div>
   );
 };

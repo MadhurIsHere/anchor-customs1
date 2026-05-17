@@ -22,7 +22,6 @@ const CustomizationForm = () => {
     whatsapp: '',
     email: currentUser?.email || '',
     address: '',
-    customText: '',
     specialNotes: ''
   });
 
@@ -36,14 +35,6 @@ const CustomizationForm = () => {
     maxWidthOrHeight: 1920,
     useWebWorker: true
   };
-
-  const onDropPhotos = useCallback(acceptedFiles => {
-    if (photos.length + acceptedFiles.length > 50) {
-      toast.error('Maximum 50 photos allowed');
-      return;
-    }
-    setPhotos(prev => [...prev, ...acceptedFiles]);
-  }, [photos]);
 
   const removePhoto = (index) => {
     setPhotos(prev => {
@@ -121,34 +112,47 @@ const CustomizationForm = () => {
     }
 
     setIsUploading(true);
-    setUploadProgress(5);
+    setUploadProgress(15);
 
     try {
       let finalImages = [];
       
+      // Smart Progress Simulation
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev < 45) return prev + 3; // Fast charge to 45%
+          if (prev < 85) return prev + 1.5; // Speedy upload phase
+          if (prev < 98) return prev + 0.35; // Gentle final wrap-up
+          return prev;
+        });
+      }, 100);
+
       if (template.id !== 'kaleshi_aurat') {
-        // Create a unique folder name for this customer and order
         const safeName = formData.fullName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
         const folderPath = `${safeName}_${Date.now()}`;
 
         const coverUrl = await uploadFile(coverPhoto, 'photos', 'cover', formData, folderPath);
-        setUploadProgress(30);
         
-        // Upload all inner photos in parallel for much faster speeds
+        let completed = 0;
         const uploadPromises = photos.map((photo, i) => 
           uploadFile(photo.file, 'photos', 'inner', formData, folderPath)
             .then(url => {
-              // Update progress as each one finishes
-              setUploadProgress(prev => prev + (65 / photos.length));
+              completed++;
+              // Jump progress based on real completion
+              const realProgress = 30 + (completed / photos.length * 60);
+              setUploadProgress(prev => Math.max(prev, realProgress));
               return url;
             })
         );
         
         const photoUrls = await Promise.all(uploadPromises);
         finalImages = [coverUrl, ...photoUrls];
-        setUploadProgress(95); // Nearly done
+        clearInterval(progressInterval);
+        setUploadProgress(100);
       } else {
-        finalImages = [template.image]; // Just use the product image
+        finalImages = [template.image];
+        clearInterval(progressInterval);
+        setUploadProgress(100);
       }
 
       const customOrder = {
@@ -157,7 +161,10 @@ const CustomizationForm = () => {
         templateName: template.name,
         pages: parseInt(pages),
         price: pages === '10' ? template.price10 : template.price12,
-        customerDetails: formData,
+        customerDetails: {
+          ...formData,
+          customText: '' // Field removed from UI but kept for compatibility
+        },
         images: finalImages,
         status: 'pending_payment',
         created_at: new Date().toISOString()
@@ -175,6 +182,28 @@ const CustomizationForm = () => {
       setUploadProgress(0);
     }
   };
+
+  if (!currentUser) {
+    return (
+      <div className="section-padding" style={{ textAlign: 'center' }}>
+        <div className="container" style={{ maxWidth: '500px' }}>
+          <div className="card">
+            <h1 style={{ marginBottom: '1.5rem' }}>Login Required</h1>
+            <p style={{ marginBottom: '2rem', color: 'var(--text-muted)' }}>
+              Please login with your phone number to start customizing your {template?.name || 'product'}.
+            </p>
+            <button 
+              onClick={() => navigate('/login', { state: { from: `/customize/${id}/${pages}` } })} 
+              className="btn btn-primary"
+              style={{ width: '100%' }}
+            >
+              Login Now
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="section-padding">
@@ -241,118 +270,143 @@ const CustomizationForm = () => {
             <>
               <div style={{ margin: '2rem 0' }}>
                 <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Cover Photo</h3>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
-              <input 
-                type="file" 
-                ref={coverInputRef}
-                hidden 
-                accept="image/*" 
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  if (file) {
-                    setCoverPhoto(file);
-                    toast.success('Cover photo selected!');
-                  }
-                }} 
-              />
-              <button 
-                type="button"
-                className="btn btn-outline" 
-                onClick={() => coverInputRef.current.click()}
-              >
-                <Upload size={18} /> Choose Cover
-              </button>
-              {coverPhoto && <span style={{ fontSize: '0.8rem', color: 'var(--accent)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>✓ {coverPhoto.name}</span>}
-            </div>
-          </div>
-
-          <div style={{ margin: '2rem 0' }}>
-            <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Inner Photos (Max 50)</h3>
-            <div style={{ 
-              border: '1px solid var(--border)', 
-              borderRadius: 'var(--radius)', 
-              padding: '2.5rem', 
-              textAlign: 'center',
-              backgroundColor: '#fcfcfc'
-            }}>
-              <input 
-                type="file" 
-                ref={fileInputRef}
-                hidden 
-                multiple 
-                accept="image/*" 
-                onChange={(e) => {
-                  const files = Array.from(e.target.files);
-                  if (files.length === 0) return;
-                  
-                  if (photos.length + files.length > 50) {
-                    toast.error('Maximum 50 photos allowed');
-                    return;
-                  }
-                  
-                  const newPhotos = files.map(file => ({
-                    file,
-                    preview: URL.createObjectURL(file)
-                  }));
-                  
-                  setPhotos(prev => [...prev, ...newPhotos]);
-                  toast.success(`${files.length} photos added!`);
-                }} 
-              />
-              <button 
-                type="button"
-                className="btn btn-outline" 
-                style={{ margin: '0 auto' }}
-                onClick={() => fileInputRef.current.click()}
-              >
-                <ImageIcon size={18} /> Select Multiple Photos
-              </button>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '1rem' }}>
-                Selected: <span style={{ fontWeight: 'bold', color: 'var(--navy)' }}>{photos.length}</span> / 50
-              </p>
-            </div>
- 
-            {photos.length > 0 && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '0.8rem', marginTop: '1.5rem' }}>
-                {photos.map((photo, idx) => (
-                  <div key={idx} style={{ position: 'relative', aspectRatio: '1', borderRadius: '8px', overflow: 'hidden', border: '1px solid #eee' }}>
-                    <img src={photo.preview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Preview" />
-                    <button 
-                      type="button" 
-                      onClick={() => removePhoto(idx)}
-                      style={{ 
-                        position: 'absolute', top: '5px', right: '5px', 
-                        background: 'rgba(255,255,255,0.8)', color: 'black', 
-                        border: 'none', borderRadius: '50%', padding: '4px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <X size={12} />
-                    </button>
-                  </div>
-                ))}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
+                  <input 
+                    type="file" 
+                    ref={coverInputRef}
+                    hidden 
+                    accept="image/*" 
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        setCoverPhoto(file);
+                        toast.success('Cover photo selected!');
+                      }
+                    }} 
+                  />
+                  <button 
+                    type="button"
+                    className="btn btn-outline" 
+                    onClick={() => coverInputRef.current.click()}
+                  >
+                    <Upload size={18} /> Choose Cover
+                  </button>
+                  {coverPhoto && <span style={{ fontSize: '0.8rem', color: 'var(--accent)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>✓ {coverPhoto.name}</span>}
+                </div>
               </div>
-            )}
-          </div>
 
-          <div className="input-group">
-            <label className="input-label">Custom Content / Text for Inside</label>
-            <textarea name="customText" className="input-field" rows="4" placeholder="Any quotes, titles, or stories you want included..." onChange={handleInputChange}></textarea>
-          </div>
+              <div style={{ margin: '2rem 0' }}>
+                <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>
+                  Inner Photos {
+                    template.category === 'Calendar' 
+                      ? '(Max 12)' 
+                      : template.category === 'Frames' 
+                        ? '(Max 10-15)' 
+                        : '(Max 50)'
+                  }
+                </h3>
+                <div style={{ 
+                  border: '1px solid var(--border)', 
+                  borderRadius: 'var(--radius)', 
+                  padding: '2.5rem', 
+                  textAlign: 'center',
+                  backgroundColor: '#fcfcfc'
+                }}>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef}
+                    hidden 
+                    multiple 
+                    accept="image/*" 
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files);
+                      if (files.length === 0) return;
+                      
+                      if (photos.length + files.length > 100) {
+                        toast.error('Maximum 100 photos allowed for upload safety');
+                        return;
+                      }
+                      
+                      const newPhotos = files.map(file => ({
+                        file,
+                        preview: URL.createObjectURL(file)
+                      }));
+                      
+                      setPhotos(prev => [...prev, ...newPhotos]);
+                      toast.success(`${files.length} photos added!`);
+                    }} 
+                  />
+                  <button 
+                    type="button"
+                    className="btn btn-outline" 
+                    style={{ margin: '0 auto' }}
+                    onClick={() => fileInputRef.current.click()}
+                  >
+                    <ImageIcon size={18} /> Select Multiple Photos
+                  </button>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '1rem' }}>
+                    Selected: <span style={{ fontWeight: 'bold', color: 'var(--navy)' }}>{photos.length}</span> photos
+                  </p>
+                  {(template.category === 'Calendar' || template.category === 'Frames') && (
+                    <p style={{ fontSize: '0.8rem', color: 'var(--accent)', marginTop: '0.5rem', fontWeight: '500' }}>
+                      {template.category === 'Calendar' && "* Recommended: Please upload max 12 photos for the Calendar."}
+                      {template.category === 'Frames' && "* Recommended: Please upload 10-15 photos for the Frame."}
+                    </p>
+                  )}
+                </div>
+    
+                {photos.length > 0 && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '0.8rem', marginTop: '1.5rem' }}>
+                    {photos.map((photo, idx) => (
+                      <div key={idx} style={{ position: 'relative', aspectRatio: '1', borderRadius: '8px', overflow: 'hidden', border: '1px solid #eee' }}>
+                        <img src={photo.preview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Preview" />
+                        <button 
+                          type="button" 
+                          onClick={() => removePhoto(idx)}
+                          style={{ 
+                            position: 'absolute', top: '5px', right: '5px', 
+                            background: 'rgba(255,255,255,0.8)', color: 'black', 
+                            border: 'none', borderRadius: '50%', padding: '4px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-          <div className="input-group">
-            <label className="input-label">Special Instructions</label>
-            <input type="text" name="specialNotes" className="input-field" placeholder="e.g. sequence of photos, color preferences" onChange={handleInputChange} />
-          </div>
+              <div className="input-group">
+                <label className="input-label">Special Instructions</label>
+                <input type="text" name="specialNotes" className="input-field" placeholder="e.g. sequence of photos, color preferences" onChange={handleInputChange} />
+              </div>
             </>
           )}
 
           {isUploading && (
             <div style={{ margin: '2rem 0' }}>
-              <div style={{ height: '8px', background: '#eee', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ width: `${uploadProgress}%`, height: '100%', background: 'var(--accent)', transition: 'width 0.3s' }}></div>
+              <div style={{ 
+                height: '12px', 
+                background: 'rgba(0,0,0,0.05)', 
+                borderRadius: '6px', 
+                overflow: 'hidden', 
+                position: 'relative',
+                border: '1px solid rgba(0,0,0,0.02)'
+              }}>
+                <div 
+                  className="snake-progress" 
+                  style={{ 
+                    width: `${uploadProgress}%`, 
+                    height: '100%', 
+                    transition: 'width 0.25s cubic-bezier(0.1, 0.8, 0.3, 1)' 
+                  }}
+                ></div>
               </div>
-              <p style={{ textAlign: 'center', fontSize: '0.8rem', marginTop: '0.5rem' }}>Crafting your heirloom... {Math.round(uploadProgress)}%</p>
+              <p style={{ textAlign: 'center', fontSize: '0.85rem', marginTop: '0.8rem', fontWeight: '500', color: 'var(--navy)' }}>
+                Crafting your heirloom... <span style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{Math.round(uploadProgress)}%</span>
+              </p>
             </div>
           )}
 
@@ -371,6 +425,28 @@ const CustomizationForm = () => {
       <style>{`
         .spin { animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        .snake-progress {
+          background-color: var(--accent);
+          background-image: linear-gradient(
+            45deg,
+            rgba(255, 255, 255, 0.35) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(255, 255, 255, 0.35) 50%,
+            rgba(255, 255, 255, 0.35) 75%,
+            transparent 75%,
+            transparent
+          );
+          background-size: 30px 30px;
+          animation: snake-slide 0.4s linear infinite;
+          box-shadow: 0 0 12px var(--accent);
+          border-radius: 6px;
+        }
+        @keyframes snake-slide {
+          from { background-position: 0 0; }
+          to { background-position: 30px 0; }
+        }
       `}</style>
     </div>
   );

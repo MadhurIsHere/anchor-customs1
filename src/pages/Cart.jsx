@@ -21,12 +21,16 @@ const Cart = () => {
 
   if (cartItems.length === 0) {
     return (
-      <div className="section-padding" style={{ textAlign: 'center' }}>
-        <div className="container">
-          <ShoppingBag size={64} style={{ color: 'var(--border)', marginBottom: '2rem' }} />
-          <h1>Your cart is empty</h1>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Ready to create your first magazine?</p>
-          <Link to="/gallery" className="btn btn-primary">Browse Templates</Link>
+      <div className="section-padding" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center' }}>
+        <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: 'var(--bg-offset)', border: '1px solid var(--border)', borderRadius: '50%', padding: '2rem', marginBottom: '2rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)' }}>
+            <ShoppingBag size={48} style={{ color: 'var(--accent)' }} />
+          </div>
+          <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 'bold', marginBottom: '1rem' }}>Your cart is empty</h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: 'clamp(1rem, 2vw, 1.2rem)', marginBottom: '2.5rem', maxWidth: '400px', lineHeight: '1.4' }}>Ready to custom design your premium nostalgic print layout?</p>
+          <Link to="/gallery" className="btn btn-accent" style={{ padding: '1rem 2.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.8rem' }}>
+            Browse Templates <ArrowRight size={18} />
+          </Link>
         </div>
       </div>
     );

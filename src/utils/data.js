@@ -7,7 +7,7 @@ export const TEMPLATES = [
     image: '/products/MAGAZINE TEMPLATES/CHAAR KADAM-WEBSITE.jpg',
     description: 'Turn your favorite memories into a real aesthetic magazine made just for you.',
     category: 'Magazine',
-    pages: Array.from({length: 10}, (_, i) => `/products/MAGAZINE TEMPLATES/CHAAR KADAM-WEBSITE_page_${i + 1}.jpg`),
+    pages: Array.from({length: 11}, (_, i) => `/products/MAGAZINE TEMPLATES/CHAAR KADAM-WEBSITE_page_${i + 1}.jpg`),
     details: {
       intro: "Turn your favorite memories into a real aesthetic magazine made just for you.\nPerfect for couples, best friends, birthdays, anniversaries, or simply preserving moments that deserve more than just a gallery folder 💌",
       included: [
@@ -44,7 +44,7 @@ export const TEMPLATES = [
     image: '/products/MAGAZINE TEMPLATES/KHAT-WEBSITE.jpg',
     description: 'Turn your favorite memories into a real aesthetic magazine made just for you.',
     category: 'Magazine',
-    pages: Array.from({length: 10}, (_, i) => `/products/MAGAZINE TEMPLATES/KHAT-WEBSITE_page_${i + 1}.jpg`),
+    pages: Array.from({length: 11}, (_, i) => `/products/MAGAZINE TEMPLATES/KHAT-WEBSITE_page_${i + 1}.jpg`),
     details: {
       intro: "Turn your favorite memories into a real aesthetic magazine made just for you.\nPerfect for couples, best friends, birthdays, anniversaries, or simply preserving moments that deserve more than just a gallery folder 💌",
       included: [
@@ -81,7 +81,7 @@ export const TEMPLATES = [
     image: '/products/MAGAZINE TEMPLATES/LE DOOBA-WEBSITE.jpg',
     description: 'Turn your favorite memories into a real aesthetic magazine made just for you.',
     category: 'Magazine',
-    pages: Array.from({length: 10}, (_, i) => `/products/MAGAZINE TEMPLATES/LE DOOBA-WEBSITE_page_${i + 1}.jpg`),
+    pages: Array.from({length: 11}, (_, i) => `/products/MAGAZINE TEMPLATES/LE DOOBA-WEBSITE_page_${i + 1}.jpg`),
     details: {
       intro: "Turn your favorite memories into a real aesthetic magazine made just for you.\nPerfect for couples, best friends, birthdays, anniversaries, or simply preserving moments that deserve more than just a gallery folder 💌",
       included: [
@@ -118,7 +118,7 @@ export const TEMPLATES = [
     image: '/products/MAGAZINE TEMPLATES/TU CHAHIYE-WEBSITE.jpg',
     description: 'Turn your favorite memories into a real aesthetic magazine made just for you.',
     category: 'Magazine',
-    pages: Array.from({length: 10}, (_, i) => `/products/MAGAZINE TEMPLATES/TU CHAHIYE-WEBSITE_page_${i + 1}.jpg`),
+    pages: Array.from({length: 11}, (_, i) => `/products/MAGAZINE TEMPLATES/TU CHAHIYE-WEBSITE_page_${i + 1}.jpg`),
     details: {
       intro: "Turn your favorite memories into a real aesthetic magazine made just for you.\nPerfect for couples, best friends, birthdays, anniversaries, or simply preserving moments that deserve more than just a gallery folder 💌",
       included: [
@@ -152,10 +152,10 @@ export const TEMPLATES = [
     name: 'Normal Magazine Template',
     price10: 999,
     price12: 999,
-    image: '/products/MAGAZINE TEMPLATES/NORMAL TEMPLATE-WEBSITE.jpg',
+    image: '/products/MAGAZINE TEMPLATES/NORMAL TEMPLATE-WEBSITE_page_3.jpg',
     description: 'Turn your favorite memories into a real aesthetic magazine made just for you.',
     category: 'Magazine',
-    pages: Array.from({length: 12}, (_, i) => `/products/MAGAZINE TEMPLATES/NORMAL TEMPLATE-WEBSITE_page_${i + 1}.jpg`),
+    pages: Array.from({length: 9}, (_, i) => `/products/MAGAZINE TEMPLATES/NORMAL TEMPLATE-WEBSITE_page_${i + 3}.jpg`),
     details: {
       intro: "Turn your favorite memories into a real aesthetic magazine made just for you.\nPerfect for couples, best friends, birthdays, anniversaries, or simply preserving moments that deserve more than just a gallery folder 💌",
       included: [
@@ -206,7 +206,7 @@ export const TEMPLATES = [
     }
   },
   {
-    id: 'frame_polaroid',
+    id: 'frame_aesthetic',
     name: 'Polaroid Frame',
     price10: 699,
     price12: 699,
@@ -219,11 +219,11 @@ export const TEMPLATES = [
     description: 'A collection of memories that feel warm, personal, and timeless.',
     category: 'Frames',
     details: {
-      intro: "A collection of memories that feel warm, personal, and timeless. Designed with hanging polaroid-style pictures to give your moments a soft nostalgic touch ✨",
+      intro: "A collection of memories that feel warm, personal, and timeless. Designed with hanging vintage-style pictures to give your moments a soft nostalgic touch ✨",
       size: "A4 Size",
       price: "₹699",
       perfectFor: ["Best Friends", "Couple Gifts", "Birthday Surprises", "Friendship Memories"],
-      whatMakesItSpecial: ["Polaroid-inspired hanging layout", "Soft aesthetic design", "Personalized text & memories", "Cozy Pinterest-style vibe"]
+      whatMakesItSpecial: ["Vintage-inspired hanging layout", "Soft aesthetic design", "Personalized text & memories", "Cozy Pinterest-style vibe"]
     }
   },
   {
@@ -291,7 +291,7 @@ export const TEMPLATES = [
   },
   {
     id: 'frame_film_strip',
-    name: 'Film Strip Frame',
+    name: 'Digital Diary Frame',
     price10: 649,
     price12: 649,
     image: '/products/FRAMES/8x8 frames website1_page_4.jpg',
@@ -312,7 +312,7 @@ export const TEMPLATES = [
   },
   {
     id: 'frame_pieces_of_us',
-    name: 'Pieces of Us Frame',
+    name: 'Photo Booth',
     price10: 699,
     price12: 699,
     image: '/products/FRAMES/a4 frames website_page_16.jpg',
@@ -333,7 +333,7 @@ export const TEMPLATES = [
   },
   {
     id: 'frame_pinteresty',
-    name: 'Pinteresty Frame',
+    name: 'Archive of Us Frame',
     price10: 649,
     price12: 649,
     image: '/products/FRAMES/8x8 frames website1_page_1.jpg',
@@ -375,7 +375,7 @@ export const TEMPLATES = [
   },
   {
     id: 'frame_memory',
-    name: 'Memory Frame',
+    name: 'Pieces of Us',
     price10: 649,
     price12: 649,
     image: '/products/FRAMES/8x8 frames website1_page_7.jpg',
@@ -391,7 +391,7 @@ export const TEMPLATES = [
       size: "8x8 Inches",
       price: "₹649",
       perfectFor: ["Wedding Memories", "Couple Gifts", "Anniversary Surprises", "Heart Collage Lovers"],
-      whatMakesItSpecial: ["Heart-shaped polaroid collage", "Bold contrast design", "Emotional & personalized feel", "Premium room decor piece"]
+      whatMakesItSpecial: ["Heart-shaped photo collage", "Bold contrast design", "Emotional & personalized feel", "Premium room decor piece"]
     }
   },
   {
@@ -399,6 +399,7 @@ export const TEMPLATES = [
     name: 'The Ultimate Hamper',
     price10: 3199,
     price12: 3199,
+    originalPrice: 3399,
     image: '/products/HAMPER/1.jpg',
     description: 'The ultimate custom gift collection — designed to turn your favorite memories into something unforgettable 🤍',
     category: 'Hamper',
@@ -482,9 +483,8 @@ export const TEMPLATES = [
     description: 'A handmade customized scrapbook capturing your best moments.',
     category: 'Scrapbook',
     popular: true,
-    imageFit: 'contain',
     pageBg: '#fdfdfd',
-    pages: Array.from({length: 24}, (_, i) => `/products/SCRAPBOOK/_SCRAPBOOK - website_page_${i + 1}.jpg`),
+    pages: Array.from({length: 24}, (_, i) => `/products/SCRAPBOOK/_SCRAPBOOK - website_page_${i + 1}.jpg`).filter(p => !p.endsWith('_page_2.jpg') && !p.endsWith('_page_23.jpg')),
     details: {
       intro: "A beautifully handcrafted scrapbook designed to preserve your most special memories in the most personal and aesthetic way possible. From pictures and heartfelt moments to memories you never want to forget, every page is carefully designed to feel meaningful, emotional, and unique to you. \n\nThis scrapbook includes 12 pages (24 sides) filled with your favorite photographs and memories, thoughtfully arranged to create a keepsake you can cherish forever. Whether it is for your partner, best friend, family, or even for yourself, it is created to turn ordinary moments into something timeless.",
       required: [
@@ -577,10 +577,7 @@ export const TEMPLATES = [
     gallery: [
       '/products/COMBO 1/5  7 inches frame.jpg'
     ],
-    pages: [
-      '/products/COMBO 1/NORMAL TEMPLATE-WEBSITE.jpg',
-      ...Array.from({length: 11}, (_, i) => `/products/COMBO 1/NORMAL TEMPLATE-WEBSITE_page_${i + 1}.jpg`)
-    ],
+    pages: Array.from({length: 9}, (_, i) => `/products/COMBO 1/NORMAL TEMPLATE-WEBSITE_page_${i + 3}.jpg`),
     details: {
       intro: "A perfect blend of memories and aesthetics.\nThis combo includes our signature customized magazine paired with a beautifully designed pop grid frame, created to turn your favorite moments into something timeless and meaningful.\nThe customized magazine is designed with your pictures, memories, messages, and special moments, carefully arranged to feel personal, emotional, and visually stunning. Every page is crafted to capture your story in the most aesthetic way possible.\nPaired with it is our pop grid frame, perfect for displaying your favorite photographs and adding a personal touch to any space. Together, this combo creates a beautiful balance between keepsake memories and aesthetic décor.\nWhether it is for your partner, best friend, or family, this combo is designed to preserve emotions and moments you would always want to hold close.",
       included: [
@@ -611,10 +608,7 @@ export const TEMPLATES = [
     gallery: [
       '/products/COMBO 2/a4 frames website.jpg'
     ],
-    pages: [
-      '/products/COMBO 2/NORMAL TEMPLATE-WEBSITE.jpg',
-      ...Array.from({length: 11}, (_, i) => `/products/COMBO 2/NORMAL TEMPLATE-WEBSITE_page_${i + 1}.jpg`)
-    ],
+    pages: Array.from({length: 9}, (_, i) => `/products/COMBO 2/NORMAL TEMPLATE-WEBSITE_page_${i + 3}.jpg`),
     details: {
       intro: "A perfect combination of storytelling and creative memories.\nThis combo includes our signature customized magazine along with a chaos collage frame, designed to turn your favorite moments into an aesthetic keepsake you can cherish forever.\nThe customized magazine is personalized with your pictures, memories, conversations, and special moments, thoughtfully designed to feel emotional, unique, and visually beautiful. Every page captures your story in a way that feels personal and timeless.\nPaired with it is our chaos collage frame — a creative arrangement of your favorite photographs that brings together memories, emotions, and moments in the most artistic way possible. Its aesthetic design makes it a perfect addition to any room while keeping your special people and memories close to you every day.\nWhether it is for a relationship, friendship, birthday, anniversary, or simply celebrating moments that matter, this combo is created to preserve emotions in a way that feels both meaningful and unforgettable.",
       included: [
@@ -645,10 +639,7 @@ export const TEMPLATES = [
     gallery: [
       '/products/COMBO 3/5  7 inches frame (1).jpg'
     ],
-    pages: [
-      '/products/COMBO 3/NORMAL TEMPLATE-WEBSITE.jpg',
-      ...Array.from({length: 11}, (_, i) => `/products/COMBO 3/NORMAL TEMPLATE-WEBSITE_page_${i + 1}.jpg`)
-    ],
+    pages: Array.from({length: 9}, (_, i) => `/products/COMBO 3/NORMAL TEMPLATE-WEBSITE_page_${i + 3}.jpg`),
     details: {
       intro: "A unique combination created for people who love memories with a touch of personality and fun.\nThis combo includes our signature customized magazine paired with a Hot Wheels car, making it a perfect gift that feels both meaningful and memorable.\nThe customized magazine is designed using your pictures, memories, messages, and special moments, carefully arranged to create a personalized keepsake that tells your story beautifully. Every page is crafted to feel emotional, aesthetic, and timeless.\nPaired with it is a Hot Wheels car that adds a creative and playful element to the combo, making it even more special for car lovers and collectors. It is not just a gift, but a thoughtful way of combining emotions, memories, and personal interests into one beautifully curated experience.\nPerfect for birthdays, anniversaries, friendships, or surprising someone with something different, this combo is designed to turn ordinary moments into unforgettable memories.",
       included: [

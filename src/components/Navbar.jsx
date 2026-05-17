@@ -18,13 +18,50 @@ const Navbar = () => {
   return (
     <nav className="glass" style={{ position: 'sticky', top: 0, zIndex: 1000, padding: '1rem 0' }}>
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', marginBottom: 0, letterSpacing: '1px', fontWeight: 'bold' }}>
+        {/* Desktop Logo */}
+        <Link to="/" className="desktop-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: 0, letterSpacing: '0.5px', fontWeight: 'bold', color: 'var(--text)' }}>
             Anchor <span style={{ color: 'var(--accent)' }}>Customs</span>
           </h1>
         </Link>
 
-        {/* Desktop Menu */}
+        {/* Mobile Header Structure */}
+        <div style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between' }} className="mobile-header">
+          {/* Left Menu Button */}
+          <button className="mobile-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)} style={{ background: 'none', border: 'none', color: 'var(--text)', cursor: 'pointer', padding: '0.5rem', display: 'flex', alignItems: 'center' }}>
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+
+          {/* Centered Logo */}
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }} onClick={() => setIsMenuOpen(false)}>
+            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', marginBottom: 0, letterSpacing: '0.5px', fontWeight: 'bold' }}>
+              Anchor <span style={{ color: 'var(--accent)' }}>Customs</span>
+            </h1>
+          </Link>
+
+          {/* Right Cart */}
+          <div className="mobile-cart-container" style={{ display: 'flex', alignItems: 'center' }}>
+            <Link to="/cart" style={{ position: 'relative', padding: '0.5rem', display: 'flex', alignItems: 'center' }}>
+              <ShoppingCart size={22} color="var(--text)" />
+              {cartItems.length > 0 && (
+                <span style={{ 
+                  position: 'absolute', 
+                  top: '0', 
+                  right: '0', 
+                  background: 'var(--accent)', 
+                  color: 'white', 
+                  fontSize: '0.6rem', 
+                  padding: '2px 5px', 
+                  borderRadius: '50%',
+                  fontWeight: 'bold'
+                }}>
+                  {cartItems.length}
+                </span>
+              )}
+            </Link>
+          </div>
+        </div>
+
         <div className="desktop-menu" style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
           <Link to="/" className="nav-link">Home</Link>
           <Link to="/gallery" className="nav-link">Gallery</Link>
@@ -79,11 +116,6 @@ const Navbar = () => {
             )}
           </div>
         </div>
-
-        {/* Mobile Menu Button */}
-        <button className="mobile-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)} style={{ display: 'none', background: 'none', border: 'none', color: 'var(--text)', cursor: 'pointer' }}>
-          {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
       </div>
 
       <style>{`
@@ -98,7 +130,13 @@ const Navbar = () => {
         }
         @media (max-width: 768px) {
           .desktop-menu { display: none !important; }
-          .mobile-toggle { display: block !important; }
+          .desktop-logo { display: none !important; }
+          .mobile-header { display: flex !important; }
+        }
+        
+        @media (min-width: 769px) {
+          .mobile-header { display: none !important; }
+          .desktop-logo { display: flex !important; }
         }
         
         .mobile-menu {
@@ -126,33 +164,46 @@ const Navbar = () => {
       {isMenuOpen && (
         <div className="mobile-menu">
           <Link to="/" onClick={() => setIsMenuOpen(false)}>Home</Link>
-          <Link to="/gallery" onClick={() => setIsMenuOpen(false)}>Gallery</Link>
+          
+          <div style={{ margin: '0.5rem 0' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '1px' }}>Categories</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', marginTop: '0.8rem', paddingLeft: '0.5rem', borderLeft: '2px solid var(--border)' }}>
+              <Link to="/?category=Magazines" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '1rem', opacity: 0.8 }}>Magazines</Link>
+              <Link to="/?category=Premium Gifts" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '1rem', opacity: 0.8 }}>Premium Gifts</Link>
+              <Link to="/?category=Combos" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '1rem', opacity: 0.8 }}>Combos</Link>
+              <Link to="/?category=Frames & Decor" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '1rem', opacity: 0.8 }}>Frames & Decor</Link>
+              <Link to="/?category=Apparel" onClick={() => setIsMenuOpen(false)} style={{ fontSize: '1rem', opacity: 0.8 }}>Apparel</Link>
+            </div>
+          </div>
+
           <Link to="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link>
-          <Link to="/cart" onClick={() => setIsMenuOpen(false)}>Cart ({cartItems.length})</Link>
+          
           {currentUser ? (
             <>
+              <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>My Account</Link>
               {isAdmin && (
-                <Link to="/admin" onClick={() => setIsMenuOpen(false)} style={{ color: 'var(--accent)' }}>ADMIN CONTROL</Link>
+                <Link to="/admin" onClick={() => setIsMenuOpen(false)} style={{ color: 'var(--accent)' }}>Admin Panel</Link>
               )}
-              <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
               <button 
                 onClick={() => { handleLogout(); setIsMenuOpen(false); }} 
                 style={{ 
-                  background: 'none', 
-                  border: 'none', 
-                  color: 'var(--accent)', 
-                  textAlign: 'left', 
-                  padding: 0, 
-                  fontSize: '1.1rem', 
-                  fontWeight: '600',
-                  cursor: 'pointer'
+                  background: 'var(--bg-offset)', 
+                  border: '1px solid var(--border)', 
+                  color: 'var(--text)', 
+                  textAlign: 'center', 
+                  padding: '0.8rem', 
+                  fontSize: '1rem', 
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  borderRadius: 'var(--radius)',
+                  marginTop: '1rem'
                 }}
               >
                 LOGOUT
               </button>
             </>
           ) : (
-            <Link to="/login" onClick={() => setIsMenuOpen(false)}>Login</Link>
+            <Link to="/login" onClick={() => setIsMenuOpen(false)} className="btn btn-primary" style={{ textAlign: 'center', color: 'white' }}>Login / Sign Up</Link>
           )}
         </div>
       )}

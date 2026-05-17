@@ -1,15 +1,79 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { TEMPLATES } from '../utils/data';
 
 const Gallery = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeCategory = searchParams.get('category') || 'All';
+
+  const filteredTemplates = TEMPLATES.filter(t => {
+    if (activeCategory === 'All') return true;
+    const groups = {
+      'Magazines': ['Magazine', 'Standing Magazine'],
+      'Premium Gifts': ['Hamper', 'Scrapbook', 'Calendar'],
+      'Combos': ['Combo'],
+      'Frames & Decor': ['Frames', 'Frame', 'Aesthetic'],
+      'Apparel & Accessories': ['Apparel', 'Cap', 'Keychain']
+    };
+    if (groups[activeCategory]) {
+      return groups[activeCategory].includes(t.category);
+    }
+    return !Object.values(groups).flat().includes(t.category);
+  });
+
   return (
     <div className="section-padding" style={{ backgroundColor: 'var(--bg)' }}>
       <div className="container">
-        <div style={{ textAlign: 'center', marginBottom: '6rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
           <h1 style={{ fontSize: '3.5rem', marginBottom: '1.5rem', letterSpacing: '-1px' }}>Magazines that tell your story</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Each design is a bespoke canvas for your most cherished moments.</p>
+        </div>
+
+        {/* Category Selector Pills */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          flexWrap: 'wrap', 
+          gap: '0.8rem', 
+          marginBottom: '5rem' 
+        }}>
+          {['All', 'Magazines', 'Premium Gifts', 'Combos', 'Frames & Decor', 'Apparel & Accessories', 'Other'].map(cat => {
+            const isActive = activeCategory === cat;
+            return (
+              <button
+                key={cat}
+                onClick={() => setSearchParams({ category: cat })}
+                style={{
+                  padding: '0.6rem 1.4rem',
+                  borderRadius: '30px',
+                  border: isActive ? '1px solid var(--accent)' : '1px solid var(--border)',
+                  background: isActive ? 'var(--accent)' : 'transparent',
+                  color: isActive ? '#fff' : 'var(--text-muted)',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  fontFamily: 'var(--font-sans)',
+                  transition: 'all 0.3s ease',
+                  boxShadow: isActive ? 'var(--gold-glow)' : 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.color = 'var(--accent)';
+                    e.currentTarget.style.borderColor = 'var(--accent)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.color = 'var(--text-muted)';
+                    e.currentTarget.style.borderColor = 'var(--border)';
+                  }
+                }}
+              >
+                {cat}
+              </button>
+            );
+          })}
         </div>
 
         <div style={{ 
@@ -17,7 +81,7 @@ const Gallery = () => {
           gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
           gap: '2rem' 
         }}>
-          {TEMPLATES.map((template, index) => (
+          {filteredTemplates.map((template, index) => (
             <motion.div 
               key={template.id}
               initial={{ opacity: 0, y: 20 }}
@@ -57,11 +121,11 @@ const Gallery = () => {
                   />
                 </div>
                 <div style={{ padding: '2rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <span style={{ fontSize: '0.7rem', fontWeight: '600', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '2px' }}>{template.category}</span>
-                    <span style={{ fontSize: '0.9rem', fontWeight: '500', opacity: 0.8 }}>₹{template.price10}</span>
-                  </div>
+                  <span style={{ fontSize: '0.7rem', fontWeight: '600', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '2px', display: 'block', marginBottom: '0.5rem' }}>{template.category}</span>
                   <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)' }}>{template.name}</h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--accent)' }}>Price: ₹{template.price10}</span>
+                  </div>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '0' }}>
                     {template.description}
                   </p>
