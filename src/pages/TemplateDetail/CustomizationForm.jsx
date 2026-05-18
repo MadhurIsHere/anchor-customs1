@@ -31,8 +31,8 @@ const CustomizationForm = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const compressionOptions = {
-    maxSizeMB: 0.4, // Reduced from 0.8 to 0.4 for faster upload
-    maxWidthOrHeight: 1280, // Reduced from 1920 to 1280 (still great for print)
+    maxSizeMB: 0.15, // Ultra-fast: max 150KB per photo
+    maxWidthOrHeight: 800, // Ultra-fast: 800px max (perfect for polaroids/small prints)
     useWebWorker: true
   };
 
@@ -136,8 +136,8 @@ const CustomizationForm = () => {
         let completed = 0;
         const photoUrls = [];
         
-        // Process in batches of 10 to maximize speed since files are smaller now
-        const BATCH_SIZE = 10;
+        // Process in large batches of 25 for absolute maximum speed
+        const BATCH_SIZE = 25;
         for (let i = 0; i < photos.length; i += BATCH_SIZE) {
           const batch = photos.slice(i, i + BATCH_SIZE);
           
