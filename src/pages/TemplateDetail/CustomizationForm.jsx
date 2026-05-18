@@ -136,15 +136,22 @@ const CustomizationForm = () => {
         let completed = 0;
         const photoUrls = [];
         
-        // Process sequentially to avoid browser crash / network timeout with 50+ photos
-        for (let i = 0; i < photos.length; i++) {
-          const url = await uploadFile(photos[i].file, 'photos', 'inner', formData, folderPath);
-          photoUrls.push(url);
-          completed++;
+        // Process in batches of 5 to balance speed and browser stability
+        const BATCH_SIZE = 5;
+        for (let i = 0; i < photos.length; i += BATCH_SIZE) {
+          const batch = photos.slice(i, i + BATCH_SIZE);
           
-          // Jump progress based on real completion
-          const realProgress = 30 + (completed / photos.length * 60);
-          setUploadProgress(prev => Math.max(prev, realProgress));
+          const batchPromises = batch.map(async (photo) => {
+            const url = await uploadFile(photo.file, 'photos', 'inner', formData, folderPath);
+            completed++;
+            // Update progress per photo completed within the batch
+            const realProgress = 30 + (completed / photos.length * 60);
+            setUploadProgress(prev => Math.max(prev, realProgress));
+            return url;
+          });
+          
+          const batchResults = await Promise.all(batchPromises);
+          photoUrls.push(...batchResults);
         }
         finalImages = [coverUrl, ...photoUrls];
         clearInterval(progressInterval);
