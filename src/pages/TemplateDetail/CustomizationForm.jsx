@@ -52,12 +52,14 @@ const CustomizationForm = () => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${folderPath}/${type}_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
     
-    // Compress before upload
+    // Only compress if the file is larger than 1.5MB to save massive CPU time
     let fileToUpload = file;
-    try {
-      fileToUpload = await imageCompression(file, compressionOptions);
-    } catch (e) {
-      console.warn('Compression failed, uploading original', e);
+    if (file.size > 1.5 * 1024 * 1024) {
+      try {
+        fileToUpload = await imageCompression(file, compressionOptions);
+      } catch (e) {
+        console.warn('Compression failed, uploading original', e);
+      }
     }
 
     const { data, error } = await supabase.storage
