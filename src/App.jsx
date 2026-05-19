@@ -19,6 +19,7 @@ import Checkout from './pages/Checkout/Checkout';
 import Auth from './pages/Auth/Auth';
 import Dashboard from './pages/Dashboard/Dashboard';
 import AdminDashboard from './pages/Admin/AdminDashboard';
+import FAQ from './pages/FAQ';
 
 import Terms from './pages/Legal/Terms';
 import Privacy from './pages/Legal/Privacy';
@@ -45,6 +46,7 @@ function App() {
                 <Route path="/signup" element={<Auth />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/faq" element={<FAQ />} />
                 
                 {/* Legal Pages for Razorpay Compliance */}
                 <Route path="/terms" element={<Terms />} />

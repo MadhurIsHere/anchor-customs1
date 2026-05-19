@@ -18,13 +18,6 @@ const Navbar = () => {
   return (
     <nav className="glass" style={{ position: 'sticky', top: 0, zIndex: 1000, padding: '1rem 0' }}>
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        {/* Desktop Logo */}
-        <Link to="/" className="desktop-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', marginBottom: 0, letterSpacing: '0.5px', fontWeight: 'bold', color: 'var(--text)' }}>
-            Anchor <span style={{ color: 'var(--accent)' }}>Customs</span>
-          </h1>
-        </Link>
-
         {/* Mobile Header Structure */}
         <div style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between' }} className="mobile-header">
           {/* Left Menu Button */}
@@ -34,9 +27,7 @@ const Navbar = () => {
 
           {/* Centered Logo */}
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }} onClick={() => setIsMenuOpen(false)}>
-            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', marginBottom: 0, letterSpacing: '0.5px', fontWeight: 'bold' }}>
-              Anchor <span style={{ color: 'var(--accent)' }}>Customs</span>
-            </h1>
+            <img src="/logo_anchor.png" alt="Anchor Customs" style={{ height: '55px', width: 'auto', objectFit: 'contain' }} />
           </Link>
 
           {/* Right Cart */}
@@ -62,17 +53,27 @@ const Navbar = () => {
           </div>
         </div>
 
-        <div className="desktop-menu" style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <Link to="/" className="nav-link">Home</Link>
-          <Link to="/gallery" className="nav-link">Gallery</Link>
-          <Link to="/contact" className="nav-link">Contact</Link>
-          
-          {isAdmin && (
-            <Link to="/admin" className="nav-link" style={{ color: 'var(--accent)', fontWeight: 'bold' }}>Admin</Link>
-          )}
+        <div className="desktop-menu" style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* Left Links */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flex: 1 }}>
+            <Link to="/" className="nav-link">Home</Link>
+            <Link to="/faq" className="nav-link">FAQ</Link>
+          </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', borderLeft: '1px solid var(--border)', paddingLeft: '1.5rem' }}>
-            <Link to="/cart" style={{ position: 'relative' }}>
+          {/* Centered Logo */}
+          <div style={{ display: 'flex', justifyContent: 'center', flex: 1 }}>
+            <Link to="/" className="desktop-logo" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+              <img src="/logo_anchor.png" alt="Anchor Customs" style={{ height: '85px', width: 'auto', objectFit: 'contain' }} />
+            </Link>
+          </div>
+
+          {/* Right Actions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flex: 1, justifyContent: 'flex-end' }}>
+            {isAdmin && (
+              <Link to="/admin" className="nav-link" style={{ color: 'var(--accent)', fontWeight: 'bold' }}>Admin</Link>
+            )}
+
+            <Link to="/cart" style={{ position: 'relative', color: 'var(--text)' }}>
               <ShoppingCart size={20} />
               {cartItems.length > 0 && (
                 <span style={{ 
@@ -92,7 +93,7 @@ const Navbar = () => {
 
             {currentUser ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
-                <Link to="/dashboard" aria-label="Dashboard"><User size={20} /></Link>
+                <Link to="/dashboard" aria-label="Dashboard" style={{ color: 'var(--text)' }}><User size={20} /></Link>
                 <button 
                   onClick={handleLogout} 
                   style={{ 
@@ -103,7 +104,7 @@ const Navbar = () => {
                     alignItems: 'center', 
                     gap: '0.4rem', 
                     padding: 0,
-                    color: 'inherit'
+                    color: 'var(--text-muted)'
                   }}
                   className="nav-link"
                 >
@@ -112,7 +113,7 @@ const Navbar = () => {
                 </button>
               </div>
             ) : (
-              <Link to="/login" className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>Login</Link>
+              <Link to="/login" className="btn btn-outline" style={{ padding: '0.4rem 1.2rem', borderRadius: '30px', fontSize: '0.8rem' }}>Login</Link>
             )}
           </div>
         </div>
@@ -164,6 +165,7 @@ const Navbar = () => {
       {isMenuOpen && (
         <div className="mobile-menu">
           <Link to="/" onClick={() => setIsMenuOpen(false)}>Home</Link>
+          <Link to="/faq" onClick={() => setIsMenuOpen(false)}>FAQ</Link>
           
           <div style={{ margin: '0.5rem 0' }}>
             <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '1px' }}>Categories</span>
@@ -176,8 +178,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          <Link to="/contact" onClick={() => setIsMenuOpen(false)}>Contact</Link>
-          
+
           {currentUser ? (
             <>
               <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>My Account</Link>

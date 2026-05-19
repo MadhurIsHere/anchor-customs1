@@ -400,7 +400,7 @@ export const TEMPLATES = [
     price10: 3199,
     price12: 3199,
     originalPrice: 3399,
-    image: '/products/HAMPER/1.jpg',
+    image: '/products/vac.mp4',
     description: 'The ultimate custom gift collection — designed to turn your favorite memories into something unforgettable 🤍',
     category: 'Hamper',
     popular: true,
