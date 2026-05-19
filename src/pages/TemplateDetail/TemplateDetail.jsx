@@ -111,7 +111,7 @@ const TemplateDetail = () => {
     bookHeight = 420;
     wrapperAspectRatio = '1.5';
     wrapperMaxWidth = '600px';
-  } else if (template.category === 'Scrapbook') {
+  } else if (template.category === 'Scrapbook' || template.category === 'Standing Magazine' || template.id === 'standing_magazine') {
     bookWidth = isMobile ? 440 : 380;
     bookHeight = isMobile ? 320 : 280;
     wrapperAspectRatio = isMobile ? '1.36' : '2.71';

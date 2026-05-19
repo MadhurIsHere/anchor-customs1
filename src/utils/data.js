@@ -508,7 +508,7 @@ export const TEMPLATES = [
     description: 'A unique standing magazine display for your desk.',
     category: 'Standing Magazine',
     popular: true,
-    imageFit: 'contain',
+    imageFit: 'cover',
     pageBg: '#fdfdfd',
     pages: Array.from({length: 15}, (_, i) => `/products/standing magazine/standing magazine_page_${i + 1}.jpg`),
     details: {

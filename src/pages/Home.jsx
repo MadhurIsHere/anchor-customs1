@@ -32,25 +32,7 @@ const ProductCardContent = ({ template }) => {
         backdropFilter: 'blur(10px)',
         border: '1px solid rgba(255,255,255,0.4)'
       }}>
-        <div style={{ 
-          position: 'absolute', 
-          top: isMob ? '0.8rem' : '2rem', 
-          left: '50%', 
-          transform: 'translateX(-50%)',
-          background: 'rgba(255,255,255,0.6)', 
-          color: 'var(--accent)',
-          padding: isMob ? '0.2rem 0.6rem' : '0.4rem 1.2rem', 
-          borderRadius: '30px', 
-          fontSize: isMob ? '0.55rem' : '0.75rem', 
-          fontWeight: 800,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.4rem',
-          whiteSpace: 'nowrap'
-        }}>
-          <Star size={isMob ? 10 : 12} fill="var(--accent)" /> {template.category?.toUpperCase() || 'PREMIUM'}
-        </div>
-        
+
         {template.popular && (
           <div style={{ 
             position: 'absolute', 
@@ -189,7 +171,7 @@ const Home = () => {
     <div className="home-page">
       {/* Editorial Hero Section */}
       <section style={{ 
-        minHeight: isMobile ? '58vh' : '85vh',
+        minHeight: isMobile ? '68vh' : '85vh',
         backgroundColor: 'var(--primary-light)',
         position: 'relative',
         display: 'flex',
@@ -200,7 +182,7 @@ const Home = () => {
         {/* Massive Background Typography */}
         <div style={{
           position: 'absolute',
-          top: isMobile ? '28%' : '35%',
+          top: isMobile ? '33%' : '35%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
           width: '100%',
@@ -211,7 +193,7 @@ const Home = () => {
         }}>
           <div style={{
             fontFamily: 'var(--font-sans)',
-            fontSize: isMobile ? '24vw' : '16vw',
+            fontSize: isMobile ? '16vw' : '16vw',
             fontWeight: 900,
             letterSpacing: '-0.03em',
             color: 'var(--text)',
@@ -231,7 +213,7 @@ const Home = () => {
           transition={{ duration: 1, ease: "easeOut" }}
           style={{
             position: 'absolute',
-            top: isMobile ? '5%' : '10%',
+            top: isMobile ? '33%' : '35%',
             left: '0',
             right: '0',
             margin: '0 auto',
@@ -271,17 +253,17 @@ const Home = () => {
           zIndex: 3,
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
-          justifyContent: 'flex-end',
-          alignItems: 'flex-end',
+          justifyContent: isMobile ? 'center' : 'flex-end',
+          alignItems: isMobile ? 'center' : 'flex-end',
           gap: '2rem'
         }}>
 
           
-          <div style={{ maxWidth: '400px', textAlign: 'right' }}>
+          <div style={{ maxWidth: '400px', textAlign: isMobile ? 'center' : 'right', margin: isMobile ? '0 auto' : '0' }}>
             <p style={{ 
               fontFamily: 'var(--font-serif)',
               fontStyle: 'italic',
-              fontSize: '1.3rem', 
+              fontSize: isMobile ? '1.1rem' : '1.3rem', 
               fontWeight: 500, 
               color: 'var(--accent)',
               marginBottom: '0.5rem',
@@ -293,10 +275,10 @@ const Home = () => {
             <p style={{ 
               fontFamily: 'var(--font-serif)',
               fontStyle: 'italic',
-              fontSize: '1.1rem', 
+              fontSize: isMobile ? '0.95rem' : '1.1rem', 
               fontWeight: 400, 
               color: 'var(--text-muted)',
-              marginBottom: '2rem',
+              marginBottom: '1.5rem',
               lineHeight: 1.4,
               letterSpacing: '0.3px'
             }}>
