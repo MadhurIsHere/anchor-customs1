@@ -182,7 +182,7 @@ const Home = () => {
         {/* Massive Background Typography */}
         <div style={{
           position: 'absolute',
-          top: isMobile ? '33%' : '35%',
+          top: isMobile ? '24%' : '28%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
           width: '100%',
@@ -213,7 +213,7 @@ const Home = () => {
           transition={{ duration: 1, ease: "easeOut" }}
           style={{
             position: 'absolute',
-            top: isMobile ? '33%' : '35%',
+            top: isMobile ? '24%' : '28%',
             left: '0',
             right: '0',
             margin: '0 auto',
