@@ -66,8 +66,8 @@ const TemplateDetail = () => {
   };
 
   if (!template) return <div>Template not found</div>;
-  const sliderImages = template.category === 'Calendar' 
-    ? [] // Use flipbook for calendars
+  const sliderImages = (template.category === 'Calendar' || template.category === 'Standing Magazine')
+    ? [] // Use flipbook
     : (template.gallery || [template.image]);
 
   const nextSlide = () => {
@@ -85,7 +85,7 @@ const TemplateDetail = () => {
       'Magazines': ['Magazine', 'Standing Magazine'],
       'Premium Gifts': ['Hamper', 'Scrapbook', 'Calendar'],
       'Combos': ['Combo'],
-      'Frames & Decor': ['Frames', 'Frame', 'Aesthetic'],
+      'Photo Frames': ['Frames', 'Frame', 'Aesthetic'],
       'Apparel & Accessories': ['Apparel', 'Cap', 'Keychain']
     };
     for (const [groupName, list] of Object.entries(groups)) {
@@ -106,12 +106,12 @@ const TemplateDetail = () => {
   let wrapperAspectRatio = isMobile ? '0.73' : '1.47';
   let wrapperMaxWidth = isMobile ? '100%' : '800px';
 
-  if (template.category === 'Calendar') {
+  if (template.category === 'Calendar' || template.category === 'Standing Magazine') {
     bookWidth = 280;
     bookHeight = 420;
     wrapperAspectRatio = '1.5';
     wrapperMaxWidth = '600px';
-  } else if (template.category === 'Scrapbook' || template.category === 'Standing Magazine' || template.id === 'standing_magazine') {
+  } else if (template.category === 'Scrapbook') {
     bookWidth = isMobile ? 440 : 380;
     bookHeight = isMobile ? 320 : 280;
     wrapperAspectRatio = isMobile ? '1.36' : '2.71';
@@ -233,8 +233,8 @@ const TemplateDetail = () => {
                   justifyContent: 'center',
                   alignItems: 'center',
                   overflow: 'visible',
-                  transform: template.category === 'Calendar' ? 'rotate(-90deg)' : 'none',
-                  margin: template.category === 'Calendar' ? '4rem 0' : '0'
+                  transform: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'rotate(-90deg)' : 'none',
+                  margin: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '4rem 0' : '0'
                 }}>
                   <HTMLFlipBook 
                     ref={bookRef}
@@ -245,9 +245,10 @@ const TemplateDetail = () => {
                     maxWidth={600}
                     minHeight={200}
                     maxHeight={800}
-                    maxShadowOpacity={0.5}
+                    drawShadow={!(template.category === 'Calendar' || template.category === 'Standing Magazine')}
+                    maxShadowOpacity={(template.category === 'Calendar' || template.category === 'Standing Magazine') ? 0 : 0.5}
                     showCover={!isMobile}
-                    usePortrait={isMobile || template.category === 'Calendar'}
+                    usePortrait={isMobile || template.category === 'Calendar' || template.category === 'Standing Magazine'}
                     mobileScrollSupport={true}
                     className="magazine-flipbook"
                   >
@@ -264,20 +265,20 @@ const TemplateDetail = () => {
                       onTouchStart={(e) => handlePageGesture(e, template.pages[0])}
                       onTouchEnd={handleTouchEnd}
                     >
-                      <div style={{ position: 'absolute', inset: 0, background: template.category === 'Calendar' ? 'linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, transparent 15%)' : 'linear-gradient(to right, rgba(0,0,0,0.3) 0%, rgba(255,255,255,0.2) 3%, transparent 10%)', zIndex: 10, pointerEvents: 'none' }}></div>
+                      <div style={{ position: 'absolute', inset: 0, background: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'transparent' : 'linear-gradient(to right, rgba(0,0,0,0.3) 0%, rgba(255,255,255,0.2) 3%, transparent 10%)', zIndex: 10, pointerEvents: 'none' }}></div>
                       <img 
                         src={template.pages[0]} 
                         alt="Cover" 
                         style={{ 
-                          width: template.category === 'Calendar' ? '420px' : '100%', 
-                          height: template.category === 'Calendar' ? '280px' : '100%', 
+                          width: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '420px' : '100%', 
+                          height: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '280px' : '100%', 
                           objectFit: template.imageFit || 'cover',
-                          transform: template.category === 'Calendar' ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
-                          position: template.category === 'Calendar' ? 'absolute' : 'relative',
-                          top: template.category === 'Calendar' ? '50%' : 'auto',
-                          left: template.category === 'Calendar' ? '50%' : 'auto',
-                          minWidth: template.category === 'Calendar' ? '420px' : 'none',
-                          minHeight: template.category === 'Calendar' ? '280px' : 'none'
+                          transform: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
+                          position: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'absolute' : 'relative',
+                          top: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '50%' : 'auto',
+                          left: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '50%' : 'auto',
+                          minWidth: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '420px' : 'none',
+                          minHeight: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '280px' : 'none'
                         }} 
                       />
                     </div>
@@ -299,21 +300,21 @@ const TemplateDetail = () => {
                         onTouchStart={(e) => handlePageGesture(e, pageImg)}
                         onTouchEnd={handleTouchEnd}
                       >
-                        <div style={{ position: 'absolute', inset: 0, background: template.category === 'Calendar' ? 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, transparent 15%)' : (idx % 2 !== 0 ? 'linear-gradient(to right, rgba(0,0,0,0.1) 0%, transparent 10%)' : 'linear-gradient(to left, rgba(0,0,0,0.1) 0%, transparent 10%)'), zIndex: 10, pointerEvents: 'none' }}></div>
+                        <div style={{ position: 'absolute', inset: 0, background: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'transparent' : (idx % 2 !== 0 ? 'linear-gradient(to right, rgba(0,0,0,0.1) 0%, transparent 10%)' : 'linear-gradient(to left, rgba(0,0,0,0.1) 0%, transparent 10%)'), zIndex: 10, pointerEvents: 'none' }}></div>
                         <img 
                           src={pageImg} 
                           alt={`Page ${idx + 1}`} 
                           loading="lazy" 
                           style={{ 
-                            width: template.category === 'Calendar' ? '420px' : '100%', 
-                            height: template.category === 'Calendar' ? '280px' : '100%', 
+                            width: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '420px' : '100%', 
+                            height: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '280px' : '100%', 
                             objectFit: template.imageFit || 'cover',
-                            transform: template.category === 'Calendar' ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
-                            position: template.category === 'Calendar' ? 'absolute' : 'relative',
-                            top: template.category === 'Calendar' ? '50%' : 'auto',
-                            left: template.category === 'Calendar' ? '50%' : 'auto',
-                            minWidth: template.category === 'Calendar' ? '420px' : 'none',
-                            minHeight: template.category === 'Calendar' ? '280px' : 'none'
+                            transform: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
+                            position: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'absolute' : 'relative',
+                            top: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '50%' : 'auto',
+                            left: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '50%' : 'auto',
+                            minWidth: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '420px' : 'none',
+                            minHeight: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '280px' : 'none'
                           }} 
                         />
                       </div>
@@ -326,7 +327,7 @@ const TemplateDetail = () => {
                   <button onClick={prevButtonClick} className="btn btn-outline" style={{ padding: '0.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px' }} aria-label="Previous Page">
                     <ChevronLeft size={20} />
                   </button>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>{template.category === 'Calendar' ? 'Flip Up to view months' : 'Drag or Click to Flip'}</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>{(template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'Flip Up to view pages' : 'Drag or Click to Flip'}</span>
                   <button onClick={nextButtonClick} className="btn btn-outline" style={{ padding: '0.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px' }} aria-label="Next Page">
                     <ChevronRight size={20} />
                   </button>
@@ -471,7 +472,14 @@ const TemplateDetail = () => {
           <div style={{ marginTop: '4rem', textAlign: 'left', background: 'var(--bg-offset)', padding: isMobile ? '1.5rem' : '3rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: '1.5rem', gap: '0.5rem' }}>
               <h3 style={{ fontSize: '1.8rem', fontFamily: 'var(--font-serif)', color: 'var(--navy)', margin: 0 }}>About This Product</h3>
-              {isMobile && (
+            </div>
+            
+            <p style={{ color: 'var(--text-muted)', lineHeight: '1.5', marginBottom: '1.5rem', whiteSpace: 'pre-wrap', fontSize: '0.95rem' }}>
+              {template.details.intro}
+            </p>
+
+            {isMobile && (
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
                 <span style={{ 
                   display: 'inline-flex', 
                   alignItems: 'center', 
@@ -484,12 +492,8 @@ const TemplateDetail = () => {
                 }}>
                   Swipe left <span style={{ display: 'inline-flex', animation: 'swipePulse 1.5s infinite' }}><ArrowRight size={14} style={{ marginLeft: '2px' }} /></span>
                 </span>
-              )}
-            </div>
-            
-            <p style={{ color: 'var(--text-muted)', lineHeight: '1.5', marginBottom: '2rem', whiteSpace: 'pre-wrap', fontSize: '0.95rem' }}>
-              {template.details.intro}
-            </p>
+              </div>
+            )}
 
             <div style={{ 
               display: 'flex',

@@ -47,7 +47,7 @@ const ProductCardContent = ({ template }) => {
             fontWeight: 800,
             boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
           }}>
-            POPULAR
+            BEST SELLER
           </div>
         )}
 
@@ -171,18 +171,19 @@ const Home = () => {
     <div className="home-page">
       {/* Editorial Hero Section */}
       <section style={{ 
-        minHeight: isMobile ? '68vh' : '85vh',
+        minHeight: isMobile ? 'auto' : '70vh',
         backgroundColor: 'var(--primary-light)',
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        paddingTop: isMobile ? '1rem' : '4rem'
+        paddingTop: isMobile ? '1rem' : '4rem',
+        paddingBottom: isMobile ? '1.5rem' : '0'
       }}>
         {/* Massive Background Typography */}
         <div style={{
           position: 'absolute',
-          top: isMobile ? '24%' : '28%',
+          top: isMobile ? '28%' : '32%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
           width: '100%',
@@ -193,7 +194,7 @@ const Home = () => {
         }}>
           <div style={{
             fontFamily: 'var(--font-sans)',
-            fontSize: isMobile ? '16vw' : '16vw',
+            fontSize: isMobile ? '18vw' : '20vw',
             fontWeight: 900,
             letterSpacing: '-0.03em',
             color: 'var(--text)',
@@ -208,16 +209,15 @@ const Home = () => {
 
         {/* 3D Product Centered */}
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 'calc(-50% + 50px)' }}
+          animate={{ opacity: 1, y: '-50%' }}
           transition={{ duration: 1, ease: "easeOut" }}
           style={{
             position: 'absolute',
-            top: isMobile ? '24%' : '28%',
+            top: isMobile ? '28%' : '32%',
             left: '0',
             right: '0',
             margin: '0 auto',
-            transform: 'translateY(-50%)',
             zIndex: 2,
             width: '100%',
             display: 'flex',
@@ -248,18 +248,18 @@ const Home = () => {
 
         {/* Bottom Text and Button */}
         <div className="container" style={{
-          marginTop: 'auto',
+          marginTop: isMobile ? '12rem' : 'auto',
           marginBottom: isMobile ? '1.5rem' : '4rem',
           zIndex: 3,
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
-          justifyContent: isMobile ? 'center' : 'flex-end',
-          alignItems: isMobile ? 'center' : 'flex-end',
+          justifyContent: 'flex-end',
+          alignItems: 'flex-end',
           gap: '2rem'
         }}>
 
           
-          <div style={{ maxWidth: '400px', textAlign: isMobile ? 'center' : 'right', margin: isMobile ? '0 auto' : '0' }}>
+          <div style={{ maxWidth: '400px', textAlign: 'right', margin: isMobile ? '0 0 0 auto' : '0' }}>
             <p style={{ 
               fontFamily: 'var(--font-serif)',
               fontStyle: 'italic',
@@ -270,21 +270,9 @@ const Home = () => {
               lineHeight: 1.4,
               letterSpacing: '0.5px'
             }}>
-              "you are not basic, your gifts shouldn't be either"
+              "you are not basic,<br />your gifts shouldn't be either"
             </p>
-            <p style={{ 
-              fontFamily: 'var(--font-serif)',
-              fontStyle: 'italic',
-              fontSize: isMobile ? '0.95rem' : '1.1rem', 
-              fontWeight: 400, 
-              color: 'var(--text-muted)',
-              marginBottom: '1.5rem',
-              lineHeight: 1.4,
-              letterSpacing: '0.3px'
-            }}>
-              You might cry (in a cute way). Turning your memories into something you can hold forever.
-            </p>
-            <button onClick={scrollToCollection} style={{
+             <button onClick={scrollToCollection} style={{
               background: 'var(--accent)',
               color: 'white',
               border: 'none',
@@ -418,9 +406,9 @@ const Home = () => {
                 coverImage: TEMPLATES.find(t => t.category === 'Magazine' || t.category === 'Standing Magazine')?.image
               },
               {
-                title: 'Frames & Decor',
-                categoryStr: 'Frames & Decor',
-                coverImage: TEMPLATES.find(t => t.category === 'Frames' || t.category === 'Frame' || t.category === 'Aesthetic')?.image
+                title: 'Photo Frames',
+                categoryStr: 'Photo Frames',
+                coverImage: TEMPLATES.find(t => t.id === 'frame_chaos')?.image
               },
               {
                 title: 'Combos',
@@ -457,24 +445,6 @@ const Home = () => {
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255,255,255,0.4)'
                 }}>
-                  <div style={{ 
-                    position: 'absolute', 
-                    top: isMobile ? '0.4rem' : '2rem', 
-                    left: '50%', 
-                    transform: 'translateX(-50%)',
-                    background: 'rgba(255,255,255,0.6)', 
-                    color: 'var(--accent)',
-                    padding: isMobile ? '0.1rem 0.4rem' : '0.4rem 1.2rem', 
-                    borderRadius: '30px', 
-                    fontSize: isMobile ? '0.45rem' : '0.85rem', 
-                    fontWeight: 800,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.4rem',
-                    whiteSpace: 'nowrap'
-                  }}>
-                    <Star size={isMobile ? 8 : 14} fill="var(--accent)" /> CATEGORY
-                  </div>
                   {cat.coverImage?.endsWith('.mp4') ? (
                     <video 
                       src={cat.coverImage} 
@@ -652,7 +622,7 @@ const Home = () => {
                     'Magazines': ['Magazine', 'Standing Magazine'],
                     'Premium Gifts': ['Hamper', 'Scrapbook', 'Calendar'],
                     'Combos': ['Combo'],
-                    'Frames & Decor': ['Frames', 'Frame', 'Aesthetic'],
+                    'Photo Frames': ['Frames', 'Frame', 'Aesthetic'],
                     'Apparel & Accessories': ['Apparel', 'Cap', 'Keychain']
                   };
                   if (groups[selectedCategory]) return groups[selectedCategory].includes(t.category);

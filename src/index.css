@@ -676,8 +676,8 @@ body {
 /* 3D Book Styling */
 .book-container-3d {
   position: relative;
-  width: 160px;
-  height: 220px;
+  width: 110px;
+  height: 150px;
   perspective: 1200px;
   cursor: pointer;
   margin: 0 auto;
@@ -685,8 +685,8 @@ body {
 
 @media (min-width: 769px) {
   .book-container-3d {
-    width: 290px;
-    height: 400px;
+    width: 200px;
+    height: 275px;
   }
 }
 

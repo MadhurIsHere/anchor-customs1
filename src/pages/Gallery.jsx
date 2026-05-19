@@ -13,7 +13,7 @@ const Gallery = () => {
       'Magazines': ['Magazine', 'Standing Magazine'],
       'Premium Gifts': ['Hamper', 'Scrapbook', 'Calendar'],
       'Combos': ['Combo'],
-      'Frames & Decor': ['Frames', 'Frame', 'Aesthetic'],
+      'Photo Frames': ['Frames', 'Frame', 'Aesthetic'],
       'Apparel & Accessories': ['Apparel', 'Cap', 'Keychain']
     };
     if (groups[activeCategory]) {
@@ -38,7 +38,7 @@ const Gallery = () => {
           gap: '0.8rem', 
           marginBottom: '5rem' 
         }}>
-          {['All', 'Magazines', 'Premium Gifts', 'Combos', 'Frames & Decor', 'Apparel & Accessories', 'Other'].map(cat => {
+          {['All', 'Magazines', 'Premium Gifts', 'Combos', 'Photo Frames', 'Apparel & Accessories', 'Other'].map(cat => {
             const isActive = activeCategory === cat;
             return (
               <button
