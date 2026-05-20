@@ -45,14 +45,18 @@ const Cart = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {cartItems.map((item) => (
               <div key={item.id} className="card cart-item-card" style={{ padding: '1.5rem', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                <img src={item.images?.[0] || item.coverImage || item.coverPhoto} alt="Cover" style={{ width: '100px', height: '130px', objectFit: 'cover', borderRadius: '4px' }} />
+                <img src={item.images?.[0] || item.coverImage || item.coverPhoto} alt="Cover" style={{ width: '100px', height: '130px', objectFit: item.id === 'free_gift_surprise' ? 'contain' : 'cover', padding: item.id === 'free_gift_surprise' ? '15px' : '0', background: item.id === 'free_gift_surprise' ? '#f5f5f5' : 'transparent', borderRadius: '4px' }} />
                 <div style={{ flex: 1 }}>
                   <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{item.templateName}</h3>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-                    {typeof item.pages === 'number' || (item.pages && !isNaN(Number(item.pages))) ? `${item.pages} Pages Magazine` : item.pages || ''}
-                  </p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontWeight: 'bold' }}>₹{item.price}</span>
+                  {item.id !== 'free_gift_surprise' && (
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+                      {typeof item.pages === 'number' || (item.pages && !isNaN(Number(item.pages))) ? `${item.pages} Pages Magazine` : item.pages || ''}
+                    </p>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: item.id === 'free_gift_surprise' ? '1rem' : '0' }}>
+                    <span style={{ fontWeight: 'bold' }}>
+                      {item.id === 'free_gift_surprise' ? 'FREE' : `₹${item.price}`}
+                    </span>
                     <button 
                       onClick={() => removeFromCart(item.id)}
                       style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer' }}

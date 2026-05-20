@@ -216,6 +216,7 @@ const Navbar = () => {
                 <Link to={`/?category=${encodeURIComponent('Premium Gifts')}`} onClick={() => setIsMenuOpen(false)} style={{ fontSize: '1rem', opacity: 0.8 }}>Premium Gifts</Link>
                 <Link to={`/?category=${encodeURIComponent('Combos')}`} onClick={() => setIsMenuOpen(false)} style={{ fontSize: '1rem', opacity: 0.8 }}>Combos</Link>
                 <Link to={`/?category=${encodeURIComponent('Photo Frames')}`} onClick={() => setIsMenuOpen(false)} style={{ fontSize: '1rem', opacity: 0.8 }}>Photo Frames</Link>
+                <Link to={`/?category=${encodeURIComponent('Hot Wheels')}`} onClick={() => setIsMenuOpen(false)} style={{ fontSize: '1rem', opacity: 0.8 }}>Hot Wheels</Link>
                 <Link to={`/?category=${encodeURIComponent('Apparel & Accessories')}`} onClick={() => setIsMenuOpen(false)} style={{ fontSize: '1rem', opacity: 0.8 }}>Apparel</Link>
               </div>
             )}

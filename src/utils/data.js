@@ -1,3 +1,5 @@
+import { HOTWHEELS_TEMPLATES } from './hotwheels-data';
+
 export const TEMPLATES = [
   {
     id: 'mag_chaar_kadam',
@@ -148,6 +150,117 @@ export const TEMPLATES = [
     }
   },
   {
+    id: 'mag_rozana',
+    name: 'Rozana Magazine',
+    price10: 999,
+    price12: 999,
+    image: '/products/MAGAZINE TEMPLATES/ROZANA-WEBSITE_page_1.jpg',
+    description: 'Your camera roll, but make it iconic.',
+    category: 'Magazine',
+    pages: Array.from({length: 24}, (_, i) => `/products/MAGAZINE TEMPLATES/ROZANA-WEBSITE_page_${i + 1}.jpg`),
+    details: {
+      intro: "Your camera roll, but make it iconic.",
+      included: [
+        "12 Pages (24 Sides)",
+        "Premium Quality Printing",
+        "Aesthetic Layouts & Edits",
+        "Texts, Captions & Memories",
+        "Carefully Designed To Match Your Vibe"
+      ],
+      required: [
+        "35–40 Photos",
+        "(Minimum 20 Photos Required)",
+        "Have more memories? We can also increase the number of pages accordingly ✨"
+      ],
+      perfectFor: [
+        "Anniversaries",
+        "Birthdays",
+        "Couple Gifts",
+        "Friendship Gifts",
+        "Long Distance Relationships",
+        "Memory Keepsakes"
+      ],
+      importantInfo: [
+        "Price: ₹999",
+        "Privacy Policy: Your order will never be posted on our page without your permission. We deeply respect your privacy and personal memories 🤍"
+      ]
+    }
+  },
+  {
+    id: 'mag_shayarana',
+    name: 'Shayarana Magazine',
+    price10: 999,
+    price12: 999,
+    image: '/products/MAGAZINE TEMPLATES/SHAYARANA-WEBSITE_page_1.jpg',
+    description: 'Your camera roll, but make it iconic.',
+    category: 'Magazine',
+    pages: Array.from({length: 12}, (_, i) => `/products/MAGAZINE TEMPLATES/SHAYARANA-WEBSITE_page_${i + 1}.jpg`),
+    details: {
+      intro: "Your camera roll, but make it iconic.",
+      included: [
+        "12 Pages (24 Sides)",
+        "Premium Quality Printing",
+        "Aesthetic Layouts & Edits",
+        "Texts, Captions & Memories",
+        "Carefully Designed To Match Your Vibe"
+      ],
+      required: [
+        "35–40 Photos",
+        "(Minimum 20 Photos Required)",
+        "Have more memories? We can also increase the number of pages accordingly ✨"
+      ],
+      perfectFor: [
+        "Anniversaries",
+        "Birthdays",
+        "Couple Gifts",
+        "Friendship Gifts",
+        "Long Distance Relationships",
+        "Memory Keepsakes"
+      ],
+      importantInfo: [
+        "Price: ₹999",
+        "Privacy Policy: Your order will never be posted on our page without your permission. We deeply respect your privacy and personal memories 🤍"
+      ]
+    }
+  },
+  {
+    id: 'mag_tera_mera_rishta',
+    name: 'Tera Mera Rishta Magazine',
+    price10: 999,
+    price12: 999,
+    image: '/products/MAGAZINE TEMPLATES/TERA MERA RISHTA-WEBSITE_page_1.jpg',
+    description: 'Your camera roll, but make it iconic.',
+    category: 'Magazine',
+    pages: Array.from({length: 16}, (_, i) => `/products/MAGAZINE TEMPLATES/TERA MERA RISHTA-WEBSITE_page_${i + 1}.jpg`),
+    details: {
+      intro: "Your camera roll, but make it iconic.",
+      included: [
+        "12 Pages (24 Sides)",
+        "Premium Quality Printing",
+        "Aesthetic Layouts & Edits",
+        "Texts, Captions & Memories",
+        "Carefully Designed To Match Your Vibe"
+      ],
+      required: [
+        "35–40 Photos",
+        "(Minimum 20 Photos Required)",
+        "Have more memories? We can also increase the number of pages accordingly ✨"
+      ],
+      perfectFor: [
+        "Anniversaries",
+        "Birthdays",
+        "Couple Gifts",
+        "Friendship Gifts",
+        "Long Distance Relationships",
+        "Memory Keepsakes"
+      ],
+      importantInfo: [
+        "Price: ₹999",
+        "Privacy Policy: Your order will never be posted on our page without your permission. We deeply respect your privacy and personal memories 🤍"
+      ]
+    }
+  },
+  {
     id: 'mag_normal',
     name: 'Normal Magazine',
     price10: 999,
@@ -156,7 +269,7 @@ export const TEMPLATES = [
     description: 'Your camera roll, but make it iconic.',
     category: 'Magazine',
     popular: true,
-    pages: Array.from({length: 9}, (_, i) => `/products/MAGAZINE TEMPLATES/NORMAL TEMPLATE-WEBSITE_page_${i + 3}.jpg`),
+    pages: Array.from({length: 11}, (_, i) => `/products/MAGAZINE TEMPLATES/NORMAL TEMPLATE-WEBSITE_page_${i + 1}.jpg`),
     details: {
       intro: "Your camera roll, but make it iconic.",
       included: [
@@ -198,6 +311,11 @@ export const TEMPLATES = [
     ],
     description: 'A frame that feels like your song in physical form.',
     category: 'Frames',
+    customizableField: {
+      label: '🎵 Your Song Name & Artist',
+      placeholder: 'e.g. Tum Hi Ho by Arijit Singh',
+      hint: 'Share the song you want featured on your Spotify frame — we will generate the exact Spotify code for it!'
+    },
     details: {
       intro: "A frame that feels like your song in physical form. Designed with a music-player inspired layout, this frame captures memories that instantly take you back to a special moment 🤍",
       size: "A4 Size",
@@ -219,6 +337,11 @@ export const TEMPLATES = [
     ],
     description: 'A collection of memories that feel warm, personal, and timeless.',
     category: 'Frames',
+    customizableField: {
+      label: '✍️ Your Custom Message',
+      placeholder: 'e.g. "Best days of my life" or a short quote you love',
+      hint: 'This message will be printed beautifully on your Polaroid frame.'
+    },
     details: {
       intro: "A collection of memories that feel warm, personal, and timeless. Designed with hanging vintage-style pictures to give your moments a soft nostalgic touch ✨",
       size: "A4 Size",
@@ -240,6 +363,11 @@ export const TEMPLATES = [
     ],
     description: 'Distance means nothing when someone means everything.',
     category: 'Frames',
+    customizableField: {
+      label: '🗺️ Monuments / Cities to Feature',
+      placeholder: 'e.g. Eiffel Tower & Taj Mahal / Delhi & Mumbai',
+      hint: 'Tell us the monuments or cities you want shown on your Long Distance frame — we will design it around them!'
+    },
     details: {
       intro: "Distance means nothing when someone means everything. This frame beautifully captures love, memories, and the feeling of staying connected no matter how far apart you are 💌",
       size: "A4 Size",
@@ -261,6 +389,11 @@ export const TEMPLATES = [
     ],
     description: 'A chaotic, adorable collection of all the moments that made your story special.',
     category: 'Frames',
+    customizableField: {
+      label: '✍️ Your Custom Message',
+      placeholder: 'e.g. "Chaos is us" or any short quote / caption',
+      hint: 'This message will appear on your Chaos Collage frame — make it yours!'
+    },
     details: {
       intro: "A chaotic, adorable collection of all the moments that made your story special. Designed with fun sticker-style layouts that feel playful, trendy, and full of personality ✨",
       size: "A4 Size",
@@ -282,6 +415,11 @@ export const TEMPLATES = [
     ],
     description: 'Cute, soft, romantic, and straight out of a Pinterest board.',
     category: 'Frames',
+    customizableField: {
+      label: '💌 Your Custom Message',
+      placeholder: 'e.g. "You are my favorite person" or a romantic quote',
+      hint: 'This sweet message will be woven into your Hopeless Romantic frame design.'
+    },
     details: {
       intro: "Cute, soft, romantic, and straight out of a Pinterest board. This frame is designed for the people who love dreamy aesthetics and meaningful memories together 🤍",
       size: "A4 Size",
@@ -303,6 +441,11 @@ export const TEMPLATES = [
     ],
     description: 'Like your favorite memories captured straight from a movie scene.',
     category: 'Frames',
+    customizableField: {
+      label: '🎶 Song Lyrics to Feature',
+      placeholder: 'e.g. "Tujhe kitna chahne lage hum, tujhe kitna chahte hai"',
+      hint: 'Share the lyrics you want featured on your Digital Diary frame — we will style them beautifully!'
+    },
     details: {
       intro: "Like your favorite memories captured straight from a movie scene. A nostalgic frame designed to preserve moments that deserve a replay forever ✨",
       size: "8x8 Inches",
@@ -345,6 +488,11 @@ export const TEMPLATES = [
     ],
     description: 'For the person who feels like home.',
     category: 'Frames',
+    customizableField: {
+      label: '💛 Your Relationship / Title',
+      placeholder: 'e.g. "My Person", "Dil Ka Dost", "Best Friend", "My Favourite Human"',
+      hint: 'Tell us how you want to define this relationship — it will be featured as the title of your Archive of Us frame. Make it as personal as you like 💛'
+    },
     details: {
       intro: "For the person who feels like home. A cute personalized frame celebrating friendship, chaos, memories, and unconditional support 💛",
       size: "8x8 Inches",
@@ -387,6 +535,11 @@ export const TEMPLATES = [
     ],
     description: 'A frame filled with chaos, laughter, memories, and the people who made life unforgettable.',
     category: 'Frames',
+    customizableField: {
+      label: '💕 Names or Custom Message',
+      placeholder: 'e.g. "Arjun & Priya" or "Forever & Always" or any short message',
+      hint: 'Add the names of the people in the frame, or a short message that means everything — we will make it look stunning on your Pieces of Us frame 💕'
+    },
     details: {
       intro: "A frame filled with chaos, laughter, memories, and the people who made life unforgettable ✨",
       size: "8x8 Inches",
@@ -660,5 +813,7 @@ export const TEMPLATES = [
         "Surprising someone with something different"
       ]
     }
-  }
+  },
+  // Hot Wheels products
+  ...HOTWHEELS_TEMPLATES
 ];
