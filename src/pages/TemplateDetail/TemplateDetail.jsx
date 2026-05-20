@@ -1,15 +1,23 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { TEMPLATES } from '../../utils/data';
-import { ArrowRight, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, ArrowLeft, ShoppingCart, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import HTMLFlipBook from 'react-pageflip';
+import { supabase } from '../../supabase/config';
+import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
 
 const TemplateDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const template = TEMPLATES.find(t => t.id === id);
-  const [selectedOption, setSelectedOption] = useState('10'); // '10' or '12'
+  const { addToCart, cartItems } = useCart();
+  const { currentUser } = useAuth();
+  const [selectedOption, setSelectedOption] = useState('10');
+  const [isSoldOut, setIsSoldOut] = useState(false);
+  const [checkingStock, setCheckingStock] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -86,7 +94,8 @@ const TemplateDetail = () => {
       'Premium Gifts': ['Hamper', 'Scrapbook', 'Calendar'],
       'Combos': ['Combo'],
       'Photo Frames': ['Frames', 'Frame', 'Aesthetic'],
-      'Apparel & Accessories': ['Apparel', 'Cap', 'Keychain']
+      'Apparel & Accessories': ['Apparel', 'Cap', 'Keychain'],
+      'Hot Wheels': ['Hot Wheels']
     };
     for (const [groupName, list] of Object.entries(groups)) {
       if (list.includes(cat)) return groupName;
@@ -98,6 +107,60 @@ const TemplateDetail = () => {
 
   const handleProceed = () => {
     navigate(`/customize/${id}/${selectedOption}`);
+  };
+
+  // Hot Wheels: check stock via Supabase orders
+  useEffect(() => {
+    if (template?.isHotWheels) {
+      setCheckingStock(true);
+      supabase
+        .from('orders')
+        .select('id')
+        .eq('template_id', template.id)
+        .eq('payment_status', 'paid')
+        .limit(1)
+        .then(({ data }) => {
+          if (data && data.length > 0) setIsSoldOut(true);
+          setCheckingStock(false);
+        })
+        .catch(() => setCheckingStock(false));
+    }
+  }, [template]);
+
+  const handleAddHotWheelsToCart = () => {
+    if (!currentUser) {
+      toast.error('Please login to purchase.');
+      navigate('/login');
+      return;
+    }
+    if (isSoldOut) {
+      toast.error('Sorry, this item is sold out!');
+      return;
+    }
+    const alreadyInCart = cartItems.some(item => item.templateId === template.id);
+    if (alreadyInCart) {
+      toast.error('This Hot Wheels car is already in your cart!');
+      return;
+    }
+    addToCart({
+      templateId: template.id,
+      templateName: template.name,
+      pages: 'Hot Wheels Car',
+      price: template.price10,
+      images: [template.image],
+      coverImage: template.image,
+      coverPhoto: template.image,
+      isHotWheels: true,
+      customerDetails: {
+        fullName: currentUser.user_metadata?.full_name || '',
+        whatsapp: '',
+        email: currentUser.email || '',
+        address: '',
+        specialNotes: ''
+      }
+    });
+    toast.success(`${template.name} added to cart! 🏎️`);
+    navigate('/checkout');
   };
 
   // Dynamically configure book dimensions & aspect ratios to eliminate margins
@@ -455,13 +518,102 @@ const TemplateDetail = () => {
               {template.description}
             </p>
 
+            {/* Stock Badge for Hot Wheels */}
+            {template.isHotWheels && (
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 1.2rem',
+                borderRadius: '30px',
+                background: isSoldOut ? 'rgba(220,38,38,0.1)' : 'rgba(245,158,11,0.1)',
+                border: isSoldOut ? '1px solid rgba(220,38,38,0.3)' : '1px solid rgba(245,158,11,0.3)',
+                color: isSoldOut ? '#dc2626' : '#d97706',
+                fontSize: '0.85rem',
+                fontWeight: '800',
+                marginBottom: '1.5rem',
+                letterSpacing: '1px'
+              }}>
+                {isSoldOut ? '❌ SOLD OUT' : '🔥 LIMITED STOCK — Only 1 left!'}
+              </div>
+            )}
+
             {/* Page Count selector removed per user request */}
 
 
+            {/* Customizable Field Notice */}
+            {template.customizableField && (
+              <div style={{
+                margin: '0 0 1.8rem 0',
+                padding: '1.4rem 1.6rem',
+                background: 'linear-gradient(135deg, rgba(212,175,55,0.10) 0%, rgba(26,34,56,0.07) 100%)',
+                border: '2px solid var(--accent)',
+                borderRadius: '14px',
+                textAlign: 'left',
+                boxShadow: '0 4px 20px rgba(212,175,55,0.10)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.6rem' }}>
+                  <span style={{ fontSize: '1.3rem' }}>✨</span>
+                  <span style={{
+                    fontSize: '0.72rem',
+                    fontWeight: '800',
+                    textTransform: 'uppercase',
+                    letterSpacing: '2px',
+                    color: 'var(--accent)'
+                  }}>Customise Your Product</span>
+                </div>
+                <p style={{
+                  fontSize: '1.15rem',
+                  fontWeight: '800',
+                  color: 'var(--navy)',
+                  margin: '0 0 0.5rem 0',
+                  lineHeight: '1.4',
+                  fontFamily: 'var(--font-serif)'
+                }}>
+                  {template.customizableField.label}
+                </p>
+                <p style={{
+                  fontSize: '0.88rem',
+                  color: 'var(--text-muted)',
+                  margin: 0,
+                  lineHeight: '1.6'
+                }}>
+                  {template.customizableField.hint}
+                </p>
+              </div>
+            )}
+
             <div className="mobile-sticky-bottom">
-              <button onClick={handleProceed} className="btn btn-primary" style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', boxShadow: 'var(--gold-glow)' }}>
-                Order Now <ArrowRight size={20} />
-              </button>
+              {template.isHotWheels ? (
+                <button
+                  onClick={handleAddHotWheelsToCart}
+                  disabled={isSoldOut || checkingStock}
+                  className="btn btn-primary"
+                  style={{
+                    width: '100%',
+                    padding: '1.2rem',
+                    fontSize: '1.1rem',
+                    boxShadow: isSoldOut ? 'none' : 'var(--gold-glow)',
+                    opacity: isSoldOut ? 0.5 : 1,
+                    cursor: isSoldOut ? 'not-allowed' : 'pointer',
+                    background: isSoldOut ? '#888' : undefined,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem'
+                  }}
+                >
+                  {checkingStock ? 'Checking stock...' : isSoldOut ? (
+                    <><AlertTriangle size={20} /> SOLD OUT</>
+                  ) : (
+                    <><ShoppingCart size={20} /> Add to Cart — ₹{template.price10}</>
+                  )}
+                </button>
+              ) : (
+                <button onClick={handleProceed} className="btn btn-primary" style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', boxShadow: 'var(--gold-glow)' }}>
+                  Order Now <ArrowRight size={20} />
+                </button>
+              )}
             </div>
           </div>
         </div>

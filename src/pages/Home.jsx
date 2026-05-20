@@ -20,12 +20,12 @@ const ProductCardContent = ({ template }) => {
       {/* Pill Background container */}
       <div style={{
         background: 'rgba(255, 255, 255, 0.25)',
-        borderRadius: isMob ? '80px 80px 30px 30px' : '160px 160px 50px 50px',
-        padding: isMob ? '1.5rem 0.8rem 0.8rem 0.8rem' : '3rem 2rem 2rem 2rem',
+        borderRadius: '0',
+        padding: '0',
         width: '100%',
-        aspectRatio: '0.85',
+        aspectRatio: '1/1',
         display: 'flex',
-        alignItems: 'flex-end',
+        alignItems: 'center',
         justifyContent: 'center',
         marginBottom: isMob ? '0.8rem' : '1.5rem',
         position: 'relative',
@@ -56,11 +56,11 @@ const ProductCardContent = ({ template }) => {
             src={template.image} 
             autoPlay loop muted playsInline
             style={{ 
-              width: '90%', 
+              width: '100%', 
               aspectRatio: '1/1',
               objectFit: 'cover', 
               mixBlendMode: 'multiply',
-              borderRadius: isMob ? '12px' : '20px',
+              borderRadius: '0',
               filter: 'drop-shadow(0 20px 20px rgba(0,0,0,0.15))'
             }} 
           />
@@ -70,11 +70,11 @@ const ProductCardContent = ({ template }) => {
             alt={template.name} 
             whileHover={{ scale: 1.05 }}
             style={{ 
-              width: '90%', 
+              width: '100%', 
               aspectRatio: '1/1',
               objectFit: 'cover', 
               mixBlendMode: 'multiply',
-              borderRadius: isMob ? '12px' : '20px',
+              borderRadius: '0',
               filter: 'drop-shadow(0 20px 20px rgba(0,0,0,0.15))'
             }} 
           />
@@ -137,19 +137,19 @@ const Home = () => {
       toast('Redirecting to login to claim your free gift! 🎁', { icon: '🔑' });
       navigate('/login');
     } else {
-      const hasGift = cartItems.some(item => item.id === 'free_gift_hotwheels' || item.templateId === 'free_gift_hotwheels');
+      const hasGift = cartItems.some(item => item.id === 'free_gift_surprise' || item.templateId === 'free_gift_surprise');
       if (hasGift) {
-        toast.error('Free Hot Wheels Gift is already in your cart! 🎁');
+        toast.error('Free Surprise Gift is already in your cart! 🎁');
       } else {
         const freeGift = {
-          id: 'free_gift_hotwheels',
-          templateId: 'free_gift_hotwheels',
-          templateName: 'Free Hot Wheels Gift',
-          pages: 'Special Collectible',
+          id: 'free_gift_surprise',
+          templateId: 'free_gift_surprise',
+          templateName: 'Free Surprise Gift',
+          pages: 'Special Surprise',
           price: 0,
-          images: ['/products/free_hot_wheels.png'],
-          coverImage: '/products/free_hot_wheels.png',
-          coverPhoto: '/products/free_hot_wheels.png',
+          images: ['/products/Surprise-box.jpeg'],
+          coverImage: '/products/Surprise-box.jpeg',
+          coverPhoto: '/products/Surprise-box.jpeg',
           status: 'free_gift',
           customerDetails: {
             fullName: currentUser.user_metadata?.full_name || '',
@@ -160,7 +160,7 @@ const Home = () => {
           }
         };
         addToCart(freeGift);
-        toast.success('Free Hot Wheels Gift added to your cart! 🎁');
+        toast.success('Free Surprise Gift added to your cart! 🎁');
       }
     }
   };
@@ -433,12 +433,12 @@ const Home = () => {
                 }}>
                 <div style={{
                   background: 'rgba(255, 255, 255, 0.25)',
-                  borderRadius: isMobile ? '50px 50px 20px 20px' : '160px 160px 50px 50px',
-                  padding: isMobile ? '1.2rem 0.5rem 0.5rem 0.5rem' : '3rem 2rem 2rem 2rem',
+                  borderRadius: '0',
+                  padding: '0',
                   width: '100%',
-                  aspectRatio: '0.85',
+                  aspectRatio: '1/1',
                   display: 'flex',
-                  alignItems: 'flex-end',
+                  alignItems: 'center',
                   justifyContent: 'center',
                   marginBottom: isMobile ? '0.4rem' : '1.5rem',
                   position: 'relative',
@@ -450,21 +450,21 @@ const Home = () => {
                       src={cat.coverImage} 
                       autoPlay loop muted playsInline
                       style={{ 
-                        width: '90%', 
+                        width: '100%', 
                         aspectRatio: '1/1',
                         objectFit: 'cover', 
                         mixBlendMode: 'multiply',
-                        borderRadius: isMobile ? '8px' : '20px',
+                        borderRadius: '0',
                         filter: 'drop-shadow(0 20px 20px rgba(0,0,0,0.15))'
                       }} 
                     />
                   ) : (
                     <img src={cat.coverImage} alt={cat.title} style={{ 
-                      width: '90%', 
+                      width: '100%', 
                       aspectRatio: '1/1',
                       objectFit: 'cover', 
                       mixBlendMode: 'multiply',
-                      borderRadius: isMobile ? '8px' : '20px',
+                      borderRadius: '0',
                       filter: 'drop-shadow(0 20px 20px rgba(0,0,0,0.15))'
                     }} />
                   )}
@@ -494,8 +494,9 @@ const Home = () => {
             <div className="product-grid">
               {Object.entries({
                 'Premium Gifts': TEMPLATES.filter(t => ['Hamper', 'Scrapbook', 'Calendar'].includes(t.category)),
+                'Hot Wheels': TEMPLATES.filter(t => ['Hot Wheels'].includes(t.category)),
                 'Apparel & Accessories': TEMPLATES.filter(t => ['Apparel', 'Cap', 'Keychain'].includes(t.category)),
-                'Other': TEMPLATES.filter(t => !['Magazine', 'Standing Magazine', 'Frames', 'Frame', 'Aesthetic', 'Hamper', 'Scrapbook', 'Calendar', 'Apparel', 'Cap', 'Keychain', 'Combo'].includes(t.category))
+                'Other': TEMPLATES.filter(t => !['Magazine', 'Standing Magazine', 'Frames', 'Frame', 'Aesthetic', 'Hamper', 'Scrapbook', 'Calendar', 'Apparel', 'Cap', 'Keychain', 'Combo', 'Hot Wheels'].includes(t.category))
               }).map(([title, items], index) => {
                 if (items.length === 0) return null;
                 const coverTemplate = items[0];
@@ -521,12 +522,12 @@ const Home = () => {
                     }}>
                       <div style={{
                         background: 'rgba(255, 255, 255, 0.25)',
-                        borderRadius: isMobile ? '80px 80px 30px 30px' : '160px 160px 50px 50px',
-                        padding: isMobile ? '1.5rem 0.8rem 0.8rem 0.8rem' : '3rem 2rem 2rem 2rem',
+                        borderRadius: '0',
+                        padding: '0',
                         width: '100%',
-                        aspectRatio: '0.85',
+                        aspectRatio: '1/1',
                         display: 'flex',
-                        alignItems: 'flex-end',
+                        alignItems: 'center',
                         justifyContent: 'center',
                         marginBottom: isMobile ? '0.8rem' : '1.5rem',
                         position: 'relative',
@@ -556,21 +557,21 @@ const Home = () => {
                             src={coverTemplate.image} 
                             autoPlay loop muted playsInline
                             style={{ 
-                              width: '90%', 
+                              width: '100%', 
                               aspectRatio: '1/1',
                               objectFit: 'cover', 
                               mixBlendMode: 'multiply',
-                              borderRadius: isMobile ? '12px' : '20px',
+                              borderRadius: '0',
                               filter: 'drop-shadow(0 20px 20px rgba(0,0,0,0.15))'
                             }} 
                           />
                         ) : (
                           <img src={coverTemplate.image} alt={title} style={{ 
-                            width: '90%', 
+                            width: '100%', 
                             aspectRatio: '1/1',
                             objectFit: 'cover', 
                             mixBlendMode: 'multiply',
-                            borderRadius: isMobile ? '12px' : '20px',
+                            borderRadius: '0',
                             filter: 'drop-shadow(0 20px 20px rgba(0,0,0,0.15))'
                           }} />
                         )}
@@ -623,7 +624,8 @@ const Home = () => {
                     'Premium Gifts': ['Hamper', 'Scrapbook', 'Calendar'],
                     'Combos': ['Combo'],
                     'Photo Frames': ['Frames', 'Frame', 'Aesthetic'],
-                    'Apparel & Accessories': ['Apparel', 'Cap', 'Keychain']
+                    'Apparel & Accessories': ['Apparel', 'Cap', 'Keychain'],
+                    'Hot Wheels': ['Hot Wheels']
                   };
                   if (groups[selectedCategory]) return groups[selectedCategory].includes(t.category);
                   return !Object.values(groups).flat().includes(t.category);

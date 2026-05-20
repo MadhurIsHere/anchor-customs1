@@ -27,6 +27,7 @@ const CustomizationForm = () => {
     city: '',
     state: '',
     pincode: '',
+    customText: '',
     specialNotes: ''
   });
 
@@ -190,7 +191,7 @@ const CustomizationForm = () => {
         customerDetails: {
           ...formData,
           address: `${formData.houseNo.trim()}, ${formData.street.trim()}, ${formData.city.trim()}, ${formData.state.trim()} - ${formData.pincode.trim()}`,
-          customText: '' // Field removed from UI but kept for compatibility
+          customText: formData.customText?.trim() || ''
         },
         images: finalImages,
         status: 'pending_payment',
@@ -474,6 +475,63 @@ const CustomizationForm = () => {
                   </div>
                 )}
               </div>
+
+              {/* Per-product Custom Message */}
+              {template.customizableField && (
+                <div style={{
+                  margin: '2rem 0 1rem 0',
+                  padding: '1.5rem 1.8rem',
+                  background: 'linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(26,34,56,0.05) 100%)',
+                  border: '2px solid var(--accent)',
+                  borderRadius: '14px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <span style={{ fontSize: '1.1rem' }}>✨</span>
+                    <span style={{
+                      fontSize: '0.7rem',
+                      fontWeight: '800',
+                      textTransform: 'uppercase',
+                      letterSpacing: '2px',
+                      color: 'var(--accent)'
+                    }}>Customise Your Product</span>
+                  </div>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '1.1rem',
+                    fontWeight: '800',
+                    color: 'var(--navy)',
+                    marginBottom: '0.5rem',
+                    fontFamily: 'var(--font-serif)',
+                    lineHeight: '1.4'
+                  }}>
+                    {template.customizableField.label}
+                  </label>
+                  <p style={{
+                    fontSize: '0.82rem',
+                    color: 'var(--text-muted)',
+                    marginBottom: '0.9rem',
+                    lineHeight: '1.6'
+                  }}>
+                    {template.customizableField.hint}
+                  </p>
+                  <input
+                    type="text"
+                    name="customText"
+                    className="input-field"
+                    placeholder={template.customizableField.placeholder}
+                    onChange={handleInputChange}
+                    style={{
+                      border: '1.5px solid var(--accent)',
+                      borderRadius: '8px',
+                      padding: '0.8rem 1rem',
+                      fontSize: '0.95rem',
+                      width: '100%',
+                      boxSizing: 'border-box',
+                      background: '#fff'
+                    }}
+                  />
+                </div>
+              )}
 
               <div className="input-group">
                 <label className="input-label">Special Instructions</label>

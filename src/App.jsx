@@ -11,17 +11,17 @@ const FreeGiftListener = () => {
 
   React.useEffect(() => {
     if (currentUser && localStorage.getItem('claimFreeGift') === 'true') {
-      const hasGift = cartItems.some(item => item.id === 'free_gift_hotwheels' || item.templateId === 'free_gift_hotwheels');
+      const hasGift = cartItems.some(item => item.id === 'free_gift_surprise' || item.templateId === 'free_gift_surprise');
       if (!hasGift) {
         const freeGift = {
-          id: 'free_gift_hotwheels',
-          templateId: 'free_gift_hotwheels',
-          templateName: 'Free Hot Wheels Gift',
-          pages: 'Special Collectible',
+          id: 'free_gift_surprise',
+          templateId: 'free_gift_surprise',
+          templateName: 'Free Surprise Gift',
+          pages: 'Special Surprise',
           price: 0,
-          images: ['/products/free_hot_wheels.png'],
-          coverImage: '/products/free_hot_wheels.png',
-          coverPhoto: '/products/free_hot_wheels.png',
+          images: ['/products/Surprise-box.jpeg'],
+          coverImage: '/products/Surprise-box.jpeg',
+          coverPhoto: '/products/Surprise-box.jpeg',
           status: 'free_gift',
           customerDetails: {
             fullName: currentUser.user_metadata?.full_name || '',
@@ -32,7 +32,7 @@ const FreeGiftListener = () => {
           }
         };
         addToCart(freeGift);
-        toast.success('Welcome! Your Free Hot Wheels Gift has been added to your cart! 🎁', { duration: 5000 });
+        toast.success('Welcome! Your Free Surprise Gift has been added to your cart! 🎁', { duration: 5000 });
       }
       localStorage.removeItem('claimFreeGift');
     }

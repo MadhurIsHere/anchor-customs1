@@ -18,8 +18,13 @@ export const AuthProvider = ({ children }) => {
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       handleUser(session?.user ?? null);
+      
+      // Clean up the leftover empty '#' from the URL after OAuth login
+      if (event === 'SIGNED_IN' && window.location.hash) {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -28,9 +33,12 @@ export const AuthProvider = ({ children }) => {
   const handleUser = (user) => {
     setCurrentUser(user);
     // Hardcoded admin check for Anchor Customs
-    const adminEmail = 'karampreets090@gmail.com';
+    const adminEmails = [
+      'karampreets090@gmail.com',
+      'madhur123rastogi@gmail.com'
+    ];
 
-    if (user && user.email?.toLowerCase() === adminEmail) {
+    if (user && user.email && adminEmails.includes(user.email.toLowerCase())) {
       setIsAdmin(true);
     } else {
       setIsAdmin(false);
@@ -53,24 +61,13 @@ export const AuthProvider = ({ children }) => {
     if (error) console.error('Error logging out:', error.message);
   };
 
-  const demoLogin = () => {
-    const devUser = {
-      id: '00000000-0000-0000-0000-000000000000',
-      email: 'karampreets090@gmail.com',
-      user_metadata: { full_name: 'Developer Admin', avatar_url: null }
-    };
-    setCurrentUser(devUser);
-    setIsAdmin(true);
-    setLoading(false);
-    toast.success('Developer Admin Access Granted!');
-  };
+
 
   const value = {
     currentUser,
     isAdmin,
     signInWithGoogle,
-    logout,
-    demoLogin
+    logout
   };
 
   return (

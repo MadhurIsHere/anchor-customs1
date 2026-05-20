@@ -126,6 +126,12 @@ const Checkout = () => {
   const handlePayment = async () => {
     setIsProcessing(true);
     
+    if (cartTotal <= 0) {
+      toast.error('Please add at least one paid item to checkout with your free gift.');
+      setIsProcessing(false);
+      return;
+    }
+
     try {
       // 1. Load Razorpay Script
       const res = await loadScript('https://checkout.razorpay.com/v1/checkout.js');
@@ -195,19 +201,77 @@ const Checkout = () => {
         <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
           <CreditCard size={48} style={{ marginBottom: '1.5rem', color: 'var(--accent)' }} />
           <h1 style={{ marginBottom: '1rem' }}>Final Checkout</h1>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>You are about to pay ₹{cartTotal} for {cartItems.length} magazine(s).</p>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>You are about to pay ₹{cartTotal} for {cartItems.length} item(s).</p>
           
+          {/* Order Summary */}
+          <div style={{ textAlign: 'left', background: 'var(--bg-offset)', padding: '1.5rem', borderRadius: 'var(--radius)', marginBottom: '1.5rem' }}>
+            <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--navy)' }}>Order Summary</h3>
+            {cartItems.map((item, idx) => (
+              <div key={idx} style={{
+                paddingBottom: idx < cartItems.length - 1 ? '1rem' : 0,
+                marginBottom: idx < cartItems.length - 1 ? '1rem' : 0,
+                borderBottom: idx < cartItems.length - 1 ? '1px solid var(--border)' : 'none'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
+                  <span style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--navy)' }}>{item.templateName}</span>
+                  <span style={{ fontSize: '0.95rem', fontWeight: '700', color: 'var(--accent)', whiteSpace: 'nowrap' }}>
+                    {item.id === 'free_gift_surprise' ? 'FREE' : `₹${item.price}`}
+                  </span>
+                </div>
+                {item.customerDetails?.customText && (
+                  <div style={{
+                    marginTop: '0.7rem',
+                    padding: '0.7rem 1rem',
+                    background: 'linear-gradient(135deg, rgba(212,175,55,0.10) 0%, rgba(26,34,56,0.05) 100%)',
+                    border: '1.5px solid var(--accent)',
+                    borderRadius: '10px'
+                  }}>
+                    <p style={{
+                      fontSize: '0.68rem',
+                      fontWeight: '800',
+                      textTransform: 'uppercase',
+                      letterSpacing: '1.5px',
+                      color: 'var(--accent)',
+                      margin: '0 0 0.3rem 0'
+                    }}>✨ Your Customisation</p>
+                    <p style={{
+                      fontSize: '0.9rem',
+                      fontWeight: '700',
+                      color: 'var(--navy)',
+                      margin: 0,
+                      lineHeight: '1.4'
+                    }}>{item.customerDetails.customText}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
           <div style={{ textAlign: 'left', background: 'var(--bg-offset)', padding: '1.5rem', borderRadius: 'var(--radius)', marginBottom: '2rem' }}>
             <h3 style={{ fontSize: '1rem', marginBottom: '1rem' }}>Shipping to:</h3>
             <p style={{ fontSize: '0.9rem' }}>{cartItems[0]?.customerDetails?.fullName}</p>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{cartItems[0]?.customerDetails?.address}</p>
           </div>
 
+          {cartTotal <= 0 && (
+            <div style={{
+              background: 'rgba(255,0,0,0.05)',
+              border: '1px solid rgba(255,0,0,0.2)',
+              borderRadius: 'var(--radius)',
+              padding: '1rem',
+              marginBottom: '1rem',
+              color: 'var(--text)',
+              fontSize: '0.9rem'
+            }}>
+              🚨 <strong>Oops!</strong> Please add at least one paid item to your cart to claim the free gift and checkout.
+            </div>
+          )}
+
           <button 
             onClick={handlePayment} 
-            disabled={isProcessing}
+            disabled={isProcessing || cartTotal <= 0}
             className="btn btn-primary" 
-            style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem' }}
+            style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', opacity: cartTotal <= 0 ? 0.5 : 1 }}
           >
             {isProcessing ? 'Initializing...' : 'Pay Now with Razorpay'}
           </button>

@@ -5,16 +5,10 @@ import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 
 const Auth = () => {
-  const { demoLogin, signInWithGoogle } = useAuth();
+  const { signInWithGoogle } = useAuth();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  const handleDemoLogin = () => {
-    demoLogin();
-    const from = location.state?.from || '/';
-    navigate(from);
-  };
 
   const handleGoogleLogin = async () => {
     setLoading(true);
@@ -129,42 +123,6 @@ const Auth = () => {
             {loading ? 'Redirecting…' : 'Continue with Google'}
           </motion.button>
 
-          {/* Divider */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem',
-              margin: '1.75rem 0',
-            }}
-          >
-            <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-              or
-            </span>
-            <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-          </div>
-
-          {/* Demo / Developer bypass */}
-          <button
-            type="button"
-            onClick={handleDemoLogin}
-            style={{
-              background: 'rgba(175, 145, 112, 0.08)',
-              border: '1px dashed var(--accent)',
-              color: 'var(--accent)',
-              padding: '0.65rem 1rem',
-              borderRadius: 'var(--radius)',
-              fontSize: '0.8rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              width: '100%',
-              transition: 'background 0.2s',
-            }}
-          >
-            Bypass Login (Developer Mode)
-          </button>
-
           {/* Footer */}
           <div
             style={{
@@ -180,6 +138,8 @@ const Auth = () => {
               We never store your password.
             </p>
           </div>
+
+
         </div>
       </motion.div>
     </div>

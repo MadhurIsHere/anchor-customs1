@@ -13,3 +13,4 @@ dist-ssr
 .eslintcache
 
 .vercel
+.pdf
