@@ -1,7 +1,7 @@
-# Anchor Customs - Premium Photo Magazine Business
+.# Anchor Customs - Premium Photo Magazine Business
 
 A full-stack React application for a custom photo magazine business.
-
+.
 ## Features
 - **Modern UI**: Premium design with Playfair Display and Inter typography.
 - **Customization Flow**: Step-by-step selection of templates and page counts (10/12 pages).
