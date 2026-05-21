@@ -1,5 +1,5 @@
-.# Anchor Customs - Premium Photo Magazine Business
-
+# Anchor Customs - Premium Photo Magazine Business
+this is demo--to be removed
 A full-stack React application for a custom photo magazine business.
 .
 ## Features
