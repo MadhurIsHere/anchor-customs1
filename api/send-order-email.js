@@ -1,3 +1,5 @@
+import nodemailer from 'nodemailer';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
@@ -50,27 +52,23 @@ export default async function handler(req, res) {
   `;
 
   try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_EMAIL,
+        pass: process.env.GMAIL_APP_PASSWORD,
       },
-      body: JSON.stringify({
-        from: 'Anchor Customs <onboarding@resend.dev>', // Change to a verified domain in production if needed
-        to: [email],
-        subject: `Order Confirmation - Anchor Customs`,
-        html: htmlContent
-      })
     });
 
-    const data = await response.json();
+    const mailOptions = {
+      from: `"Anchor Customs" <${process.env.GMAIL_EMAIL}>`,
+      to: email,
+      subject: `Order Confirmation - Anchor Customs`,
+      html: htmlContent,
+    };
 
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to send email');
-    }
-
-    return res.status(200).json({ success: true, data });
+    const info = await transporter.sendMail(mailOptions);
+    return res.status(200).json({ success: true, messageId: info.messageId });
   } catch (error) {
     console.error('Error sending email:', error);
     return res.status(500).json({ error: error.message });

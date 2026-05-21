@@ -19,18 +19,16 @@ const ProductCardContent = ({ template }) => {
     }}>
       {/* Pill Background container */}
       <div style={{
-        background: 'rgba(255, 255, 255, 0.25)',
+        background: 'transparent',
         borderRadius: '12px',
         padding: '0',
         width: '100%',
-        aspectRatio: '1/1',
+        aspectRatio: '4/5',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: isMob ? '0.8rem' : '1.5rem',
-        position: 'relative',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255,255,255,0.4)'
+        position: 'relative'
       }}>
 
         {template.popular && (
@@ -58,8 +56,8 @@ const ProductCardContent = ({ template }) => {
             autoPlay loop muted playsInline
             style={{ 
               width: '100%', 
-              aspectRatio: '1/1',
-              objectFit: 'cover', 
+              aspectRatio: template.aspectRatio || '4/5',
+              objectFit: 'cover',
               mixBlendMode: 'multiply',
               borderRadius: '12px',
               filter: 'drop-shadow(0 20px 20px rgba(0,0,0,0.15))'
@@ -72,11 +70,9 @@ const ProductCardContent = ({ template }) => {
             whileHover={{ scale: 1.05 }}
             style={{ 
               width: '100%', 
-              aspectRatio: '1/1',
-              objectFit: 'cover', 
-              mixBlendMode: 'multiply',
-              borderRadius: '12px',
-              filter: 'drop-shadow(0 20px 20px rgba(0,0,0,0.15))'
+              aspectRatio: template.aspectRatio || '4/5',
+              objectFit: 'cover',
+              borderRadius: '12px'
             }} 
           />
         )}
@@ -84,11 +80,11 @@ const ProductCardContent = ({ template }) => {
       
       {/* Product Name & Button */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', padding: '0 0.5rem', fontFamily: 'var(--font-sans)', textAlign: 'center' }}>
-        <span style={{ fontSize: isMob ? '0.9rem' : '1.2rem', fontWeight: 800, marginBottom: '0.3rem', lineHeight: '1.2' }}>{template.name}</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
-          <span style={{ fontSize: isMob ? '0.8rem' : '1rem', opacity: 0.9, fontWeight: 500 }}>Price - ₹{template.price10}</span>
+        <span style={{ fontSize: isMob ? '0.9rem' : '1.2rem', fontWeight: 800, marginBottom: '0.4rem', lineHeight: '1.2' }}>{template.name}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: isMob ? '0.85rem' : '1.05rem', fontWeight: 800, color: 'var(--text)' }}>₹{template.price10}</span>
           {template.originalPrice && (
-            <span style={{ fontSize: isMob ? '0.7rem' : '0.8rem', textDecoration: 'line-through', color: 'var(--text-muted)' }}>
+            <span style={{ fontSize: isMob ? '0.75rem' : '0.85rem', textDecoration: 'line-through', color: 'var(--text-muted)' }}>
               ₹{template.originalPrice}
             </span>
           )}
@@ -106,6 +102,7 @@ const Home = () => {
   const { addToCart, cartItems } = useCart();
   const [selectedCategory, setSelectedCategory] = React.useState(null);
   const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+  const [sortOrder, setSortOrder] = React.useState('none');
 
 
   React.useEffect(() => {
@@ -433,7 +430,7 @@ const Home = () => {
                   cursor: 'pointer'
                 }}>
                 <div style={{
-                  background: 'rgba(255, 255, 255, 0.25)',
+                  background: 'transparent',
                   borderRadius: '0',
                   padding: '0',
                   width: '100%',
@@ -442,9 +439,7 @@ const Home = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   marginBottom: isMobile ? '0.4rem' : '1.5rem',
-                  position: 'relative',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255,255,255,0.4)'
+                  position: 'relative'
                 }}>
                   {cat.coverImage?.endsWith('.mp4') ? (
                     <video 
@@ -452,21 +447,17 @@ const Home = () => {
                       autoPlay loop muted playsInline
                       style={{ 
                         width: '100%', 
-                        aspectRatio: '1/1',
-                        objectFit: 'cover', 
-                        mixBlendMode: 'multiply',
-                        borderRadius: '0',
-                        filter: 'drop-shadow(0 20px 20px rgba(0,0,0,0.15))'
+                        aspectRatio: '4/5',
+                        objectFit: 'cover',
+                        borderRadius: '0'
                       }} 
                     />
                   ) : (
                     <img src={cat.coverImage} alt={cat.title} style={{ 
                       width: '100%', 
-                      aspectRatio: '1/1',
-                      objectFit: 'cover', 
-                      mixBlendMode: 'multiply',
-                      borderRadius: '0',
-                      filter: 'drop-shadow(0 20px 20px rgba(0,0,0,0.15))'
+                      aspectRatio: '4/5',
+                      objectFit: 'cover',
+                      borderRadius: '0'
                     }} />
                   )}
                 </div>
@@ -522,18 +513,16 @@ const Home = () => {
                       width: '100%'
                     }}>
                       <div style={{
-                        background: 'rgba(255, 255, 255, 0.25)',
+                        background: 'transparent',
                         borderRadius: '12px',
                         padding: '0',
                         width: '100%',
-                        aspectRatio: '1/1',
+                        aspectRatio: '4/5',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         marginBottom: isMobile ? '0.8rem' : '1.5rem',
-                        position: 'relative',
-                        backdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(255,255,255,0.4)'
+                        position: 'relative'
                       }}>
                         <div style={{ 
                           position: 'absolute', 
@@ -559,21 +548,17 @@ const Home = () => {
                             autoPlay loop muted playsInline
                             style={{ 
                               width: '100%', 
-                              aspectRatio: '1/1',
-                              objectFit: 'cover', 
-                              mixBlendMode: 'multiply',
-                              borderRadius: '12px',
-                              filter: 'drop-shadow(0 20px 20px rgba(0,0,0,0.15))'
+                              aspectRatio: '4/5',
+                              objectFit: 'cover',
+                              borderRadius: '12px'
                             }} 
                           />
                         ) : (
                           <img src={coverTemplate.image} alt={title} style={{ 
                             width: '100%', 
-                            aspectRatio: '1/1',
-                            objectFit: 'cover', 
-                            mixBlendMode: 'multiply',
-                            borderRadius: '12px',
-                            filter: 'drop-shadow(0 20px 20px rgba(0,0,0,0.15))'
+                            aspectRatio: '4/5',
+                            objectFit: 'cover',
+                            borderRadius: '12px'
                           }} />
                         )}
                       </div>
@@ -598,24 +583,50 @@ const Home = () => {
                   fontFamily: 'var(--font-serif)', 
                   color: 'var(--navy)'
                 }}>{selectedCategory}</h3>
-                <button 
-                  onClick={() => setSelectedCategory(null)}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.6rem 1.2rem',
-                    borderRadius: '30px',
-                    background: 'transparent',
-                    border: '1px solid var(--accent)',
-                    color: 'var(--accent)',
-                    cursor: 'pointer',
-                    fontSize: '0.85rem',
-                    fontWeight: '600'
-                  }}
-                >
-                  <ArrowLeft size={16} /> All Categories
-                </button>
+                
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', alignItems: 'center' }}>
+                  <button 
+                    onClick={() => {
+                      setSelectedCategory(null);
+                      setSortOrder('none');
+                    }}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.6rem 1.2rem',
+                      borderRadius: '30px',
+                      background: 'transparent',
+                      border: '1px solid var(--accent)',
+                      color: 'var(--accent)',
+                      cursor: 'pointer',
+                      fontSize: '0.85rem',
+                      fontWeight: '600'
+                    }}
+                  >
+                    <ArrowLeft size={16} /> All Categories
+                  </button>
+
+                  <select 
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value)}
+                    style={{
+                      padding: '0.6rem 1.2rem',
+                      borderRadius: '30px',
+                      background: 'white',
+                      border: '1px solid var(--border)',
+                      color: 'var(--text)',
+                      cursor: 'pointer',
+                      fontSize: '0.85rem',
+                      fontWeight: '600',
+                      outline: 'none'
+                    }}
+                  >
+                    <option value="none">Default Sorting</option>
+                    <option value="lowToHigh">Price: Low to High</option>
+                    <option value="highToLow">Price: High to Low</option>
+                  </select>
+                </div>
               </div>
 
               <div className="product-grid">
@@ -630,6 +641,10 @@ const Home = () => {
                   };
                   if (groups[selectedCategory]) return groups[selectedCategory].includes(t.category);
                   return !Object.values(groups).flat().includes(t.category);
+                }).sort((a, b) => {
+                  if (sortOrder === 'lowToHigh') return (a.price10 || 0) - (b.price10 || 0);
+                  if (sortOrder === 'highToLow') return (b.price10 || 0) - (a.price10 || 0);
+                  return 0;
                 }).map((template, index) => (
                   <motion.div 
                     key={template.id}

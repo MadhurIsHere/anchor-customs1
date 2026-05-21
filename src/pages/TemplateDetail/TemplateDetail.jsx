@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { TEMPLATES } from '../../utils/data';
 import { ArrowRight, ChevronLeft, ChevronRight, ArrowLeft, ShoppingCart, AlertTriangle } from 'lucide-react';
@@ -20,11 +20,11 @@ const TemplateDetail = () => {
   const [checkingStock, setCheckingStock] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
   const bookRef = useRef();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const isComboOrHamper = template && (template.category === 'Hamper' || template.category === 'Combo' || template.category === 'Combos');
-  const [activeTab, setActiveTab] = useState(isComboOrHamper ? 'gallery' : 'book');
 
   const lastTapRef = useRef(0);
   const longPressTimeoutRef = useRef(null);
@@ -181,6 +181,65 @@ const TemplateDetail = () => {
     wrapperMaxWidth = '100%';
   }
 
+  // Calculate display pages with blanks for desktop physical items
+  const { displayPages, displayLabels } = useMemo(() => {
+    if (!template || !template.pages) return { displayPages: [], displayLabels: {} };
+    
+    let pages = [];
+    let labels = {};
+
+    if (isMobile || !template.pageLabels) {
+      pages = [...template.pages];
+      if (template.pageLabels) {
+        if (Array.isArray(template.pageLabels)) {
+          template.pageLabels.forEach((label, i) => labels[i] = label);
+        } else {
+          labels = { ...template.pageLabels };
+        }
+      }
+    } else {
+      // Desktop mode: pad physical items with blank pages so they occupy 1 page per spread
+      let currentIndex = 0; 
+      
+      for (let i = 0; i < template.pages.length; i++) {
+        let label = null;
+        if (Array.isArray(template.pageLabels)) {
+          label = template.pageLabels[i];
+        } else if (template.pageLabels) {
+          label = template.pageLabels[i];
+        }
+
+        const isMagazine = !label || label === 'Customized Magazine';
+        
+        if (isMagazine) {
+          pages.push(template.pages[i]);
+          if (label) labels[currentIndex] = label;
+          currentIndex++;
+        } else {
+          // Physical item: MUST be on the LEFT page, RIGHT page must be blank.
+          // Since showCover=true, 0 is right cover, 1 is left, 2 is right...
+          // Left page means ODD index (currentIndex % 2 === 1)
+          const isCurrentLeft = (currentIndex % 2 === 1);
+          
+          if (!isCurrentLeft) {
+            pages.push('BLANK');
+            currentIndex++;
+          }
+          
+          pages.push(template.pages[i]);
+          labels[currentIndex] = label;
+          labels[currentIndex + 1] = label; // Apply to right side of spread
+          currentIndex++;
+          
+          pages.push('BLANK');
+          currentIndex++;
+        }
+      }
+    }
+    
+    return { displayPages: pages, displayLabels: labels };
+  }, [template, isMobile]);
+
   return (
     <div className="section-padding">
       <div className="container">
@@ -219,72 +278,10 @@ const TemplateDetail = () => {
             minHeight: 'auto',
             width: '100%'
           }}>
-            {/* Elegant Tab Selector for Hampers & Combos */}
-            {template.pages && template.pages.length > 0 && template.gallery && template.gallery.length > 0 && groupName !== 'Premium Gifts' && (
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                background: 'rgba(0,0,0,0.03)', 
-                padding: '4px', 
-                borderRadius: '30px', 
-                width: '100%',
-                maxWidth: '340px', 
-                marginBottom: '1.5rem',
-                border: '1px solid rgba(0,0,0,0.05)',
-              }}>
-                <button 
-                  type="button"
-                  onClick={() => setActiveTab('gallery')} 
-                  style={{
-                    flex: 1,
-                    border: 'none',
-                    background: activeTab === 'gallery' ? 'var(--navy)' : 'transparent',
-                    color: activeTab === 'gallery' ? '#fff' : 'var(--text)',
-                    padding: '0.6rem 1rem',
-                    borderRadius: '25px',
-                    fontSize: '0.85rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.4rem'
-                  }}
-                >
-                  {template.id === 'combo_mag_chaos' ? '🖼️ Chaos Collage Frame' :
-                   template.id === 'combo_mag_wheels' ? '🖼️ Hot Wheels' :
-                   template.id === 'combo_mag_grid' ? '🖼️ Pop Grid Frame' :
-                   template.id === 'hamper' ? '🖼️ Hot Wheels & Frames' :
-                   '🖼️ Mockups'}
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => setActiveTab('book')} 
-                  style={{
-                    flex: 1,
-                    border: 'none',
-                    background: activeTab === 'book' ? 'var(--navy)' : 'transparent',
-                    color: activeTab === 'book' ? '#fff' : 'var(--text)',
-                    padding: '0.6rem 1rem',
-                    borderRadius: '25px',
-                    fontSize: '0.85rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.4rem'
-                  }}
-                >
-                  📖 Slide to Book
-                </button>
-              </div>
-            )}
+            {/* Removed Elegant Tab Selector for Hampers & Combos */}
 
             {/* RENDER INTERACTIVE FLIPBOOK PREVIEW */}
-            {activeTab === 'book' && template.pages && template.pages.length > 0 && (
+            {template.pages && template.pages.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem', width: '100%', maxWidth: '800px' }}>
                 <div style={{ 
                   width: '100%', 
@@ -297,10 +294,33 @@ const TemplateDetail = () => {
                   alignItems: 'center',
                   overflow: 'visible',
                   transform: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'rotate(-90deg)' : 'none',
-                  margin: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '4rem 0' : '0'
+                  margin: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '4rem 0' : '0',
+                  position: 'relative'
                 }}>
+                  {displayLabels && displayLabels[currentPage] && (
+                    <div style={{
+                      position: 'absolute',
+                      top: isMobile ? '-35px' : '-50px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      background: 'var(--accent)',
+                      color: 'white',
+                      padding: '6px 16px',
+                      borderRadius: '20px',
+                      fontSize: '0.85rem',
+                      fontWeight: 'bold',
+                      letterSpacing: '1px',
+                      textTransform: 'uppercase',
+                      zIndex: 20,
+                      boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {displayLabels[currentPage]}
+                    </div>
+                  )}
                   <HTMLFlipBook 
                     ref={bookRef}
+                    onFlip={(e) => setCurrentPage(e.data)}
                     width={bookWidth} 
                     height={bookHeight} 
                     size="stretch"
@@ -329,25 +349,27 @@ const TemplateDetail = () => {
                       onTouchEnd={handleTouchEnd}
                     >
                       <div style={{ position: 'absolute', inset: 0, background: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'transparent' : 'linear-gradient(to right, rgba(0,0,0,0.3) 0%, rgba(255,255,255,0.2) 3%, transparent 10%)', zIndex: 10, pointerEvents: 'none' }}></div>
-                      <img 
-                        src={template.pages[0]} 
-                        alt="Cover" 
-                        style={{ 
-                          width: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '420px' : '100%', 
-                          height: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '280px' : '100%', 
-                          objectFit: template.imageFit || 'cover',
-                          transform: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
-                          position: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'absolute' : 'relative',
-                          top: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '50%' : 'auto',
-                          left: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '50%' : 'auto',
-                          minWidth: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '420px' : 'none',
-                          minHeight: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '280px' : 'none'
-                        }} 
-                      />
+                      {displayPages[0] && displayPages[0] !== 'BLANK' && (
+                        <img 
+                          src={displayPages[0]} 
+                          alt="Cover" 
+                          style={{ 
+                            width: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '420px' : '100%', 
+                            height: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '280px' : '100%', 
+                            objectFit: template.imageFit || 'cover',
+                            transform: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
+                            position: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'absolute' : 'relative',
+                            top: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '50%' : 'auto',
+                            left: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '50%' : 'auto',
+                            minWidth: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '420px' : 'none',
+                            minHeight: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '280px' : 'none'
+                          }} 
+                        />
+                      )}
                     </div>
 
                     {/* Inside Pages */}
-                    {template.pages.slice(1).map((pageImg, idx) => (
+                    {displayPages.slice(1).map((pageImg, idx) => (
                       <div 
                         key={idx} 
                         className="page" 
@@ -364,22 +386,24 @@ const TemplateDetail = () => {
                         onTouchEnd={handleTouchEnd}
                       >
                         <div style={{ position: 'absolute', inset: 0, background: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'transparent' : (idx % 2 !== 0 ? 'linear-gradient(to right, rgba(0,0,0,0.1) 0%, transparent 10%)' : 'linear-gradient(to left, rgba(0,0,0,0.1) 0%, transparent 10%)'), zIndex: 10, pointerEvents: 'none' }}></div>
-                        <img 
-                          src={pageImg} 
-                          alt={`Page ${idx + 1}`} 
-                          loading="lazy" 
-                          style={{ 
-                            width: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '420px' : '100%', 
-                            height: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '280px' : '100%', 
-                            objectFit: template.imageFit || 'cover',
-                            transform: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
-                            position: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'absolute' : 'relative',
-                            top: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '50%' : 'auto',
-                            left: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '50%' : 'auto',
-                            minWidth: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '420px' : 'none',
-                            minHeight: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '280px' : 'none'
-                          }} 
-                        />
+                        {pageImg && pageImg !== 'BLANK' && (
+                          <img 
+                            src={pageImg} 
+                            alt={`Page ${idx + 2}`} 
+                            loading="lazy" 
+                            style={{ 
+                              width: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '420px' : '100%', 
+                              height: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '280px' : '100%', 
+                              objectFit: template.imageFit || 'cover',
+                              transform: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
+                              position: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'absolute' : 'relative',
+                              top: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '50%' : 'auto',
+                              left: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '50%' : 'auto',
+                              minWidth: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '420px' : 'none',
+                              minHeight: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '280px' : 'none'
+                            }} 
+                          />
+                        )}
                       </div>
                     ))}
                   </HTMLFlipBook>
@@ -399,8 +423,18 @@ const TemplateDetail = () => {
             )}
 
             {/* RENDER STATIC PHOTO GALLERY SLIDER */}
-            {(activeTab === 'gallery' || !template.pages || template.pages.length === 0) && (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '500px' }}>
+            {(!template.pages || template.pages.length === 0 || (template.gallery && template.gallery.length > 0)) && (
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                width: '100%', 
+                maxWidth: '500px',
+                marginTop: (template.pages && template.pages.length > 0) ? '4rem' : '0'
+              }}>
+                {template.pages && template.pages.length > 0 && template.gallery && template.gallery.length > 0 && (
+                  <h3 style={{ marginBottom: '1.5rem', color: 'var(--navy)', fontFamily: 'var(--font-serif)', fontSize: '1.5rem' }}>Also included in this package:</h3>
+                )}
                 <div style={{ position: 'relative', width: '100%', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.15)', background: '#fff' }}>
                   {sliderImages[currentSlide]?.endsWith('.mp4') ? (
                     <video
@@ -456,29 +490,7 @@ const TemplateDetail = () => {
                   )}
                 </div>
 
-                {/* Direct link button below slider to transition into the book page-flip */}
-                {template.pages && template.pages.length > 0 && groupName !== 'Premium Gifts' && (
-                  <button 
-                    type="button"
-                    onClick={() => setActiveTab('book')}
-                    className="btn btn-outline" 
-                    style={{ 
-                      marginTop: '1.5rem', 
-                      padding: '0.6rem 1.2rem', 
-                      borderRadius: '20px', 
-                      fontSize: '0.85rem', 
-                      display: 'inline-flex', 
-                      alignItems: 'center', 
-                      gap: '0.5rem',
-                      borderColor: 'var(--accent)',
-                      color: 'var(--navy)',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <span>📖 Slide to view inside book pages</span>
-                    <ArrowRight size={14} />
-                  </button>
-                )}
+                {/* Direct link button below slider removed */}
               </div>
             )}
           </div>
@@ -499,17 +511,34 @@ const TemplateDetail = () => {
                   Price: ₹{currentPrice}
                 </span>
                 {template.originalPrice && (
-                  <span style={{ 
-                    background: 'rgba(212, 175, 55, 0.1)', 
-                    color: 'var(--accent)', 
-                    padding: '0.2rem 0.6rem', 
-                    borderRadius: '20px', 
-                    fontSize: '0.75rem', 
-                    fontWeight: 'bold',
-                    border: '1px solid rgba(212, 175, 55, 0.2)'
-                  }}>
-                    Save ₹{template.originalPrice - currentPrice}
-                  </span>
+                  <>
+                    <span style={{ 
+                      background: 'rgba(212, 175, 55, 0.1)', 
+                      color: 'var(--accent)', 
+                      padding: '0.2rem 0.6rem', 
+                      borderRadius: '20px', 
+                      fontSize: '0.75rem', 
+                      fontWeight: 'bold',
+                      border: '1px solid rgba(212, 175, 55, 0.2)'
+                    }}>
+                      Save ₹{template.originalPrice - currentPrice}
+                    </span>
+                    <div style={{ flexBasis: '100%', height: '0' }}></div>
+                    <span style={{
+                      fontSize: '0.85rem',
+                      fontWeight: 800,
+                      color: '#ff4d4f',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.3rem',
+                      marginTop: '0.2rem'
+                    }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      Limited Time Offer
+                    </span>
+                  </>
                 )}
               </div>
             </div>

@@ -6,6 +6,7 @@ export const TEMPLATES = [
     name: 'Chaar Kadam Magazine',
     price10: 999,
     price12: 999,
+    originalPrice: 1399,
     image: '/products/MAGAZINE TEMPLATES/CHAAR KADAM-WEBSITE.jpg',
     description: 'Your camera roll, but make it iconic.',
     category: 'Magazine',
@@ -43,6 +44,7 @@ export const TEMPLATES = [
     name: 'Khat Magazine',
     price10: 999,
     price12: 999,
+    originalPrice: 1449,
     image: '/products/MAGAZINE TEMPLATES/KHAT-WEBSITE.jpg',
     description: 'Your camera roll, but make it iconic.',
     category: 'Magazine',
@@ -80,6 +82,7 @@ export const TEMPLATES = [
     name: 'Le Dooba Magazine',
     price10: 999,
     price12: 999,
+    originalPrice: 1299,
     image: '/products/MAGAZINE TEMPLATES/LE DOOBA-WEBSITE.jpg',
     description: 'Your camera roll, but make it iconic.',
     category: 'Magazine',
@@ -117,6 +120,7 @@ export const TEMPLATES = [
     name: 'Tu Chahiye Magazine',
     price10: 999,
     price12: 999,
+    originalPrice: 1549,
     image: '/products/MAGAZINE TEMPLATES/TU CHAHIYE-WEBSITE.jpg',
     description: 'Your camera roll, but make it iconic.',
     category: 'Magazine',
@@ -154,6 +158,7 @@ export const TEMPLATES = [
     name: 'Rozana Magazine',
     price10: 999,
     price12: 999,
+    originalPrice: 1349,
     image: '/products/MAGAZINE TEMPLATES/ROZANA-WEBSITE_page_1.jpg',
     description: 'Your camera roll, but make it iconic.',
     category: 'Magazine',
@@ -191,6 +196,7 @@ export const TEMPLATES = [
     name: 'Shayarana Magazine',
     price10: 999,
     price12: 999,
+    originalPrice: 1499,
     image: '/products/MAGAZINE TEMPLATES/SHAYARANA-WEBSITE_page_1.jpg',
     description: 'Your camera roll, but make it iconic.',
     category: 'Magazine',
@@ -228,6 +234,7 @@ export const TEMPLATES = [
     name: 'Tera Mera Rishta Magazine',
     price10: 999,
     price12: 999,
+    originalPrice: 1599,
     image: '/products/MAGAZINE TEMPLATES/TERA MERA RISHTA-WEBSITE_page_1.jpg',
     description: 'Your camera roll, but make it iconic.',
     category: 'Magazine',
@@ -265,6 +272,7 @@ export const TEMPLATES = [
     name: 'Normal Magazine',
     price10: 999,
     price12: 999,
+    originalPrice: 1249,
     image: '/products/MAGAZINE TEMPLATES/NORMAL TEMPLATE-WEBSITE_page_3.jpg',
     description: 'Your camera roll, but make it iconic.',
     category: 'Magazine',
@@ -303,6 +311,7 @@ export const TEMPLATES = [
     name: 'Spotify Code',
     price10: 699,
     price12: 699,
+    originalPrice: 999,
     image: '/products/FRAMES/a4 frames website_page_13.jpg',
     gallery: [
       '/products/FRAMES/a4 frames website_page_13.jpg',
@@ -329,6 +338,7 @@ export const TEMPLATES = [
     name: 'Polaroid',
     price10: 699,
     price12: 699,
+    originalPrice: 899,
     image: '/products/FRAMES/a4 frames website_page_4.jpg',
     gallery: [
       '/products/FRAMES/a4 frames website_page_4.jpg',
@@ -355,6 +365,7 @@ export const TEMPLATES = [
     name: 'Long Distance',
     price10: 699,
     price12: 699,
+    originalPrice: 949,
     image: '/products/FRAMES/a4 frames website_page_1.jpg',
     gallery: [
       '/products/FRAMES/a4 frames website_page_1.jpg',
@@ -381,6 +392,7 @@ export const TEMPLATES = [
     name: 'Chaos Collage',
     price10: 699,
     price12: 699,
+    originalPrice: 1099,
     image: '/products/FRAMES/a4 frames website_page_7.jpg',
     gallery: [
       '/products/FRAMES/a4 frames website_page_7.jpg',
@@ -407,6 +419,7 @@ export const TEMPLATES = [
     name: 'Hopeless Romantic',
     price10: 699,
     price12: 699,
+    originalPrice: 849,
     image: '/products/FRAMES/a4 frames website_page_10.jpg',
     gallery: [
       '/products/FRAMES/a4 frames website_page_10.jpg',
@@ -433,6 +446,7 @@ export const TEMPLATES = [
     name: 'Digital Diary',
     price10: 649,
     price12: 649,
+    originalPrice: 899,
     image: '/products/FRAMES/8x8 frames website1_page_4.jpg',
     gallery: [
       '/products/FRAMES/8x8 frames website1_page_4.jpg',
@@ -459,6 +473,7 @@ export const TEMPLATES = [
     name: 'Photo Booth',
     price10: 699,
     price12: 699,
+    originalPrice: 1199,
     image: '/products/FRAMES/a4 frames website_page_16.jpg',
     gallery: [
       '/products/FRAMES/a4 frames website_page_16.jpg',
@@ -480,6 +495,7 @@ export const TEMPLATES = [
     name: 'Archive of Us',
     price10: 649,
     price12: 649,
+    originalPrice: 849,
     image: '/products/FRAMES/8x8 frames website1_page_1.jpg',
     gallery: [
       '/products/FRAMES/8x8 frames website1_page_1.jpg',
@@ -506,6 +522,7 @@ export const TEMPLATES = [
     name: 'Pop Grid',
     price10: 549,
     price12: 549,
+    originalPrice: 749,
     image: '/products/FRAMES/5  7 inches frame_page_1.jpg',
     gallery: [
       '/products/FRAMES/5  7 inches frame_page_1.jpg',
@@ -527,6 +544,7 @@ export const TEMPLATES = [
     name: 'Pieces of Us',
     price10: 649,
     price12: 649,
+    originalPrice: 999,
     image: '/products/FRAMES/8x8 frames website1_page_7.jpg',
     gallery: [
       '/products/FRAMES/8x8 frames website1_page_7.jpg',
@@ -553,21 +571,27 @@ export const TEMPLATES = [
     name: 'The Ultimate Hamper',
     price10: 3199,
     price12: 3199,
-    originalPrice: 3399,
-    image: '/products/vac.mp4',
-    description: 'The ultimate custom gift collection — designed to turn your favorite memories into something unforgettable 🤍',
+    originalPrice: 3999,
+    image: '/products/hamper_cover.jpg',
+    description: 'The ultimate custom gift collection 🤍',
     category: 'Hamper',
     popular: false,
     imageFit: 'contain',
     pageBg: '#fdfdfd',
-    gallery: [
-      '/products/vac.mp4',
-      '/products/HAMPER/1.jpg',
-      '/products/HAMPER/2.jpg',
+    pages: [
+      ...Array.from({length: 16}, (_, i) => `/products/HAMPER/sakstin hamper magazine _page_${i + 1}.jpg`),
+      '/products/HAMPER/sakstin 57 frame wesbite hamper.jpg',
       '/products/HAMPER/a4 frames website hamper.jpg',
-      '/products/HAMPER/sakstin 57 frame wesbite hamper.jpg'
+      '/products/hotwheels.jpg',
+      '/products/HAMPER/1.jpg'
     ],
-    pages: Array.from({length: 16}, (_, i) => `/products/HAMPER/sakstin hamper magazine _page_${i + 1}.jpg`),
+    pageLabels: [
+      ...Array.from({length: 16}, () => 'Customized Magazine'),
+      'Small Frame',
+      'Big Frame',
+      'Hot Wheels',
+      'Personalized Letter'
+    ],
     details: {
       intro: "The ultimate custom gift collection — designed to turn your favorite memories into something unforgettable 🤍",
       included: [
@@ -598,7 +622,9 @@ export const TEMPLATES = [
     name: 'Customised Calendar',
     price10: 999,
     price12: 999,
+    originalPrice: 1499,
     image: '/products/CUSTOMISED CALENDAR/customized calendar_page_1.jpg',
+    aspectRatio: '5/4',
     description: 'Start every month with a memory that makes you smile ✨',
     category: 'Calendar',
     popular: false,
@@ -634,7 +660,9 @@ export const TEMPLATES = [
     name: 'Scrapbook',
     price10: 1299,
     price12: 1299,
+    originalPrice: 1699,
     image: '/products/SCRAPBOOK/_SCRAPBOOK - website_page_1.jpg',
+    aspectRatio: '5/4',
     description: 'A handmade customized scrapbook capturing your best moments.',
     category: 'Scrapbook',
     popular: false,
@@ -658,6 +686,7 @@ export const TEMPLATES = [
     name: 'Standing Magazine',
     price10: 1399,
     price12: 1399,
+    originalPrice: 1899,
     image: '/products/standing magazine/standing magazine_page_1.jpg',
     description: 'A unique standing magazine display for your desk.',
     category: 'Standing Magazine',
@@ -698,6 +727,7 @@ export const TEMPLATES = [
     name: 'Kaleshi Aurat Cap',
     price10: 499,
     price12: 499,
+    originalPrice: 699,
     image: '/products/KALESHI AURAT/686f6b42-274f-4201-b05d-1f74e5f995df.jpg',
     description: 'A statement piece for every unapologetic girl 🤍💋',
     category: 'Cap',
@@ -725,13 +755,18 @@ export const TEMPLATES = [
     name: 'Combo 1 — Customized Magazine + Pop Grid',
     price10: 1499,
     price12: 1499,
+    originalPrice: 2099,
     image: '/products/COMBO 1/5  7 inches frame.jpg',
     description: 'A perfect blend of memories and aesthetics.',
     category: 'Combo',
-    gallery: [
+    pages: [
+      ...Array.from({length: 9}, (_, i) => `/products/COMBO 1/NORMAL TEMPLATE-WEBSITE_page_${i + 3}.jpg`),
       '/products/COMBO 1/5  7 inches frame.jpg'
     ],
-    pages: Array.from({length: 9}, (_, i) => `/products/COMBO 1/NORMAL TEMPLATE-WEBSITE_page_${i + 3}.jpg`),
+    pageLabels: [
+      ...Array.from({length: 9}, () => 'Customized Magazine'),
+      'Pop Grid Frame'
+    ],
     details: {
       intro: "A perfect blend of memories and aesthetics.\nThis combo includes our signature customized magazine paired with a beautifully designed pop grid frame.",
       included: [
@@ -756,13 +791,18 @@ export const TEMPLATES = [
     name: 'Combo 2 — Customized Magazine + Chaos Collage',
     price10: 1599,
     price12: 1599,
+    originalPrice: 2299,
     image: '/products/COMBO 2/a4 frames website.jpg',
     description: 'A perfect combination of storytelling and creative memories.',
     category: 'Combo',
-    gallery: [
+    pages: [
+      ...Array.from({length: 9}, (_, i) => `/products/COMBO 2/NORMAL TEMPLATE-WEBSITE_page_${i + 3}.jpg`),
       '/products/COMBO 2/a4 frames website.jpg'
     ],
-    pages: Array.from({length: 9}, (_, i) => `/products/COMBO 2/NORMAL TEMPLATE-WEBSITE_page_${i + 3}.jpg`),
+    pageLabels: [
+      ...Array.from({length: 9}, () => 'Customized Magazine'),
+      'Chaos Collage Frame'
+    ],
     details: {
       intro: "A perfect combination of storytelling and creative memories.\nThis combo includes our signature customized magazine along with a chaos collage frame.",
       included: [
@@ -787,13 +827,20 @@ export const TEMPLATES = [
     name: 'Combo 3 — Customized Magazine + Hot Wheels',
     price10: 1499,
     price12: 1499,
+    originalPrice: 1999,
     image: '/products/COMBO 3/5  7 inches frame (1).jpg',
     description: 'A unique combination created for people who love memories with a touch of personality and fun.',
     category: 'Combo',
-    gallery: [
-      '/products/COMBO 3/5  7 inches frame (1).jpg'
+    pages: [
+      ...Array.from({length: 9}, (_, i) => `/products/COMBO 3/NORMAL TEMPLATE-WEBSITE_page_${i + 3}.jpg`),
+      '/products/COMBO 3/5  7 inches frame (1).jpg',
+      '/products/hotwheels.jpg'
     ],
-    pages: Array.from({length: 9}, (_, i) => `/products/COMBO 3/NORMAL TEMPLATE-WEBSITE_page_${i + 3}.jpg`),
+    pageLabels: [
+      ...Array.from({length: 9}, () => 'Customized Magazine'),
+      'Frame',
+      'Hot Wheels'
+    ],
     details: {
       intro: "A unique combination created for people who love memories with a touch of personality and fun.\nThis combo includes our signature customized magazine paired with a Hot Wheels car.",
       included: [
