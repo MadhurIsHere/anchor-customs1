@@ -1,6 +1,112 @@
-import { HOTWHEELS_TEMPLATES } from './hotwheels-data';
+import fs from 'fs';
+// Hot Wheels product catalog - separated for maintainability
+const HW_DESC = 'Premium, rare-to-find original Hot Wheels car. 100% authentic, carefully packed for safe delivery.';
 
-export const TEMPLATES = [
+const HW_DETAILS = {
+  intro: "For the true collectors and die-cast enthusiasts — discover premium, rare-to-find original Hot Wheels cars that stand out in every collection. From limited editions to highly sought-after models, each piece is carefully sourced to ensure authenticity, quality, and collector value.",
+  included: [
+    "100% Original Hot Wheels",
+    "Premium & Collector Editions",
+    "Rare and Hard-to-Find Models",
+    "Carefully Packed for Safe Delivery"
+  ],
+  required: [],
+  perfectFor: [
+    "Die-Cast Collectors",
+    "Car Enthusiasts",
+    "Birthday Gifts",
+    "Display Collections"
+  ],
+  importantInfo: [
+    "Because some cars are more than toys — they're collectibles.",
+    "⚠️ Stock is extremely limited — only 1 unit per model!"
+  ]
+};
+
+const hw = (id, img, name, price) => ({
+  id: `hw_${img}`,
+  name,
+  price10: price,
+  price12: price,
+  image: `/products/HOTWHEELS/${price}/${img}.jpg`,
+  description: HW_DESC,
+  category: 'Hot Wheels',
+  isHotWheels: true,
+  stock: 1,
+  priceTier: price,
+  details: { ...HW_DETAILS, importantInfo: [`Price: ₹${price}`, ...HW_DETAILS.importantInfo] }
+});
+
+const HOTWHEELS_TEMPLATES = [
+  // ₹399 Tier (16 cars)
+  hw(1, 'IMG_5134', 'Ford Mustang Mach-E 1400', 399),
+  hw(2, 'IMG_5135', 'Maserati Shamal', 399),
+  hw(3, 'IMG_5136', 'Gordon Murray Automotive T.50s', 399),
+  hw(4, 'IMG_5137', "'15 Land Rover Defender Double Cab", 399),
+  hw(5, 'IMG_5138', '2019 Audi R8 Spyder', 399),
+  hw(6, 'IMG_5139', "'68 Dodge Dart", 399),
+  hw(7, 'IMG_5140', 'Gordon Murray Automotive T.33', 399),
+  hw(8, 'IMG_5141', 'TV Series Batmobile (Batman Classic TV Series)', 399),
+  hw(9, 'IMG_5142', 'Cadillac Project GTP Hypercar', 399),
+  hw(10, 'IMG_5143', "'16 Cadillac ATS-V R", 399),
+  hw(11, 'IMG_5149', 'Ford GT', 399),
+  hw(12, 'IMG_5150', 'Austin Mini Cooper S', 399),
+  hw(13, 'IMG_5151', "'67 Shelby GT500", 399),
+  hw(14, 'IMG_5152', 'Nissan Skyline 2000 GT-R', 399),
+  hw(15, 'IMG_5146', "'64 Impala", 399),
+  hw(16, 'IMG_5147', 'Peugeot 9X8 Hypercar', 399),
+
+  // ₹549 Tier (19 cars)
+  hw(17, 'IMG_5155', 'BMW 2002', 549),
+  hw(18, 'IMG_5157', '2020 Ford Mustang Shelby GT500', 549),
+  hw(19, 'IMG_5158', 'The Simpsons Family Car', 549),
+  hw(20, 'IMG_5159', 'The Dark Knight Batmobile', 549),
+  hw(21, 'IMG_5160', 'Batman: Arkham Asylum Batmobile', 549),
+  hw(22, 'IMG_5161', "'96 Dodge Viper GTS", 549),
+  hw(23, 'IMG_5144', 'Batman & Robin Batmobile', 549),
+  hw(24, 'IMG_5148', 'Muscle and Blown', 549),
+  hw(25, 'IMG_5153', 'Mercedes-Benz 500 E', 549),
+  hw(26, 'IMG_5154', 'BMW 635 CSi', 549),
+  hw(27, 'IMG_5167', 'Mod Speeder', 549),
+  hw(28, 'IMG_5168', '1970 Road Runner (Fast & Furious: Tokyo Drift)', 549),
+  hw(29, 'IMG_5169', 'Nissan Silvia S15 (Fast & Furious: Tokyo Drift)', 549),
+  hw(30, 'IMG_5170', 'Nissan 350Z Custom (Fast & Furious: Tokyo Drift)', 549),
+  hw(31, 'IMG_5171', 'Nissan Silvia S13 (Fast & Furious: Tokyo Drift)', 549),
+  hw(32, 'IMG_5172', '1970 Monte Carlo (Fast & Furious: Tokyo Drift)', 549),
+  hw(33, 'IMG_5163', 'Audi 90 Quattro', 549),
+  hw(34, 'IMG_5165', 'Land Rover Defender 90', 549),
+  hw(35, 'IMG_5166', 'Formula E Gen3', 549),
+
+  // ₹699 Tier (10 cars)
+  hw(36, 'IMG_5175', 'Nissan Skyline GT-R (BCNR33)', 699),
+  hw(37, 'IMG_5176', 'Batmobile (The Batman)', 699),
+  hw(38, 'IMG_5177', '1983 Porsche 928S', 699),
+  hw(39, 'IMG_5178', "'96 Porsche Carrera", 699),
+  hw(40, 'IMG_5180', 'Mazda 787B', 699),
+  hw(41, 'IMG_5183', "'17 Audi RS 6 Avant", 699),
+  hw(42, 'IMG_5191', 'Spider-Man (Marvel)', 699),
+  hw(43, 'IMG_5145', 'Maserati Tipo 61 Birdcage', 699),
+  hw(44, 'IMG_5162', "'89 Mercedes-Benz 560 SEC AMG", 699),
+  hw(45, 'IMG_5164', 'Ferrari 365 GTB4 Competizione', 699),
+
+  // ₹899 Tier (12 cars)
+  hw(46, 'IMG_5184', 'Pagani Utopia', 899),
+  hw(47, 'IMG_5185', '2020 Koenigsegg Jesko', 899),
+  hw(48, 'IMG_5186', "'16 Lamborghini Centenario Roadster", 899),
+  hw(49, 'IMG_5187', 'LB-Works Lamborghini Huracán Coupé', 899),
+  hw(50, 'IMG_5188', 'Visa Cash App RB Formula One Team', 899),
+  hw(51, 'IMG_5189', 'Ferrari 12Cilindri', 899),
+  hw(52, 'IMG_5190', 'McLaren W1', 899),
+  hw(53, 'IMG_5156', 'Porsche 911 Turbo Cabriolet (White)', 899),
+  hw(54, 'IMG_5179', 'Porsche 911 Turbo Cabriolet (Maroon)', 899),
+  hw(55, 'IMG_5182', 'Bugatti Bolide', 899),
+  hw(56, 'IMG_5193', 'Nissan 240SX S14 (Fast & Furious Premium)', 899),
+  hw(57, 'IMG_5192', 'Porsche Panamera Turbo S E-Hybrid (Hybrid Speed)', 899),
+];
+
+
+
+const TEMPLATES = [
   {
     id: 'mag_chaar_kadam',
     name: 'Chaar Kadam Magazine',
@@ -567,70 +673,6 @@ export const TEMPLATES = [
     }
   },
   {
-    id: 'mag_song_pt2',
-    name: 'Song Magazine Part 2',
-    price10: 999,
-    price12: 999,
-    image: '/products/MAGAZINE TEMPLATES/song magazine pt.2_page_1.jpg',
-    description: 'Your camera roll, but make it iconic.',
-    category: 'Magazine',
-    pages: Array.from({length: 12}, (_, i) => `/products/MAGAZINE TEMPLATES/song magazine pt.2_page_${i + 1}.jpg`),
-    details: {
-      intro: "Your camera roll, but make it iconic.",
-      included: [
-        "12 Pages (24 Sides)",
-        "Premium Quality Printing",
-        "Aesthetic Layouts & Edits",
-        "Texts, Captions & Memories",
-        "Carefully Designed To Match Your Vibe"
-      ],
-      required: [
-        "35–40 Photos",
-        "(Minimum 20 Photos Required)",
-        "Have more memories? We can also increase the number of pages accordingly ✨"
-      ],
-      perfectFor: [
-        "Anniversaries",
-        "Birthdays",
-        "Couple Gifts",
-        "Friendship Gifts",
-        "Long Distance Relationships",
-        "Memory Keepsakes"
-      ],
-      importantInfo: [
-        "Price: ₹999",
-        "Privacy Policy: Your order will never be posted on our page without your permission. We deeply respect your privacy and personal memories 🤍"
-      ]
-    }
-  },
-  {
-    id: 'frame_lovers_deck',
-    name: "The Lover's Deck",
-    price10: 749,
-    price12: 749,
-    image: '/products/FRAMES/The Lovers Deck_page_1.jpg',
-    gallery: [
-      '/products/FRAMES/The Lovers Deck_page_1.jpg',
-      '/products/FRAMES/The Lovers Deck_page_2.jpg',
-      '/products/FRAMES/The Lovers Deck_page_3.jpg'
-    ],
-    description: 'Turn your favorite memories into a frame that feels straight out of a love story.',
-    category: 'Frames',
-    details: {
-      intro: "Turn your favorite memories into a frame that feels straight out of a love story. Designed in a playing-card aesthetic, this A4-sized customized frame features your best moments in a unique and timeless layout.",
-      size: "A4 Size",
-      price: "₹749",
-      perfectFor: ["Couples", "Friends", "Siblings", "Family & all relationships"],
-      required: ["8 photos"],
-      included: [
-        "A4 Sized Frame",
-        "Playing cards inspired aesthetic",
-        "Unique and timeless layout"
-      ],
-      whatMakesItSpecial: ["Personalized with 8 photos", "A keepsake made to hold the people who always feel like your winning hand ♡"]
-    }
-  },
-  {
     id: 'hamper',
     name: 'The Ultimate Hamper',
     price10: 2999,
@@ -642,15 +684,15 @@ export const TEMPLATES = [
     popular: false,
     imageFit: 'contain',
     pageBg: '#fdfdfd',
-    gallery: [
-      '/products/HAMPER/sakstin hamper magazine _page_1.jpg',
+    pages: [
+      ...Array.from({length: 16}, (_, i) => `/products/HAMPER/sakstin hamper magazine _page_${i + 1}.jpg`),
       '/products/HAMPER/sakstin 57 frame wesbite hamper.jpg',
       '/products/HAMPER/a4 frames website hamper.jpg',
       '/products/hotwheels.jpg',
       '/products/HAMPER/1.jpg'
     ],
-    galleryLabels: [
-      'Magazine',
+    pageLabels: [
+      ...Array.from({length: 16}, () => 'Customized Magazine'),
       'Small Frame',
       'Big Frame',
       'Hot Wheels',
@@ -895,14 +937,15 @@ export const TEMPLATES = [
     image: '/products/COMBO 3/5  7 inches frame (1).jpg',
     description: 'A unique combination created for people who love memories with a touch of personality and fun.',
     category: 'Combo',
-    gallery: [
-      '/products/COMBO 3/NORMAL TEMPLATE-WEBSITE.jpg'
-    ],
     pages: [
-      ...Array.from({length: 9}, (_, i) => `/products/COMBO 3/NORMAL TEMPLATE-WEBSITE_page_${i + 3}.jpg`)
+      ...Array.from({length: 9}, (_, i) => `/products/COMBO 3/NORMAL TEMPLATE-WEBSITE_page_${i + 3}.jpg`),
+      '/products/COMBO 3/5  7 inches frame (1).jpg',
+      '/products/hotwheels.jpg'
     ],
     pageLabels: [
-      ...Array.from({length: 9}, () => 'Customized Magazine')
+      ...Array.from({length: 9}, () => 'Customized Magazine'),
+      'Frame',
+      'Hot Wheels'
     ],
     details: {
       intro: "A unique combination created for people who love memories with a touch of personality and fun.\nThis combo includes our signature customized magazine paired with a Hot Wheels car.",
@@ -924,7 +967,60 @@ export const TEMPLATES = [
       ]
     }
   },
-
+  {
+    id: 'bouquet',
+    name: 'Bouquet of Hotwheels',
+    price10: 2300,
+    price12: 2300,
+    originalPrice: 2600,
+    image: '/products/IMG_6614.MOV',
+    gallery: [
+      '/products/IMG_6614.MOV',
+      '/products/IMG_6612.jpg'
+    ],
+    description: 'A bouquet made with Hot Wheels, nostalgia, and love.',
+    category: 'Bouquet',
+    popular: true,
+    details: {
+      intro: "For the boy who still gets excited over tiny cars like it’s childhood all over again. 🚗💙\nA bouquet made with Hot Wheels, nostalgia, and love, because flowers are pretty, but this feels more like him.\n\nEach bouquet is handcrafted with carefully wrapped Hot Wheels cars and premium bouquet styling for a clean, aesthetic look.",
+      included: [
+        "Handcrafted bouquet of Hot Wheels",
+        "Premium bouquet styling",
+        "Carefully wrapped cars"
+      ],
+      importantInfo: [
+        "Price: ₹2300 (including shipping)",
+        "Cars will be added based on availability",
+        "Designs and car models may vary"
+      ],
+      perfectFor: [
+        "Collectors",
+        "Best friends",
+        "Partners",
+        "Car enthusiasts"
+      ],
+      privacy: "A bouquet, but make it horsepower. 🏁"
+    }
+  },
   // Hot Wheels products
   ...HOTWHEELS_TEMPLATES
 ];
+
+const allImages = new Set();
+const addImage = (img) => {
+  if (img && typeof img === 'string') allImages.add(decodeURIComponent(img.split('?')[0]));
+};
+for (const t of [...TEMPLATES, ...HOTWHEELS_TEMPLATES]) {
+  addImage(t.image);
+  if (t.gallery) t.gallery.forEach(addImage);
+  if (t.pages) t.pages.forEach(addImage);
+  if (t.coverPhoto) addImage(t.coverPhoto);
+}
+addImage('/products/Surprise-box.jpeg');
+addImage('/products/MAGAZINE TEMPLATES/CHAAR KADAM-WEBSITE.jpg');
+addImage('/products/MAGAZINE TEMPLATES/LE DOOBA-WEBSITE.jpg');
+addImage('/products/HAMPER/1.jpg');
+addImage('/products/FRAMES/a4 frames website_page_7.jpg');
+addImage('/products/IMG_6614.MOV');
+addImage('/products/IMG_6612.jpg');
+fs.writeFileSync('used_files.json', JSON.stringify(Array.from(allImages), null, 2));

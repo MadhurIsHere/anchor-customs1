@@ -36,13 +36,13 @@ const ProductCardContent = ({ template }) => {
             position: 'absolute', 
             top: isMob ? '0.8rem' : '1.2rem', 
             right: isMob ? '0.8rem' : '1.2rem', 
-            background: '#ff4d4f', 
+            background: 'linear-gradient(135deg, #D4AF37 0%, #B5852A 100%)', 
             color: 'white',
             padding: isMob ? '0.3rem 0.6rem' : '0.4rem 1rem', 
             borderRadius: '20px', 
             fontSize: isMob ? '0.6rem' : '0.7rem', 
             fontWeight: 900,
-            boxShadow: '0 4px 15px rgba(255, 77, 79, 0.4)',
+            boxShadow: '0 4px 15px rgba(212, 175, 55, 0.4)',
             zIndex: 10,
             letterSpacing: '0.5px'
           }}>
@@ -50,7 +50,7 @@ const ProductCardContent = ({ template }) => {
           </div>
         )}
 
-        {template.image?.endsWith('.mp4') ? (
+        {template.image?.match(/\.(mp4|mov)$/i) ? (
           <video 
             src={template.image} 
             autoPlay loop muted playsInline
@@ -423,47 +423,57 @@ const Home = () => {
                 }}
                 style={{
                   flex: isMobile ? '1 1 0px' : '0 0 auto',
-                  width: isMobile ? 'auto' : '300px',
+                  width: isMobile ? '100%' : '320px',
+                  background: 'linear-gradient(180deg, #faf2e6 0%, #e8d3bc 100%)',
+                  borderRadius: '12px',
+                  padding: isMobile ? '12px' : '24px',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  boxShadow: '0 12px 30px rgba(0,0,0,0.1)',
+                  border: '1px solid rgba(255,255,255,0.5)'
                 }}>
                 <div style={{
-                  background: 'transparent',
-                  borderRadius: '0',
-                  padding: '0',
                   width: '100%',
-                  aspectRatio: '1/1',
+                  aspectRatio: '4/5',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: isMobile ? '0.4rem' : '1.5rem',
-                  position: 'relative'
+                  marginBottom: isMobile ? '8px' : '20px'
                 }}>
-                  {cat.coverImage?.endsWith('.mp4') ? (
+                  {cat.coverImage?.match(/\.(mp4|mov)$/i) ? (
                     <video 
                       src={cat.coverImage} 
                       autoPlay loop muted playsInline
                       style={{ 
                         width: '100%', 
-                        aspectRatio: '4/5',
+                        height: '100%',
                         objectFit: 'cover',
-                        borderRadius: '0'
+                        filter: 'drop-shadow(0 15px 25px rgba(0,0,0,0.2))',
+                        borderRadius: '6px'
                       }} 
                     />
                   ) : (
                     <img src={cat.coverImage} alt={cat.title} style={{ 
                       width: '100%', 
-                      aspectRatio: '4/5',
+                      height: '100%',
                       objectFit: 'cover',
-                      borderRadius: '0'
+                      filter: 'drop-shadow(0 15px 25px rgba(0,0,0,0.2))',
+                      borderRadius: '6px'
                     }} />
                   )}
                 </div>
                 
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', padding: '0 0.2rem', fontFamily: 'var(--font-sans)' }}>
-                  <span style={{ fontSize: isMobile ? '0.75rem' : '1.4rem', fontWeight: 800, textAlign: 'center', lineHeight: '1.2' }}>{cat.title}</span>
+                <div style={{ display: 'flex', flexGrow: 1, justifyContent: 'center', alignItems: 'flex-end', width: '100%', fontFamily: 'var(--font-sans)' }}>
+                  <span style={{ 
+                    fontSize: isMobile ? '0.85rem' : '1.5rem', 
+                    fontWeight: 800, 
+                    textAlign: 'center', 
+                    color: '#6d4c41',
+                    lineHeight: '1.2',
+                    whiteSpace: 'nowrap'
+                  }}>{cat.title}</span>
                 </div>
               </motion.div>
             ))}
@@ -485,10 +495,10 @@ const Home = () => {
           {!selectedCategory && (
             <div className="product-grid">
               {Object.entries({
-                'Premium Gifts': TEMPLATES.filter(t => ['Hamper', 'Scrapbook', 'Calendar'].includes(t.category)),
+                'Premium Gifts': TEMPLATES.filter(t => ['Hamper', 'Scrapbook', 'Calendar', 'Bouquet'].includes(t.category)),
                 'Hot Wheels': TEMPLATES.filter(t => ['Hot Wheels'].includes(t.category)),
                 'Apparel & Accessories': TEMPLATES.filter(t => ['Apparel', 'Cap', 'Keychain'].includes(t.category)),
-                'Other': TEMPLATES.filter(t => !['Magazine', 'Standing Magazine', 'Frames', 'Frame', 'Aesthetic', 'Hamper', 'Scrapbook', 'Calendar', 'Apparel', 'Cap', 'Keychain', 'Combo', 'Hot Wheels'].includes(t.category))
+                'Other': TEMPLATES.filter(t => !['Magazine', 'Standing Magazine', 'Frames', 'Frame', 'Aesthetic', 'Hamper', 'Scrapbook', 'Calendar', 'Apparel', 'Cap', 'Keychain', 'Combo', 'Hot Wheels', 'Bouquet'].includes(t.category))
               }).map(([title, items], index) => {
                 if (items.length === 0) return null;
                 const coverTemplate = items[0];
@@ -542,7 +552,7 @@ const Home = () => {
                         }}>
                           <Star size={isMobile ? 10 : 14} fill="var(--accent)" /> {items.length} PRODUCTS
                         </div>
-                        {coverTemplate.image?.endsWith('.mp4') ? (
+                        {coverTemplate.image?.match(/\.(mp4|mov)$/i) ? (
                           <video 
                             src={coverTemplate.image} 
                             autoPlay loop muted playsInline
@@ -633,7 +643,7 @@ const Home = () => {
                 {TEMPLATES.filter(t => {
                   const groups = {
                     'Magazines': ['Magazine', 'Standing Magazine'],
-                    'Premium Gifts': ['Hamper', 'Scrapbook', 'Calendar'],
+                    'Premium Gifts': ['Hamper', 'Scrapbook', 'Calendar', 'Bouquet'],
                     'Combos': ['Combo'],
                     'Photo Frames': ['Frames', 'Frame', 'Aesthetic'],
                     'Apparel & Accessories': ['Apparel', 'Cap', 'Keychain'],

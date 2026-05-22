@@ -477,14 +477,42 @@ const TemplateDetail = () => {
                       >
                         <ChevronRight size={24} color="var(--navy)" />
                       </button>
-                      <div style={{ position: 'absolute', bottom: '1.5rem', left: '0', right: '0', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
-                        {sliderImages.map((_, i) => (
-                          <div 
-                            key={i} 
-                            style={{ width: i === currentSlide ? '24px' : '8px', height: '8px', borderRadius: '4px', background: i === currentSlide ? 'var(--accent)' : 'rgba(200,200,200,0.8)', transition: 'all 0.3s ease', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}
-                            onClick={() => setCurrentSlide(i)}
-                          />
-                        ))}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '1rem', paddingBottom: '1.5rem', width: '100%' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.8rem', flexWrap: 'wrap', marginBottom: '0.8rem' }}>
+                          {sliderImages.map((imgUrl, i) => (
+                            <div 
+                              key={i} 
+                              style={{ 
+                                width: '60px', 
+                                height: '60px', 
+                                borderRadius: '8px', 
+                                overflow: 'hidden',
+                                border: i === currentSlide ? '3px solid var(--accent)' : '2px solid transparent', 
+                                transition: 'all 0.3s ease', 
+                                cursor: 'pointer', 
+                                boxShadow: i === currentSlide ? '0 4px 10px rgba(0,0,0,0.2)' : '0 2px 4px rgba(0,0,0,0.1)' 
+                              }}
+                              onClick={() => setCurrentSlide(i)}
+                            >
+                              {imgUrl.endsWith('.mp4') ? (
+                                <video src={imgUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted />
+                              ) : (
+                                <img src={imgUrl} alt={`Thumbnail ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        {template.galleryLabels && template.galleryLabels[currentSlide] && (
+                          <div style={{ 
+                            fontSize: '1.2rem', 
+                            fontWeight: 'bold', 
+                            color: 'var(--navy)', 
+                            fontFamily: 'var(--font-serif)',
+                            letterSpacing: '1px'
+                          }}>
+                            {template.galleryLabels[currentSlide]}
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
