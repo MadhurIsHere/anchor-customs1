@@ -31,7 +31,7 @@ const ProductCardContent = ({ template }) => {
         position: 'relative'
       }}>
 
-        {template.popular && (
+        {(template.popular || template.category === 'Magazine') && (
           <div style={{ 
             position: 'absolute', 
             top: isMob ? '0.8rem' : '1.2rem', 

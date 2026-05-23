@@ -833,7 +833,25 @@ const TemplateDetail = () => {
               .map(item => (
                 <Link key={item.id} to={`/template/${item.id}`} className="product-card-wrapper" onClick={() => window.scrollTo(0, 0)}>
                   <div className="template-card" style={{ height: 'auto', border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', boxShadow: 'var(--shadow)', transition: 'transform 0.3s ease' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-                    <div style={{ aspectRatio: item.aspectRatio || '4/5', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ aspectRatio: item.aspectRatio || '4/5', overflow: 'hidden', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {(item.popular || item.category === 'Magazine') && (
+                        <div style={{ 
+                          position: 'absolute', 
+                          top: '0.5rem', 
+                          right: '0.5rem', 
+                          background: 'linear-gradient(135deg, #D4AF37 0%, #B5852A 100%)', 
+                          color: 'white',
+                          padding: '0.3rem 0.6rem', 
+                          borderRadius: '15px', 
+                          fontSize: '0.65rem', 
+                          fontWeight: 900,
+                          boxShadow: '0 4px 10px rgba(212, 175, 55, 0.4)',
+                          zIndex: 10,
+                          letterSpacing: '0.5px'
+                        }}>
+                          BEST SELLER
+                        </div>
+                      )}
                       <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: item.imageFit || 'cover' }} />
                     </div>
                     <div style={{ padding: '1rem', background: '#fff' }}>
