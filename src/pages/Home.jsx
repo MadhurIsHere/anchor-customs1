@@ -71,7 +71,7 @@ const ProductCardContent = ({ template }) => {
             style={{ 
               width: '100%', 
               aspectRatio: template.aspectRatio || '4/5',
-              objectFit: 'cover',
+              objectFit: template.imageFit || 'cover',
               borderRadius: '12px'
             }} 
           />

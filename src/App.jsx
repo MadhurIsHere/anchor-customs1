@@ -48,7 +48,6 @@ import ScrollToTop from './components/ScrollToTop';
 
 // Pages
 import Home from './pages/Home';
-import Gallery from './pages/Gallery';
 import TemplateDetail from './pages/TemplateDetail/TemplateDetail';
 import CustomizationForm from './pages/TemplateDetail/CustomizationForm';
 import Cart from './pages/Cart';
@@ -75,7 +74,6 @@ function App() {
             <main style={{ flex: 1 }}>
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/gallery" element={<Gallery />} />
                 <Route path="/template/:id" element={<TemplateDetail />} />
                 <Route path="/customize/:id/:pages" element={<CustomizationForm />} />
                 <Route path="/cart" element={<Cart />} />

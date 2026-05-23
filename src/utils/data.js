@@ -393,6 +393,7 @@ export const TEMPLATES = [
     price10: 699,
     price12: 699,
     originalPrice: 899,
+    imageFit: 'contain',
     image: '/products/FRAMES/a4 frames website_page_7.jpg',
     gallery: [
       '/products/FRAMES/a4 frames website_page_7.jpg',
@@ -690,6 +691,7 @@ export const TEMPLATES = [
     price10: 2300,
     price12: 2300,
     originalPrice: 2600,
+    isHotWheels: true,
     imageFit: 'contain',
     image: '/products/hotwheels_bouquet.jpeg',
     gallery: [

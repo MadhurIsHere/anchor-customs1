@@ -28,8 +28,8 @@ const Cart = () => {
           </div>
           <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 'bold', marginBottom: '1rem' }}>Your cart is empty</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: 'clamp(1rem, 2vw, 1.2rem)', marginBottom: '2.5rem', maxWidth: '400px', lineHeight: '1.4' }}>Ready to custom design your premium nostalgic print layout?</p>
-          <Link to="/gallery" className="btn btn-accent" style={{ padding: '1rem 2.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.8rem' }}>
-            Browse Templates <ArrowRight size={18} />
+          <Link to="/" className="btn btn-accent" style={{ padding: '1rem 2.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.8rem' }}>
+            Explore Products <ArrowRight size={18} />
           </Link>
         </div>
       </div>

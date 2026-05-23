@@ -112,7 +112,7 @@ const TemplateDetail = () => {
 
   // Hot Wheels: check stock via Supabase orders
   useEffect(() => {
-    if (template?.isHotWheels) {
+    if (template?.isHotWheels && template.id !== 'hotwheels_bouquet') {
       setCheckingStock(true);
       supabase
         .from('orders')
@@ -606,7 +606,7 @@ const TemplateDetail = () => {
             </p>
 
             {/* Stock Badge for Hot Wheels */}
-            {template.isHotWheels && (
+            {template.isHotWheels && template.id !== 'hotwheels_bouquet' && (
               <div style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -833,8 +833,8 @@ const TemplateDetail = () => {
               .map(item => (
                 <Link key={item.id} to={`/template/${item.id}`} className="product-card-wrapper" onClick={() => window.scrollTo(0, 0)}>
                   <div className="template-card" style={{ height: 'auto', border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', boxShadow: 'var(--shadow)', transition: 'transform 0.3s ease' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-                    <div style={{ aspectRatio: '1/1', overflow: 'hidden' }}>
-                      <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <div style={{ aspectRatio: item.aspectRatio || '4/5', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: item.imageFit || 'cover' }} />
                     </div>
                     <div style={{ padding: '1rem', background: '#fff' }}>
                       <h4 style={{ fontSize: '0.9rem', margin: '0 0 0.5rem 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--navy)' }}>{item.name}</h4>
