@@ -689,7 +689,8 @@ export const TEMPLATES = [
     name: 'Hotwheels Bouquet',
     price10: 2300,
     price12: 2300,
-    originalPrice: 2500,
+    originalPrice: 2600,
+    imageFit: 'contain',
     image: '/products/hotwheels_bouquet.jpeg',
     gallery: [
       '/products/hotwheels_bouquet.jpeg',

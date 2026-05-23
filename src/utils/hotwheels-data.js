@@ -27,6 +27,7 @@ const hw = (id, img, name, price) => ({
   name,
   price10: price,
   price12: price,
+  originalPrice: price + 200,
   image: `/products/HOTWHEELS/${price}/${img}.jpg`,
   description: HW_DESC,
   category: 'Hot Wheels',
