@@ -13,6 +13,35 @@ const Checkout = () => {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [shippingForm, setShippingForm] = useState({
+    fullName: currentUser?.user_metadata?.full_name || '',
+    email: currentUser?.email || '',
+    mobile: '',
+    address: ''
+  });
+  const [shippingDone, setShippingDone] = useState(false);
+
+  // Pre-fill from first cart item that has details
+  React.useEffect(() => {
+    const first = cartItems.find(i => i.customerDetails?.mobile || i.customerDetails?.address);
+    if (first) {
+      setShippingForm({
+        fullName: first.customerDetails?.fullName || currentUser?.user_metadata?.full_name || '',
+        email: first.customerDetails?.email || currentUser?.email || '',
+        mobile: first.customerDetails?.mobile || '',
+        address: first.customerDetails?.address || ''
+      });
+      if (first.customerDetails?.mobile && first.customerDetails?.address) setShippingDone(true);
+    }
+  }, []);
+
+  const handleShippingSubmit = (e) => {
+    e.preventDefault();
+    const m = shippingForm.mobile.replace(/[^0-9]/g, '');
+    if (m.length < 10) { toast.error('Enter a valid 10-digit mobile number.'); return; }
+    if (!shippingForm.address.trim()) { toast.error('Please enter your delivery address.'); return; }
+    setShippingDone(true);
+  };
 
 
   const saveOrderToSupabase = async (razorpayResponse) => {
@@ -24,18 +53,33 @@ const Checkout = () => {
 
       console.log('Starting order save process...');
 
-      const ordersToInsert = cartItems.map(item => ({
-        user_id: currentUser.id,
-        template_id: item.templateId,
-        template_name: item.templateName,
-        pages: isNaN(parseInt(item.pages)) ? 0 : parseInt(item.pages),
-        price: item.price,
-        customer_details: item.customerDetails,
-        images: item.images,
-        payment_id: razorpayResponse.razorpay_payment_id,
-        payment_status: 'paid',
-        order_status: 'received'
-      }));
+      const ordersToInsert = cartItems.map(item => {
+        const mergedCustomer = {
+          ...item.customerDetails,
+          ...shippingForm
+        };
+
+        return {
+          user_id: currentUser.id,
+          template_id: item.templateId,
+          template_name: item.templateName,
+          pages: isNaN(parseInt(item.pages)) ? 0 : parseInt(item.pages),
+          price: item.price,
+          customer_details: mergedCustomer,
+          full_name: mergedCustomer.fullName,
+          email: mergedCustomer.email,
+          mobile_number: mergedCustomer.mobile || mergedCustomer.whatsapp,
+          shipping_address: mergedCustomer.address,
+          images: item.images,
+          cloudinary_image_urls: item.images,
+          payment_id: razorpayResponse.razorpay_payment_id,
+          payment_status: 'paid',
+          order_status: 'received',
+          cover_photo: item.coverPhoto || null,
+          custom_text: mergedCustomer.customText || mergedCustomer.customizationMessage || null,
+          special_notes: mergedCustomer.specialNotes || null
+        };
+      });
 
       console.log('Inserting into Supabase...', ordersToInsert.length, 'items');
 
@@ -79,6 +123,8 @@ const Checkout = () => {
             body: JSON.stringify({
               email: customerEmail,
               customerName: customerDetails?.fullName || currentUser?.user_metadata?.full_name || 'Customer',
+              mobile: customerDetails?.mobile || shippingForm.mobile || '',
+              address: customerDetails?.address || shippingForm.address || '',
               orderIds: orderIdsStr,
               items: orderedItems,
               totalPrice: cartTotal
@@ -203,6 +249,42 @@ const Checkout = () => {
   return (
     <div className="section-padding">
       <div className="container" style={{ maxWidth: '600px' }}>
+        <div className="card" style={{ padding: '2rem', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
+            <h2 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--navy)', fontFamily: 'var(--font-serif)' }}>
+              📦 Shipping Details
+            </h2>
+            {shippingDone && (
+              <button onClick={() => setShippingDone(false)} style={{ background: 'none', border: '1px solid var(--accent)', borderRadius: '6px', padding: '0.3rem 0.7rem', color: 'var(--accent)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700 }}>Edit</button>
+            )}
+          </div>
+          {shippingDone ? (
+            <div style={{ fontSize: '0.92rem', color: 'var(--text-muted)', lineHeight: '1.8' }}>
+              <p style={{ margin: 0 }}><strong style={{ color: 'var(--navy)' }}>{shippingForm.fullName}</strong> · {shippingForm.email}</p>
+              <p style={{ margin: 0 }}>📱 {shippingForm.mobile}</p>
+              <p style={{ margin: 0 }}>📍 {shippingForm.address}</p>
+            </div>
+          ) : (
+            <form onSubmit={handleShippingSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+              {[{ label: 'Full Name', key: 'fullName', type: 'text' }, { label: 'Email', key: 'email', type: 'email' }].map(({ label, key, type }) => (
+                <div key={key}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)' }}>{label} *</label>
+                  <input type={type} value={shippingForm[key]} onChange={(e) => setShippingForm(p => ({...p, [key]: e.target.value}))} required style={{ width: '100%', padding: '0.7rem 0.9rem', border: '1.5px solid var(--border)', borderRadius: '8px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                </div>
+              ))}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)' }}>Mobile Number * <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(WhatsApp)</span></label>
+                <input type="tel" value={shippingForm.mobile} onChange={(e) => setShippingForm(p => ({...p, mobile: e.target.value}))} placeholder="10-digit mobile number" maxLength={15} required style={{ width: '100%', padding: '0.7rem 0.9rem', border: '1.5px solid var(--accent)', borderRadius: '8px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)' }}>Delivery Address *</label>
+                <textarea value={shippingForm.address} onChange={(e) => setShippingForm(p => ({...p, address: e.target.value}))} rows={3} placeholder="House no., street, city, state, pincode" required style={{ width: '100%', padding: '0.7rem 0.9rem', border: '1.5px solid var(--border)', borderRadius: '8px', fontSize: '0.95rem', resize: 'vertical', boxSizing: 'border-box' }} />
+              </div>
+              <button type="submit" className="btn btn-primary" style={{ padding: '0.9rem', fontSize: '0.95rem' }}>Save & Continue →</button>
+            </form>
+          )}
+        </div>
+
         <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
           <CreditCard size={48} style={{ marginBottom: '1.5rem', color: 'var(--accent)' }} />
           <h1 style={{ marginBottom: '1rem' }}>Final Checkout</h1>
@@ -274,11 +356,11 @@ const Checkout = () => {
 
           <button 
             onClick={handlePayment} 
-            disabled={isProcessing || cartTotal <= 0}
+            disabled={isProcessing || cartTotal <= 0 || !shippingDone}
             className="btn btn-primary" 
-            style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', opacity: cartTotal <= 0 ? 0.5 : 1 }}
+            style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', opacity: (cartTotal <= 0 || !shippingDone) ? 0.5 : 1 }}
           >
-            {isProcessing ? 'Initializing...' : 'Pay Now with Razorpay'}
+            {!shippingDone ? '⬆️ Fill Shipping Details First' : isProcessing ? 'Initializing...' : 'Pay Now with Razorpay'}
           </button>
 
           {/* Professional Demo Mode for Client Review */}
@@ -301,8 +383,8 @@ const Checkout = () => {
             Secure payment powered by Razorpay.
           </p>
         </div>
+        </div>
       </div>
-    </div>
   );
 };
 

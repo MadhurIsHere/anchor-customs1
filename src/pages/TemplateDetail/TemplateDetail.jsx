@@ -8,6 +8,7 @@ import { supabase } from '../../supabase/config';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
+import { uploadToCloudinary } from '../../utils/cloudinary';
 
 const TemplateDetail = () => {
   const { id } = useParams();
@@ -22,10 +23,18 @@ const TemplateDetail = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [showBuyNowModal, setShowBuyNowModal] = useState(false);
+  const [showCartModal, setShowCartModal] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [orderForm, setOrderForm] = useState({ fullName: '', email: '', whatsapp: '', house: '', street: '', city: '', state: '', pincode: '', specialNotes: '', customizationMessage: '' });
+  const [coverFile, setCoverFile] = useState(null);
+  const [innerFiles, setInnerFiles] = useState([]);
+
   const bookRef = useRef();
   const miniBookRef = useRef();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const isComboOrHamper = template && (template.category === 'Hamper' || template.category === 'Combo' || template.category === 'Combos');
+  const needsImages = template && !template.isHotWheels && !['Apparel', 'Cap', 'Keychain'].includes(template.category);
 
   const lastTapRef = useRef(0);
   const longPressTimeoutRef = useRef(null);
@@ -161,8 +170,133 @@ const TemplateDetail = () => {
       }
     });
     toast.success(`${template.name} added to cart! 🏎️`);
-    navigate('/checkout');
   };
+
+  const getPhotoLimits = () => {
+    let min = 1;
+    let max = 50;
+    if (template?.details?.required) {
+      for (const req of template.details.required) {
+        const lowerReq = req.toLowerCase();
+        if (lowerReq.includes('photo') || lowerReq.includes('picture') || lowerReq.includes('image')) {
+          const matches = req.match(/(\d+)/g);
+          if (matches) {
+            if (matches.length >= 2) {
+              max = Math.max(max, parseInt(matches[1], 10));
+            } else if (matches.length === 1) {
+              max = Math.max(max, parseInt(matches[0], 10));
+            }
+          }
+          if (lowerReq.includes('minimum')) {
+            const minMatch = lowerReq.match(/minimum\s+(\d+)/);
+            if (minMatch) min = parseInt(minMatch[1], 10);
+          }
+        }
+      }
+    }
+    if (min > max) min = 1;
+    return { min, max };
+  };
+
+  const handleAddToCartClick = () => {
+    if (!currentUser) { toast.error('Please login to add items to cart.'); navigate('/login'); return; }
+    if (template.isHotWheels) { handleAddHotWheelsToCart(); return; }
+    if (needsImages) {
+      setOrderForm({ fullName: currentUser?.user_metadata?.full_name || '', email: currentUser?.email || '', whatsapp: '', house: '', street: '', city: '', state: '', pincode: '', specialNotes: '', customizationMessage: '' });
+      setCoverFile(null);
+      setInnerFiles([]);
+      setShowCartModal(true);
+    } else {
+      addToCart({ templateId: template.id, templateName: template.name, pages: parseInt(selectedOption), price: currentPrice, images: [], coverPhoto: template.image, customerDetails: { fullName: currentUser?.user_metadata?.full_name || '', email: currentUser?.email || '' } });
+      toast.success('Added to cart! 🛒');
+    }
+  };
+
+  const handleBuyNowClick = () => {
+    if (!currentUser) { toast.error('Please login to purchase.'); navigate('/login'); return; }
+    if (template.isHotWheels && isSoldOut) { toast.error('Sorry, this item is sold out!'); return; }
+    setOrderForm({ fullName: currentUser?.user_metadata?.full_name || '', email: currentUser?.email || '', whatsapp: '', house: '', street: '', city: '', state: '', pincode: '', specialNotes: '', customizationMessage: '' });
+    setCoverFile(null);
+    setInnerFiles([]);
+    setShowBuyNowModal(true);
+  };
+
+  const submitOrderForm = async (isBuyNow) => {
+    if (isBuyNow) {
+      if (!orderForm.fullName.trim()) { toast.error('Please enter your full name.'); return; }
+      const mobileClean = orderForm.whatsapp.replace(/\D/g, '');
+      if (mobileClean.length !== 10) { toast.error('Enter a valid 10-digit whatsapp number.'); return; }
+      if (!orderForm.house.trim() || !orderForm.street.trim() || !orderForm.city.trim() || !orderForm.state.trim() || !orderForm.pincode.trim()) { 
+        toast.error('Please fill all address fields.'); return; 
+      }
+    }
+    
+    const { min, max } = getPhotoLimits();
+    
+    if (needsImages) {
+      if (template.category === 'Magazine' && !coverFile) {
+        toast.error('Please upload a cover photo.');
+        return;
+      }
+      if (innerFiles.length < min) {
+        toast.error(`Please select at least ${min} inner photos.`); return;
+      }
+      if (innerFiles.length > max) {
+        toast.error(`You can select maximum ${max} inner photos.`); return;
+      }
+    }
+    
+    setIsUploading(true);
+    try {
+      let coverUrl = template.image;
+      let innerUrls = [];
+      
+      if (needsImages) {
+        if (coverFile) {
+          const cUrl = await uploadToCloudinary(coverFile);
+          coverUrl = cUrl || template.image;
+        }
+        if (innerFiles.length > 0) {
+          innerUrls = await Promise.all(innerFiles.map(file => uploadToCloudinary(file)));
+        }
+      }
+      
+      const fullAddress = `${orderForm.house}, ${orderForm.street}, ${orderForm.city}, ${orderForm.state} - ${orderForm.pincode}`;
+      
+      addToCart({ 
+        templateId: template.id, 
+        templateName: template.name, 
+        pages: parseInt(selectedOption), 
+        price: currentPrice, 
+        images: innerUrls, 
+        coverPhoto: coverUrl, 
+        customerDetails: { 
+          fullName: isBuyNow ? orderForm.fullName : (currentUser?.user_metadata?.full_name || ''), 
+          email: isBuyNow ? orderForm.email : (currentUser?.email || ''), 
+          mobile: isBuyNow ? orderForm.whatsapp : '', 
+          address: isBuyNow ? fullAddress : '', 
+          specialNotes: orderForm.specialNotes,
+          customText: orderForm.customizationMessage
+        } 
+      });
+      
+      if (isBuyNow) {
+        setShowBuyNowModal(false);
+        navigate('/checkout');
+      } else {
+        setShowCartModal(false);
+        toast.success('Added to cart! 🛒');
+      }
+    } catch (error) {
+      toast.error('Failed to upload images. Check your connection or try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleBuyNowSubmit = (e) => { e.preventDefault(); submitOrderForm(true); };
+  const handleCartSubmit = (e) => { e.preventDefault(); submitOrderForm(false); };
+
 
   // Dynamically configure book dimensions & aspect ratios to eliminate margins
   let bookWidth = isMobile ? 370 : 280;
@@ -275,7 +409,7 @@ const TemplateDetail = () => {
             flexDirection: 'column',
             justifyContent: 'center', 
             alignItems: 'center', 
-            padding: '1rem 0',
+            padding: isMobile ? '0' : '1rem 0',
             minHeight: 'auto',
             width: '100%'
           }}>
@@ -295,7 +429,7 @@ const TemplateDetail = () => {
                   alignItems: 'center',
                   overflow: 'visible',
                   transform: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'rotate(-90deg)' : 'none',
-                  margin: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '4rem 0' : '0',
+                  margin: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '4rem 0' : (isMobile ? '0' : '0'),
                   position: 'relative'
                 }}>
                   {displayLabels && displayLabels[currentPage] && (
@@ -674,38 +808,26 @@ const TemplateDetail = () => {
               </div>
             )}
 
-            <div className="mobile-sticky-bottom">
-              {template.isHotWheels ? (
+            {!(showBuyNowModal || showCartModal) && (
+              <div className="mobile-sticky-bottom" style={{ display: 'flex', flexDirection: 'row', gap: isMobile ? '0.4rem' : '0.8rem' }}>
                 <button
-                  onClick={handleProceed}
-                  disabled={isSoldOut || checkingStock}
-                  className="btn btn-primary"
-                  style={{
-                    width: '100%',
-                    padding: '1.2rem',
-                    fontSize: '1.1rem',
-                    boxShadow: isSoldOut ? 'none' : 'var(--gold-glow)',
-                    opacity: isSoldOut ? 0.5 : 1,
-                    cursor: isSoldOut ? 'not-allowed' : 'pointer',
-                    background: isSoldOut ? '#888' : undefined,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.5rem'
-                  }}
+                  onClick={handleAddToCartClick}
+                  disabled={template.isHotWheels && (isSoldOut || checkingStock)}
+                  className="btn btn-outline"
+                  style={{ flex: 1, padding: isMobile ? '0.6rem' : '1.1rem', fontSize: isMobile ? '0.85rem' : '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', opacity: (template.isHotWheels && isSoldOut) ? 0.5 : 1, cursor: (template.isHotWheels && isSoldOut) ? 'not-allowed' : 'pointer' }}
                 >
-                  {checkingStock ? 'Checking stock...' : isSoldOut ? (
-                    <><AlertTriangle size={20} /> SOLD OUT</>
-                  ) : (
-                    <>Order Now <ArrowRight size={20} /></>
-                  )}
+                  {checkingStock ? 'Checking...' : (template.isHotWheels && isSoldOut) ? '❌ Sold Out' : !currentUser ? <><ShoppingCart size={16} /> Login to Add</> : <><ShoppingCart size={16} /> Add to Cart</>}
                 </button>
-              ) : (
-                <button onClick={handleProceed} className="btn btn-primary" style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', boxShadow: 'var(--gold-glow)' }}>
-                  Order Now <ArrowRight size={20} />
+                <button
+                  onClick={handleBuyNowClick}
+                  disabled={template.isHotWheels && (isSoldOut || checkingStock)}
+                  className="btn btn-primary"
+                  style={{ flex: 1, padding: isMobile ? '0.6rem' : '1.1rem', fontSize: isMobile ? '0.9rem' : '1.1rem', boxShadow: (template.isHotWheels && isSoldOut) ? 'none' : 'var(--gold-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', opacity: (template.isHotWheels && isSoldOut) ? 0.5 : 1, cursor: (template.isHotWheels && isSoldOut) ? 'not-allowed' : 'pointer' }}
+                >
+                  {!currentUser ? 'Login to Buy' : 'Buy Now'} <ArrowRight size={18} />
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -855,6 +977,150 @@ const TemplateDetail = () => {
         </div>
       </div>
 
+      {/* Image Zoom Modal */}
+      {/* ── COMMON MODAL FORM ── */}
+      {(showBuyNowModal || showCartModal) && (
+        <div onClick={(e) => { if (e.target === e.currentTarget) { setShowBuyNowModal(false); setShowCartModal(false); } }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 8000, display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+          <div style={{ background: '#fcfcfc', borderRadius: isMobile ? '24px 24px 0 0' : '20px', width: '100%', maxWidth: '600px', maxHeight: '92vh', overflowY: 'auto', padding: isMobile ? '1.5rem 1.2rem' : '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
+              <h2 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--navy)', fontFamily: 'var(--font-serif)' }}>{showBuyNowModal ? 'Complete Your Order' : 'Add Details'}</h2>
+              <button onClick={() => { setShowBuyNowModal(false); setShowCartModal(false); }} style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', color: 'var(--text-muted)' }}>✕</button>
+            </div>
+            
+            <form onSubmit={showBuyNowModal ? handleBuyNowSubmit : handleCartSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+              
+              {showBuyNowModal && (
+                <>
+                  <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobile ? 'column' : 'row' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>Full Name *</label>
+                      <input type="text" value={orderForm.fullName} onChange={(e) => setOrderForm(p => ({ ...p, fullName: e.target.value }))} placeholder="e.g. John Doe" required={showBuyNowModal} style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid var(--border)', borderRadius: '20px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>WhatsApp Number *</label>
+                      <input type="tel" value={orderForm.whatsapp} onChange={(e) => setOrderForm(p => ({ ...p, whatsapp: e.target.value }))} placeholder="10-digit number" maxLength={10} required={showBuyNowModal} style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid var(--border)', borderRadius: '20px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Enter exactly 10 digits without +91 or spaces.</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 style={{ fontSize: '1rem', color: 'var(--navy)', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', marginBottom: '1rem' }}>Delivery Address</h3>
+                    <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobile ? 'column' : 'row', marginBottom: '1rem' }}>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>House / Flat / Apartment No. *</label>
+                        <input type="text" value={orderForm.house} onChange={(e) => setOrderForm(p => ({ ...p, house: e.target.value }))} placeholder="e.g. Flat 101, Building A" required={showBuyNowModal} style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid var(--border)', borderRadius: '20px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>Street / Area / Locality *</label>
+                        <input type="text" value={orderForm.street} onChange={(e) => setOrderForm(p => ({ ...p, street: e.target.value }))} placeholder="e.g. Sector 15, Park Road" required={showBuyNowModal} style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid var(--border)', borderRadius: '20px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobile ? 'column' : 'row' }}>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>City *</label>
+                        <input type="text" value={orderForm.city} onChange={(e) => setOrderForm(p => ({ ...p, city: e.target.value }))} placeholder="e.g. New Delhi" required={showBuyNowModal} style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid var(--border)', borderRadius: '20px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>State *</label>
+                        <input type="text" value={orderForm.state} onChange={(e) => setOrderForm(p => ({ ...p, state: e.target.value }))} placeholder="e.g. Delhi" required={showBuyNowModal} style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid var(--border)', borderRadius: '20px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>Pincode *</label>
+                        <input type="text" value={orderForm.pincode} onChange={(e) => setOrderForm(p => ({ ...p, pincode: e.target.value }))} placeholder="6-digit PIN" required={showBuyNowModal} style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid var(--border)', borderRadius: '20px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {needsImages && (
+                <>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>Cover Photo {template.category === 'Magazine' ? '*' : '(Optional)'}</label>
+                    <input type="file" accept="image/*" onChange={(e) => setCoverFile(e.target.files[0])} style={{ display: 'none' }} id="coverPhotoInput" />
+                    <label htmlFor="coverPhotoInput" style={{ display: 'inline-flex', padding: '0.6rem 1.5rem', border: '1px solid var(--accent)', borderRadius: '20px', cursor: 'pointer', color: 'var(--accent)', alignItems: 'center', gap: '0.5rem' }}>
+                      ↑ Choose Cover
+                    </label>
+                    {coverFile && <span style={{ marginLeft: '1rem', fontSize: '0.8rem', color: 'var(--navy)' }}>✓ 1 file selected</span>}
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>Inner Photos (Min {getPhotoLimits().min}, Max {getPhotoLimits().max}) *</label>
+                    <div style={{ border: '1px solid var(--border)', borderRadius: '20px', padding: '1.5rem', textAlign: 'center', background: '#fff' }}>
+                      <input type="file" accept="image/*" multiple onChange={(e) => setInnerFiles(Array.from(e.target.files).slice(0, getPhotoLimits().max))} style={{ display: 'none' }} id="innerPhotosInput" />
+                      <label htmlFor="innerPhotosInput" style={{ display: 'inline-flex', padding: '0.6rem 1.5rem', border: '1px solid var(--accent)', borderRadius: '20px', cursor: 'pointer', color: 'var(--accent)', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                        🖼 Select Multiple Photos
+                      </label>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Selected: <strong>{innerFiles.length}</strong> photos</div>
+                    </div>
+                  </div>
+                </>
+              )}
+              
+              {template.category !== 'Magazine' && (
+                <>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>
+                      {template.customizableField ? template.customizableField.label : 'Customization Message (If Any)'}
+                    </label>
+                    <input type="text" value={orderForm.customizationMessage} onChange={(e) => setOrderForm(p => ({ ...p, customizationMessage: e.target.value }))} placeholder={template.customizableField ? template.customizableField.placeholder : "e.g. Text on cover, specific names"} style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid var(--border)', borderRadius: '20px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>Special Instructions</label>
+                    <input type="text" value={orderForm.specialNotes} onChange={(e) => setOrderForm(p => ({ ...p, specialNotes: e.target.value }))} placeholder="e.g. sequence of photos, color preferences" style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid var(--border)', borderRadius: '20px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                  </div>
+                </>
+              )}
+
+              <button type="submit" disabled={isUploading} className="btn btn-primary" style={{ width: '100%', padding: '1.1rem', fontSize: '1rem', marginTop: '0.5rem', borderRadius: '20px', boxShadow: 'none', background: 'var(--accent)' }}>
+                {isUploading ? 'Uploading Photos...' : (showBuyNowModal ? `Proceed to Pay ₹${currentPrice} →` : <><ShoppingCart size={18} /> Add to Cart</>)}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── ZOOM MODAL ── */}
+      {selectedImage && (
+        <div 
+          onClick={() => setSelectedImage(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0, 0, 0, 0.9)',
+            zIndex: 9999,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            cursor: 'zoom-out'
+          }}
+        >
+          <button 
+            style={{ position: 'absolute', top: '20px', right: '20px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', cursor: 'pointer', zIndex: 10000 }}
+            onClick={(e) => { e.stopPropagation(); setSelectedImage(null); }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+          <img 
+            src={selectedImage.endsWith('.mp4') ? undefined : selectedImage} 
+            alt="Zoomed" 
+            style={{ maxWidth: '95%', maxHeight: '95%', objectFit: 'contain', display: selectedImage.endsWith('.mp4') ? 'none' : 'block' }}
+            onClick={(e) => e.stopPropagation()}
+          />
+          {selectedImage.endsWith('.mp4') && (
+            <video 
+              src={selectedImage}
+              autoPlay
+              controls
+              style={{ maxWidth: '95%', maxHeight: '95%', objectFit: 'contain' }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 };

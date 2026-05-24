@@ -319,26 +319,26 @@ const Home = () => {
         }}
       >
         <svg 
-          viewBox="0 0 1440 280" 
+          viewBox="0 0 1440 320" 
           width="100%" 
           height="100%" 
           style={{ display: 'block', overflow: 'visible' }}
         >
           {/* Shadow Ribbon underlay */}
           <path 
-            d="M -100,140 C 150,40 350,240 600,140 C 850,40 1050,240 1300,140 C 1550,40 1750,240 2000,140" 
+            d="M -100,160 C 150,60 350,260 600,160 C 850,60 1050,260 1300,160 C 1550,60 1750,260 2000,160" 
             fill="none" 
             stroke="rgba(0,0,0,0.06)" 
-            strokeWidth="90" 
+            strokeWidth={isMobile ? "130" : "90"} 
             strokeLinecap="round" 
           />
           {/* Main Beige/Brown Ribbon background */}
           <path 
             id="ribbonPath"
-            d="M -100,140 C 150,40 350,240 600,140 C 850,40 1050,240 1300,140 C 1550,40 1750,240 2000,140" 
+            d="M -100,160 C 150,60 350,260 600,160 C 850,60 1050,260 1300,160 C 1550,60 1750,260 2000,160" 
             fill="none" 
             stroke="var(--accent)" 
-            strokeWidth="80" 
+            strokeWidth={isMobile ? "120" : "80"} 
             strokeLinecap="round" 
           />
           {/* Text path */}
