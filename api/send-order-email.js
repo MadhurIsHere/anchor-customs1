@@ -63,7 +63,7 @@ export default async function handler(req, res) {
 
   try {
     const data = await resend.emails.send({
-      from: 'Anchor Customs <orders@your-verified-domain.com>', // User needs to change this
+      from: 'Anchor Customs <orders@madhurrastogi.in>',
       to: email,
       subject: 'Order Confirmation - Anchor Customs',
       html: htmlContent,

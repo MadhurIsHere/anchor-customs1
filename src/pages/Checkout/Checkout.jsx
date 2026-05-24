@@ -133,7 +133,8 @@ const Checkout = () => {
 
           if (!response.ok) {
             const errorData = await response.json();
-            console.error('Vercel Email confirmation failed:', errorData);
+            console.error('Vercel Email confirmation failed:', JSON.stringify(errorData));
+            toast.error('Email failed: ' + JSON.stringify(errorData));
           } else {
             console.log('✓ Email confirmation sent successfully via Vercel.');
           }
