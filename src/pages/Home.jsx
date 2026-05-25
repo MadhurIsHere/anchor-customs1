@@ -170,7 +170,7 @@ const Home = () => {
       {/* Editorial Hero Section */}
       <section style={{ 
         minHeight: isMobile ? 'auto' : '70vh',
-        backgroundColor: 'var(--primary-light)',
+        backgroundColor: 'var(--bg-offset)!',
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',

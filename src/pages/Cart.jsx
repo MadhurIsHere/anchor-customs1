@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Trash2, ShoppingBag, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -39,6 +39,28 @@ const Cart = () => {
   return (
     <div className="section-padding">
       <div className="container">
+        <button 
+          onClick={() => navigate(-1)} 
+          style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '0.5rem', 
+            marginBottom: '2rem', 
+            fontSize: '0.95rem', 
+            border: '1px solid var(--border)', 
+            background: '#fff', 
+            padding: '8px 16px',
+            borderRadius: '20px',
+            cursor: 'pointer', 
+            color: 'var(--navy)',
+            fontFamily: 'var(--font-sans)',
+            fontWeight: '600',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <ArrowLeft size={16} /> Back
+        </button>
         <h1 style={{ marginBottom: '3rem' }}>Your Shopping Cart</h1>
         
         <div className="cart-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'start' }}>

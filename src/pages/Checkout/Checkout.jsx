@@ -5,7 +5,7 @@ import { loadScript } from '../../utils/helpers';
 import { supabase } from '../../supabase/config';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { CreditCard, CheckCircle } from 'lucide-react';
+import { CreditCard, CheckCircle, ArrowLeft } from 'lucide-react';
 
 const Checkout = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
@@ -250,6 +250,28 @@ const Checkout = () => {
   return (
     <div className="section-padding">
       <div className="container" style={{ maxWidth: '600px' }}>
+        <button 
+          onClick={() => navigate(-1)} 
+          style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '0.5rem', 
+            marginBottom: '1.5rem', 
+            fontSize: '0.95rem', 
+            border: '1px solid var(--border)', 
+            background: '#fff', 
+            padding: '8px 16px',
+            borderRadius: '20px',
+            cursor: 'pointer', 
+            color: 'var(--navy)',
+            fontFamily: 'var(--font-sans)',
+            fontWeight: '600',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <ArrowLeft size={16} /> Back
+        </button>
         <div className="card" style={{ padding: '2rem', marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
             <h2 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--navy)', fontFamily: 'var(--font-serif)' }}>

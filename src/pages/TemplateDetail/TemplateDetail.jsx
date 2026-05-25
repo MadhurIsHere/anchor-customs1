@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { TEMPLATES } from '../../utils/data';
-import { ArrowRight, ChevronLeft, ChevronRight, ArrowLeft, ShoppingCart, AlertTriangle } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, ArrowLeft, ShoppingCart, AlertTriangle, Heart, Maximize2, X, CheckCircle, User, Smartphone, MapPin, Search } from 'lucide-react';
+import { getCustomizationConfig } from '../../utils/customizationConfig';
 import { motion } from 'framer-motion';
 import HTMLFlipBook from 'react-pageflip';
 import { supabase } from '../../supabase/config';
@@ -173,29 +174,11 @@ const TemplateDetail = () => {
   };
 
   const getPhotoLimits = () => {
-    let min = 1;
-    let max = 50;
-    if (template?.details?.required) {
-      for (const req of template.details.required) {
-        const lowerReq = req.toLowerCase();
-        if (lowerReq.includes('photo') || lowerReq.includes('picture') || lowerReq.includes('image')) {
-          const matches = req.match(/(\d+)/g);
-          if (matches) {
-            if (matches.length >= 2) {
-              max = Math.max(max, parseInt(matches[1], 10));
-            } else if (matches.length === 1) {
-              max = Math.max(max, parseInt(matches[0], 10));
-            }
-          }
-          if (lowerReq.includes('minimum')) {
-            const minMatch = lowerReq.match(/minimum\s+(\d+)/);
-            if (minMatch) min = parseInt(minMatch[1], 10);
-          }
-        }
-      }
+    const config = getCustomizationConfig(template);
+    if (config) {
+      return { min: config.minPhotos, max: config.maxPhotos || 30 };
     }
-    if (min > max) min = 1;
-    return { min, max };
+    return { min: 1, max: 30 };
   };
 
   const handleAddToCartClick = () => {
@@ -231,19 +214,23 @@ const TemplateDetail = () => {
       }
     }
     
-    const { min, max } = getPhotoLimits();
+    const config = getCustomizationConfig(template);
     
-    if (needsImages) {
-      if (template.category === 'Magazine' && !coverFile) {
-        toast.error('Please upload a cover photo.');
-        return;
+    if (config.requiresCover && !coverFile) {
+      toast.error('Please upload a cover photo.');
+      return;
+    }
+    if (config.maxPhotos > 0) {
+      if (innerFiles.length < config.minPhotos) {
+        toast.error(`Please select at least ${config.minPhotos} inner photos.`); return;
       }
-      if (innerFiles.length < min) {
-        toast.error(`Please select at least ${min} inner photos.`); return;
+      if (innerFiles.length > config.maxPhotos) {
+        toast.error(`You can select maximum ${config.maxPhotos} inner photos.`); return;
       }
-      if (innerFiles.length > max) {
-        toast.error(`You can select maximum ${max} inner photos.`); return;
-      }
+    }
+    if (config.customTextFields.length > 0 && !orderForm.customizationMessage.trim()) {
+      toast.error(`Please fill out: ${config.customTextFields[0].label}`);
+      return;
     }
     
     setIsUploading(true);
@@ -304,11 +291,12 @@ const TemplateDetail = () => {
   let wrapperAspectRatio = isMobile ? '0.73' : '1.47';
   let wrapperMaxWidth = isMobile ? '100%' : '800px';
 
-  if (template.category === 'Calendar' || template.category === 'Standing Magazine') {
+  if (template.category === 'Calendar' || template.category==='Standing Magazine') {
     bookWidth = 280;
     bookHeight = 420;
     wrapperAspectRatio = '1.5';
     wrapperMaxWidth = '600px';
+  
   } else if (template.category === 'Scrapbook') {
     bookWidth = isMobile ? 440 : 380;
     bookHeight = isMobile ? 320 : 280;
@@ -384,58 +372,61 @@ const TemplateDetail = () => {
             display: 'inline-flex', 
             alignItems: 'center', 
             gap: '0.5rem', 
-            marginTop: isMobile ? '-1.5rem' : '-4rem',
-            marginBottom: '2.5rem', 
-            fontSize: '1rem', 
-            border: 'none', 
-            background: 'transparent', 
+            marginTop: isMobile ? '-0.5rem' : '-4rem',
+            marginBottom: isMobile ? '1rem' : '2.5rem', 
+            fontSize: '0.95rem', 
+            border: '1px solid var(--border)', 
+            background: '#fff', 
+            padding: '8px 16px',
+            borderRadius: '20px',
             cursor: 'pointer', 
-            color: 'var(--text-muted)',
+            color: 'var(--navy)',
             fontFamily: 'var(--font-sans)',
-            textTransform: 'uppercase',
-            letterSpacing: '1px',
-            transition: 'color 0.2s ease'
+            fontWeight: '600',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+            transition: 'all 0.2s ease'
           }}
-          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent)'}
-          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+          onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
         >
-          <ArrowLeft size={18} /> Back to {groupName}
+          <ArrowLeft size={16} /> Back
         </button>
-        <div className="detail-flex">
+        <div className="detail-flex" style={{ gap: isMobile ? '0' : '3rem' }}>
           {/* Interactive HTMLFlipBook Animation */}
           <div style={{ 
-            flex: template.category === 'Calendar' ? '2 1 600px' : '1.3 1 450px',
+            flex: isMobile ? 'none' : (template.category === 'Calendar' ? '2 1 600px' : '1.3 1 450px'),
             display: 'flex', 
             flexDirection: 'column',
             justifyContent: 'center', 
             alignItems: 'center', 
             padding: isMobile ? '0' : '1rem 0',
-            minHeight: 'auto',
-            width: '100%'
+            width: '100%',
+            marginBottom: '0'
           }}>
             {/* Removed Elegant Tab Selector for Hampers & Combos */}
 
             {/* RENDER INTERACTIVE FLIPBOOK PREVIEW */}
             {template.pages && template.pages.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem', width: '100%', maxWidth: '800px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isMobile ? '0.5rem' : '2rem', width: '100%', maxWidth: '800px' }}>
                 <div style={{ 
                   width: '100%', 
                   maxWidth: wrapperMaxWidth, 
-                  aspectRatio: wrapperAspectRatio,
+                  height: isMobile ? (template.category === 'Magazine' ? '50vh' : (template.category === 'Calendar' ? '60vh' : '40vh')) : 'auto',
+                  aspectRatio: isMobile ? 'auto' : wrapperAspectRatio,
                   boxShadow: isMobile ? 'none' : '0 10px 30px rgba(0,0,0,0.15)', 
                   borderRadius: isMobile ? '0' : '4px',
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  overflow: 'visible',
-                  transform: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'rotate(-90deg)' : 'none',
-                  margin: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '4rem 0' : (isMobile ? '0' : '0'),
+                  overflow: 'hidden',
+                  transform: (template.category === 'Calendar') ? 'rotate(-90deg)' : 'none',
+                  margin: (template.category === 'Calendar') ? '4rem 0' : (isMobile ? '0' : '0'),
                   position: 'relative'
                 }}>
                   {displayLabels && displayLabels[currentPage] && (
                     <div style={{
                       position: 'absolute',
-                      top: isMobile ? '-35px' : '-50px',
+                      top: isMobile ? '-25px' : '-50px',
                       left: '50%',
                       transform: 'translateX(-50%)',
                       background: 'var(--accent)',
@@ -463,10 +454,10 @@ const TemplateDetail = () => {
                     maxWidth={600}
                     minHeight={200}
                     maxHeight={800}
-                    drawShadow={!(template.category === 'Calendar' || template.category === 'Standing Magazine')}
-                    maxShadowOpacity={(template.category === 'Calendar' || template.category === 'Standing Magazine') ? 0 : 0.5}
+                    drawShadow={!(template.category === 'Calendar')}
+                    maxShadowOpacity={(template.category === 'Calendar') ? 0 : 0.5}
                     showCover={!isMobile}
-                    usePortrait={isMobile || template.category === 'Calendar' || template.category === 'Standing Magazine'}
+                    usePortrait={isMobile || template.category === 'Calendar'}
                     mobileScrollSupport={true}
                     className="magazine-flipbook"
                   >
@@ -483,21 +474,22 @@ const TemplateDetail = () => {
                       onTouchStart={(e) => handlePageGesture(e, template.pages[0])}
                       onTouchEnd={handleTouchEnd}
                     >
-                      <div style={{ position: 'absolute', inset: 0, background: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'transparent' : 'linear-gradient(to right, rgba(0,0,0,0.3) 0%, rgba(255,255,255,0.2) 3%, transparent 10%)', zIndex: 10, pointerEvents: 'none' }}></div>
+                      <div style={{ position: 'absolute', inset: 0, background: (template.category === 'Calendar') ? 'transparent' : 'linear-gradient(to right, rgba(0,0,0,0.3) 0%, rgba(255,255,255,0.2) 3%, transparent 10%)', zIndex: 10, pointerEvents: 'none' }}></div>
                       {displayPages[0] && displayPages[0] !== 'BLANK' && (
                         <img 
                           src={displayPages[0]} 
                           alt="Cover" 
                           style={{ 
-                            width: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '420px' : '100%', 
-                            height: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '280px' : '100%', 
+                            width: (template.category === 'Calendar') ? '420px' : '100%', 
+                            height: (template.category === 'Calendar') ? '280px' : '100%', 
                             objectFit: template.imageFit || 'cover',
-                            transform: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
-                            position: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'absolute' : 'relative',
-                            top: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '50%' : 'auto',
-                            left: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '50%' : 'auto',
-                            minWidth: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '420px' : 'none',
-                            minHeight: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '280px' : 'none'
+                            transform: (template.category === 'Calendar') ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
+                            position: (template.category === 'Calendar') ? 'absolute' : 'relative',
+                            top: (template.category === 'Calendar') ? '50%' : 'auto',
+                            left: (template.category === 'Calendar') ? '50%' : 'auto',
+                            minWidth: (template.category === 'Calendar') ? '420px' : 'none',
+                            minHeight: (template.category === 'Calendar') ? '280px' : 'none',
+                            padding: '1rem'
                           }} 
                         />
                       )}
@@ -520,22 +512,23 @@ const TemplateDetail = () => {
                         onTouchStart={(e) => handlePageGesture(e, pageImg)}
                         onTouchEnd={handleTouchEnd}
                       >
-                        <div style={{ position: 'absolute', inset: 0, background: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'transparent' : (idx % 2 !== 0 ? 'linear-gradient(to right, rgba(0,0,0,0.1) 0%, transparent 10%)' : 'linear-gradient(to left, rgba(0,0,0,0.1) 0%, transparent 10%)'), zIndex: 10, pointerEvents: 'none' }}></div>
+                        <div style={{ position: 'absolute', inset: 0, background: (template.category === 'Calendar') ? 'transparent' : (idx % 2 !== 0 ? 'linear-gradient(to right, rgba(0,0,0,0.1) 0%, transparent 10%)' : 'linear-gradient(to left, rgba(0,0,0,0.1) 0%, transparent 10%)'), zIndex: 10, pointerEvents: 'none' }}></div>
                         {pageImg && pageImg !== 'BLANK' && (
                           <img 
                             src={pageImg} 
                             alt={`Page ${idx + 2}`} 
                             loading="lazy" 
                             style={{ 
-                              width: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '420px' : '100%', 
-                              height: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '280px' : '100%', 
+                              width: (template.category === 'Calendar') ? '420px' : '100%', 
+                              height: (template.category === 'Calendar') ? '280px' : '100%', 
                               objectFit: template.imageFit || 'cover',
-                              transform: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
-                              position: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'absolute' : 'relative',
-                              top: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '50%' : 'auto',
-                              left: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '50%' : 'auto',
-                              minWidth: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '420px' : 'none',
-                              minHeight: (template.category === 'Calendar' || template.category === 'Standing Magazine') ? '280px' : 'none'
+                              transform: (template.category === 'Calendar') ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
+                              position: (template.category === 'Calendar') ? 'absolute' : 'relative',
+                              top: (template.category === 'Calendar') ? '50%' : 'auto',
+                              left: (template.category === 'Calendar') ? '50%' : 'auto',
+                              minWidth: (template.category === 'Calendar') ? '420px' : 'none',
+                              minHeight: (template.category === 'Calendar') ? '280px' : 'none',
+                              padding: '1rem'
                             }} 
                           />
                         )}
@@ -549,7 +542,7 @@ const TemplateDetail = () => {
                   <button onClick={prevButtonClick} className="btn btn-outline" style={{ padding: '0.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px' }} aria-label="Previous Page">
                     <ChevronLeft size={20} />
                   </button>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>{(template.category === 'Calendar' || template.category === 'Standing Magazine') ? 'Flip Up to view pages' : 'Drag or Click to Flip'}</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>{(template.category === 'Calendar') ? 'Flip Up to view pages' : 'Drag or Click to Flip'}</span>
                   <button onClick={nextButtonClick} className="btn btn-outline" style={{ padding: '0.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px' }} aria-label="Next Page">
                     <ChevronRight size={20} />
                   </button>
@@ -692,11 +685,11 @@ const TemplateDetail = () => {
           </div>
 
           {/* Details */}
-          <div style={{ flex: '0.9 1 350px', textAlign: 'center' }} className="details-stack">
+          <div style={{ flex: '0.9 1 350px', textAlign: 'center' }}>
             <span style={{ color: 'var(--accent)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.8rem' }}>{template.category}</span>
-            <h1 className="responsive-title" style={{ margin: '1rem 0', fontSize: '2.5rem' }}>{template.name}</h1>
+            <h1 className="responsive-title" style={{ margin: isMobile ? '0 0 0.3rem 0' : '1rem 0', fontSize: isMobile ? '1.8rem' : '2.5rem', lineHeight: '1.2' }}>{template.name}</h1>
             
-            <div style={{ marginBottom: '2rem' }}>
+            <div style={{ marginBottom: isMobile ? '0.5rem' : '2rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.8rem', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
                 {template.originalPrice && (
                   <span style={{ fontSize: '1.4rem', textDecoration: 'line-through', color: 'var(--text-muted)', fontWeight: 'normal' }}>
@@ -739,7 +732,7 @@ const TemplateDetail = () => {
               </div>
             </div>
 
-            <p style={{ fontSize: '1rem', color: 'var(--text-muted)', marginBottom: '2rem', lineHeight: '1.5' }}>
+            <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', marginBottom: isMobile ? '0.5rem' : '2rem', lineHeight: '1.5' }}>
               {template.description}
             </p>
 
@@ -834,8 +827,8 @@ const TemplateDetail = () => {
 
         {/* Detailed Product Information */}
         {template.details && (
-          <div style={{ marginTop: '4rem', textAlign: 'left', background: 'var(--bg-offset)', padding: isMobile ? '1.5rem' : '3rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: '1.5rem', gap: '0.5rem' }}>
+          <div style={{ marginTop: isMobile ? '1rem' : '4rem', textAlign: 'left', background: 'var(--bg-offset)', padding: isMobile ? '1.2rem' : '3rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: isMobile ? '1rem' : '1.5rem', gap: '0.5rem' }}>
               <h3 style={{ fontSize: '1.8rem', fontFamily: 'var(--font-serif)', color: 'var(--navy)', margin: 0 }}>About This Product</h3>
             </div>
             
@@ -946,8 +939,8 @@ const TemplateDetail = () => {
         )}
 
         {/* Recommended Products Section Moved below description */}
-        <div style={{ marginTop: '6rem', textAlign: 'left', borderTop: '1px solid var(--border)', paddingTop: '4rem' }}>
-          <h3 className="no-clamp" style={{ fontSize: '2.8rem', marginBottom: '2.5rem', fontFamily: 'var(--font-display)', textAlign: 'center' }}>You may also like</h3>
+        <div style={{ marginTop: isMobile ? '3rem' : '6rem', textAlign: 'left', borderTop: '1px solid var(--border)', paddingTop: isMobile ? '2rem' : '4rem' }}>
+          <h3 className="no-clamp" style={{ fontSize: isMobile ? '1.8rem' : '2.8rem', marginBottom: isMobile ? '1.5rem' : '2.5rem', fontFamily: 'var(--font-display)', textAlign: 'center' }}>You may also like</h3>
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', 
@@ -1033,44 +1026,57 @@ const TemplateDetail = () => {
                 </>
               )}
 
-              {needsImages && (
-                <>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>Cover Photo {template.category === 'Magazine' ? '*' : '(Optional)'}</label>
-                    <input type="file" accept="image/*" onChange={(e) => setCoverFile(e.target.files[0])} style={{ display: 'none' }} id="coverPhotoInput" />
-                    <label htmlFor="coverPhotoInput" style={{ display: 'inline-flex', padding: '0.6rem 1.5rem', border: '1px solid var(--accent)', borderRadius: '20px', cursor: 'pointer', color: 'var(--accent)', alignItems: 'center', gap: '0.5rem' }}>
-                      ↑ Choose Cover
-                    </label>
-                    {coverFile && <span style={{ marginLeft: '1rem', fontSize: '0.8rem', color: 'var(--navy)' }}>✓ 1 file selected</span>}
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>Inner Photos (Min {getPhotoLimits().min}, Max {getPhotoLimits().max}) *</label>
-                    <div style={{ border: '1px solid var(--border)', borderRadius: '20px', padding: '1.5rem', textAlign: 'center', background: '#fff' }}>
-                      <input type="file" accept="image/*" multiple onChange={(e) => setInnerFiles(Array.from(e.target.files).slice(0, getPhotoLimits().max))} style={{ display: 'none' }} id="innerPhotosInput" />
-                      <label htmlFor="innerPhotosInput" style={{ display: 'inline-flex', padding: '0.6rem 1.5rem', border: '1px solid var(--accent)', borderRadius: '20px', cursor: 'pointer', color: 'var(--accent)', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                        🖼 Select Multiple Photos
-                      </label>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Selected: <strong>{innerFiles.length}</strong> photos</div>
-                    </div>
-                  </div>
-                </>
-              )}
-              
-              {template.category !== 'Magazine' && (
-                <>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>
-                      {template.customizableField ? template.customizableField.label : 'Customization Message (If Any)'}
-                    </label>
-                    <input type="text" value={orderForm.customizationMessage} onChange={(e) => setOrderForm(p => ({ ...p, customizationMessage: e.target.value }))} placeholder={template.customizableField ? template.customizableField.placeholder : "e.g. Text on cover, specific names"} style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid var(--border)', borderRadius: '20px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
-                  </div>
+              {(() => {
+                const config = getCustomizationConfig(template);
+                
+                return (
+                  <>
+                    {config.requiresCover && (
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>Cover Photo *</label>
+                        <input type="file" accept="image/*" onChange={(e) => setCoverFile(e.target.files[0])} style={{ display: 'none' }} id="coverPhotoInput" />
+                        <label htmlFor="coverPhotoInput" style={{ display: 'inline-flex', padding: '0.6rem 1.5rem', border: '1px solid var(--accent)', borderRadius: '20px', cursor: 'pointer', color: 'var(--accent)', alignItems: 'center', gap: '0.5rem' }}>
+                          ↑ Choose Cover
+                        </label>
+                        {coverFile && <span style={{ marginLeft: '1rem', fontSize: '0.8rem', color: 'var(--navy)' }}>✓ 1 file selected</span>}
+                      </div>
+                    )}
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>Special Instructions</label>
-                    <input type="text" value={orderForm.specialNotes} onChange={(e) => setOrderForm(p => ({ ...p, specialNotes: e.target.value }))} placeholder="e.g. sequence of photos, color preferences" style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid var(--border)', borderRadius: '20px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
-                  </div>
-                </>
-              )}
+                    {config.maxPhotos > 0 && (
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>Inner Photos (Min {config.minPhotos}, Max {config.maxPhotos}) *</label>
+                        <div style={{ border: '1px solid var(--border)', borderRadius: '20px', padding: '1.5rem', textAlign: 'center', background: '#fff' }}>
+                          <input type="file" accept="image/*" multiple onChange={(e) => setInnerFiles(prev => {
+                            const newFiles = Array.from(e.target.files);
+                            const combined = [...prev, ...newFiles];
+                            return combined.slice(0, config.maxPhotos);
+                          })} style={{ display: 'none' }} id="innerPhotosInput" />
+                          <label htmlFor="innerPhotosInput" style={{ display: 'inline-flex', padding: '0.6rem 1.5rem', border: '1px solid var(--accent)', borderRadius: '20px', cursor: 'pointer', color: 'var(--accent)', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                            🖼 Select Multiple Photos
+                          </label>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Selected: <strong>{innerFiles.length}</strong> photos</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {config.customTextFields.map((field, idx) => (
+                      <div key={idx}>
+                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>
+                          {field.icon} {field.label} *
+                        </label>
+                        <input type="text" value={orderForm.customizationMessage} onChange={(e) => setOrderForm(p => ({ ...p, customizationMessage: e.target.value }))} placeholder={field.placeholder} required style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid var(--border)', borderRadius: '20px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                      </div>
+                    ))}
+
+                    {config.allowSpecialInstructions && (
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>Special Instructions (Optional)</label>
+                        <input type="text" value={orderForm.specialNotes} onChange={(e) => setOrderForm(p => ({ ...p, specialNotes: e.target.value }))} placeholder="e.g. sequence of photos, color preferences" style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid var(--border)', borderRadius: '20px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
 
               <button type="submit" disabled={isUploading} className="btn btn-primary" style={{ width: '100%', padding: '1.1rem', fontSize: '1rem', marginTop: '0.5rem', borderRadius: '20px', boxShadow: 'none', background: 'var(--accent)' }}>
                 {isUploading ? 'Uploading Photos...' : (showBuyNowModal ? `Proceed to Pay ₹${currentPrice} →` : <><ShoppingCart size={18} /> Add to Cart</>)}
