@@ -21,11 +21,84 @@ const TemplateDetail = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
+  const [miniBookPage, setMiniBookPage] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
   const bookRef = useRef();
   const miniBookRef = useRef();
+  const autoAdvanceTimerRef = useRef(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const isComboOrHamper = template && (template.category === 'Hamper' || template.category === 'Combo' || template.category === 'Combos');
+
+  const nextTemplate = useMemo(() => {
+    if (!template) return null;
+    const sameCategoryTemplates = TEMPLATES.filter(t => t.category === template.category);
+    const currentIndex = sameCategoryTemplates.findIndex(t => t.id === template.id);
+    if (currentIndex !== -1 && currentIndex < sameCategoryTemplates.length - 1) {
+      return sameCategoryTemplates[currentIndex + 1];
+    }
+    return sameCategoryTemplates[0] || null;
+  }, [template]);
+
+  if (!template) return <div>Template not found</div>;
+
+  const sliderImages = (template.category === 'Calendar' || template.category === 'Standing Magazine')
+    ? [] // Use flipbook
+    : (template.gallery || [template.image]);
+
+  // Calculate display pages with blanks for desktop physical items
+  const { displayPages, displayLabels } = useMemo(() => {
+    if (!template || !template.pages) return { displayPages: [], displayLabels: {} };
+    
+    let pages = [];
+    let labels = {};
+
+    if (isMobile || !template.pageLabels) {
+      pages = [...template.pages];
+      if (template.pageLabels) {
+        if (Array.isArray(template.pageLabels)) {
+          template.pageLabels.forEach((label, i) => labels[i] = label);
+        } else {
+          labels = { ...template.pageLabels };
+        }
+      }
+    } else {
+      let currentIndex = 0; 
+      
+      for (let i = 0; i < template.pages.length; i++) {
+        let label = null;
+        if (Array.isArray(template.pageLabels)) {
+          label = template.pageLabels[i];
+        } else if (template.pageLabels) {
+          label = template.pageLabels[i];
+        }
+
+        const isMagazine = !label || label === 'Customized Magazine';
+        
+        if (isMagazine) {
+          pages.push(template.pages[i]);
+          if (label) labels[currentIndex] = label;
+          currentIndex++;
+        } else {
+          const isCurrentLeft = (currentIndex % 2 === 1);
+          
+          if (!isCurrentLeft) {
+            pages.push('BLANK');
+            currentIndex++;
+          }
+          
+          pages.push(template.pages[i]);
+          labels[currentIndex] = label;
+          labels[currentIndex + 1] = label; 
+          currentIndex++;
+          
+          pages.push('BLANK');
+          currentIndex++;
+        }
+      }
+    }
+    
+    return { displayPages: pages, displayLabels: labels };
+  }, [template, isMobile]);
 
   const lastTapRef = useRef(0);
   const longPressTimeoutRef = useRef(null);
@@ -66,18 +139,97 @@ const TemplateDetail = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Autoplay and auto-advance logic for Hamper & Combos (miniBook inside slider)
+  useEffect(() => {
+    if (autoAdvanceTimerRef.current) {
+      clearTimeout(autoAdvanceTimerRef.current);
+      autoAdvanceTimerRef.current = null;
+    }
+
+    if (template && template.magazinePages && currentSlide === 0) {
+      const totalPages = template.magazinePages.length;
+      const isLastPage = isMobile ? (miniBookPage === totalPages - 1) : (miniBookPage >= totalPages - 2);
+
+      if (isLastPage) {
+        autoAdvanceTimerRef.current = setTimeout(() => {
+          if (sliderImages.length > 1) {
+            setCurrentSlide(1);
+            toast.success('Magazine completed! Loading other parts of hamper... ✨', { duration: 2500, position: 'bottom-center' });
+          }
+        }, 2500);
+      }
+    }
+
+    return () => {
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current);
+      }
+    };
+  }, [miniBookPage, currentSlide, template, isMobile, sliderImages.length]);
+
+  // Autoplay for static slides (non-flipbook) in Hampers/Combos
+  useEffect(() => {
+    let slideTimer = null;
+    
+    if (sliderImages.length > 1) {
+      const isFlipBookSlide = template.magazinePages && currentSlide === 0;
+      
+      if (!isFlipBookSlide) {
+        slideTimer = setTimeout(() => {
+          setCurrentSlide((prev) => (prev + 1) % sliderImages.length);
+        }, 4000);
+      }
+    }
+    
+    return () => {
+      if (slideTimer) clearTimeout(slideTimer);
+    };
+  }, [currentSlide, sliderImages.length, template]);
+
+  // Auto-advance standalone books/magazines to the next product in the same category
+  useEffect(() => {
+    let timer = null;
+    
+    if (template && template.pages && template.pages.length > 0) {
+      const totalPages = displayPages.length;
+      const isLastPage = isMobile ? (currentPage === totalPages - 1) : (currentPage >= totalPages - 2);
+      
+      if (isLastPage && nextTemplate && nextTemplate.id !== template.id) {
+        timer = setTimeout(() => {
+          toast.success(`Book completed! Loading next: ${nextTemplate.name}... 📖`, { duration: 3000, position: 'bottom-center' });
+          navigate(`/template/${nextTemplate.id}`);
+          window.scrollTo(0, 0);
+        }, 3000);
+      }
+    }
+    
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [currentPage, displayPages.length, template, isMobile, nextTemplate, navigate]);
+
   const nextButtonClick = () => {
-    if(bookRef.current) bookRef.current.pageFlip().flipNext();
+    if (bookRef.current) {
+      const pageFlip = bookRef.current.pageFlip();
+      const curr = pageFlip.getCurrentPageIndex();
+      const total = pageFlip.getPageCount();
+      const isLast = isMobile ? (curr === total - 1) : (curr >= total - 2);
+      
+      if (isLast && nextTemplate && nextTemplate.id !== template.id) {
+        toast.success(`Loading next: ${nextTemplate.name}... 📖`, { duration: 2500, position: 'bottom-center' });
+        navigate(`/template/${nextTemplate.id}`);
+        window.scrollTo(0, 0);
+      } else {
+        pageFlip.flipNext();
+      }
+    }
   };
 
   const prevButtonClick = () => {
     if(bookRef.current) bookRef.current.pageFlip().flipPrev();
   };
 
-  if (!template) return <div>Template not found</div>;
-  const sliderImages = (template.category === 'Calendar' || template.category === 'Standing Magazine')
-    ? [] // Use flipbook
-    : (template.gallery || [template.image]);
+
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % sliderImages.length);
@@ -182,64 +334,7 @@ const TemplateDetail = () => {
     wrapperMaxWidth = '100%';
   }
 
-  // Calculate display pages with blanks for desktop physical items
-  const { displayPages, displayLabels } = useMemo(() => {
-    if (!template || !template.pages) return { displayPages: [], displayLabels: {} };
-    
-    let pages = [];
-    let labels = {};
 
-    if (isMobile || !template.pageLabels) {
-      pages = [...template.pages];
-      if (template.pageLabels) {
-        if (Array.isArray(template.pageLabels)) {
-          template.pageLabels.forEach((label, i) => labels[i] = label);
-        } else {
-          labels = { ...template.pageLabels };
-        }
-      }
-    } else {
-      // Desktop mode: pad physical items with blank pages so they occupy 1 page per spread
-      let currentIndex = 0; 
-      
-      for (let i = 0; i < template.pages.length; i++) {
-        let label = null;
-        if (Array.isArray(template.pageLabels)) {
-          label = template.pageLabels[i];
-        } else if (template.pageLabels) {
-          label = template.pageLabels[i];
-        }
-
-        const isMagazine = !label || label === 'Customized Magazine';
-        
-        if (isMagazine) {
-          pages.push(template.pages[i]);
-          if (label) labels[currentIndex] = label;
-          currentIndex++;
-        } else {
-          // Physical item: MUST be on the LEFT page, RIGHT page must be blank.
-          // Since showCover=true, 0 is right cover, 1 is left, 2 is right...
-          // Left page means ODD index (currentIndex % 2 === 1)
-          const isCurrentLeft = (currentIndex % 2 === 1);
-          
-          if (!isCurrentLeft) {
-            pages.push('BLANK');
-            currentIndex++;
-          }
-          
-          pages.push(template.pages[i]);
-          labels[currentIndex] = label;
-          labels[currentIndex + 1] = label; // Apply to right side of spread
-          currentIndex++;
-          
-          pages.push('BLANK');
-          currentIndex++;
-        }
-      }
-    }
-    
-    return { displayPages: pages, displayLabels: labels };
-  }, [template, isMobile]);
 
   return (
     <div className="section-padding">
@@ -467,6 +562,7 @@ const TemplateDetail = () => {
                         mobileScrollSupport={true}
                         className="flipbook-wrapper"
                         ref={miniBookRef}
+                        onFlip={(e) => setMiniBookPage(e.data)}
                       >
                         {template.magazinePages.map((pageImg, idx) => (
                           <div key={idx} className="page" style={{ 
@@ -488,7 +584,25 @@ const TemplateDetail = () => {
                         <ChevronLeft size={20} color="#fff" />
                       </button>
                       <button 
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); miniBookRef.current?.pageFlip()?.flipNext(); }}
+                        onClick={(e) => { 
+                          e.preventDefault(); 
+                          e.stopPropagation(); 
+                          if (miniBookRef.current) {
+                            const pageFlip = miniBookRef.current.pageFlip();
+                            const currentPage = pageFlip.getCurrentPageIndex();
+                            const totalPages = pageFlip.getPageCount();
+                            const isLast = isMobile ? (currentPage === totalPages - 1) : (currentPage >= totalPages - 2);
+                            
+                            if (isLast) {
+                              if (sliderImages.length > 1) {
+                                setCurrentSlide(1);
+                                toast.success('Magazine completed! Loading other parts of hamper... ✨', { duration: 2500, position: 'bottom-center' });
+                              }
+                            } else {
+                              pageFlip.flipNext();
+                            }
+                          }
+                        }}
                         style={{ position: 'absolute', bottom: '1rem', right: '1rem', background: '#000', border: 'none', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 15, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }}
                         aria-label="Next Magazine Page"
                       >
