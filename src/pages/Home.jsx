@@ -31,16 +31,16 @@ const ProductCardContent = ({ template }) => {
         position: 'relative'
       }}>
 
-        {template.popular && (
+        {(template.popular || template.id === 'mag_normal') && (
           <div style={{ 
             position: 'absolute', 
             top: isMob ? '0.8rem' : '1.2rem', 
             right: isMob ? '0.8rem' : '1.2rem', 
             background: 'linear-gradient(135deg, #D4AF37 0%, #B5852A 100%)', 
             color: 'white',
-            padding: isMob ? '0.3rem 0.6rem' : '0.4rem 1rem', 
+            padding: isMob ? '0.4rem 0.8rem' : '0.6rem 1.2rem', 
             borderRadius: '20px', 
-            fontSize: isMob ? '0.6rem' : '0.7rem', 
+            fontSize: isMob ? '0.8rem' : '0.9rem', 
             fontWeight: 900,
             boxShadow: '0 4px 15px rgba(212, 175, 55, 0.4)',
             zIndex: 10,
@@ -71,7 +71,7 @@ const ProductCardContent = ({ template }) => {
             style={{ 
               width: '100%', 
               aspectRatio: template.aspectRatio || '4/5',
-              objectFit: 'cover',
+              objectFit: template.imageFit || 'cover',
               borderRadius: '12px'
             }} 
           />
@@ -263,7 +263,7 @@ const Home = () => {
               fontStyle: 'italic',
               fontSize: isMobile ? '1.1rem' : '1.3rem', 
               fontWeight: 500, 
-              color: 'var(--accent)',
+              color: '#4a4a4a',
               marginBottom: '0.5rem',
               lineHeight: 1.4,
               letterSpacing: '0.5px'
@@ -704,19 +704,11 @@ const Home = () => {
                   marginBottom: '0.8rem',
                   lineHeight: 1.2
                 }}>About Us</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 500, marginBottom: 0, lineHeight: 1.6 }}>
-                    At Anchor Customs, we turn memories into keepsakes that last forever.
-                  </p>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 500, marginBottom: 0, lineHeight: 1.6 }}>
-                    We create personalized gifts designed to feel meaningful, aesthetic, and truly personal, from customized magazines and photo frames to scrapbooks and collectible pieces. Every product is made with creativity, attention to detail, and emotion at its core.
-                  </p>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 500, marginBottom: 0, lineHeight: 1.6 }}>
-                    With 4000+ customized orders delivered, our goal is to make gifting more memorable and special for every person who shops with us.
-                  </p>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 500, marginBottom: 0, lineHeight: 1.6 }}>
-                    We're constantly working on new ideas, products, and experiences to bring even more creativity into personalized gifting, one memory at a time.
-                  </p>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 500, marginBottom: 0, lineHeight: 1.6 }}>
+                  <p style={{ marginBottom: '0.8rem' }}>At Anchor Customs, we turn memories into keepsakes that last forever.</p>
+                  <p style={{ marginBottom: '0.8rem' }}>We create personalized gifts designed to feel meaningful, aesthetic, and truly personal, from customized magazines and photo frames to scrapbooks and collectible pieces. Every product is made with creativity, attention to detail, and emotion at its core.</p>
+                  <p style={{ marginBottom: '0.8rem' }}>With 4000+ customized orders delivered, our goal is to make gifting more memorable and special for every person who shops with us.</p>
+                  <p style={{ marginBottom: 0 }}>We're constantly working on new ideas, products, and experiences to bring even more creativity into personalized gifting, one memory at a time.</p>
                 </div>
               </div>
 
@@ -760,19 +752,11 @@ const Home = () => {
                   marginBottom: '1.5rem',
                   lineHeight: 1.2
                 }}>About Us</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: 500, marginBottom: 0, lineHeight: 1.6 }}>
-                    At Anchor Customs, we turn memories into keepsakes that last forever.
-                  </p>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: 500, marginBottom: 0, lineHeight: 1.6 }}>
-                    We create personalized gifts designed to feel meaningful, aesthetic, and truly personal, from customized magazines and photo frames to scrapbooks and collectible pieces. Every product is made with creativity, attention to detail, and emotion at its core.
-                  </p>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: 500, marginBottom: 0, lineHeight: 1.6 }}>
-                    With 4000+ customized orders delivered, our goal is to make gifting more memorable and special for every person who shops with us.
-                  </p>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: 500, marginBottom: 0, lineHeight: 1.6 }}>
-                    We're constantly working on new ideas, products, and experiences to bring even more creativity into personalized gifting, one memory at a time.
-                  </p>
+                <div style={{ color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: 500, marginBottom: 0, lineHeight: 1.6 }}>
+                  <p style={{ marginBottom: '1rem' }}>At Anchor Customs, we turn memories into keepsakes that last forever.</p>
+                  <p style={{ marginBottom: '1rem' }}>We create personalized gifts designed to feel meaningful, aesthetic, and truly personal, from customized magazines and photo frames to scrapbooks and collectible pieces. Every product is made with creativity, attention to detail, and emotion at its core.</p>
+                  <p style={{ marginBottom: '1rem' }}>With 4000+ customized orders delivered, our goal is to make gifting more memorable and special for every person who shops with us.</p>
+                  <p style={{ marginBottom: 0 }}>We're constantly working on new ideas, products, and experiences to bring even more creativity into personalized gifting, one memory at a time.</p>
                 </div>
               </div>
 

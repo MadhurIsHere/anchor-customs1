@@ -17,6 +17,7 @@ const CustomizationForm = () => {
   const isFrame = template?.category === 'Frames' || template?.category === 'Frame' || template?.category === 'Aesthetic' || template?.id?.toLowerCase().includes('frame');
   const fileInputRef = useRef(null);
   const coverInputRef = useRef(null);
+  const comboInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -33,6 +34,7 @@ const CustomizationForm = () => {
 
   const [coverPhoto, setCoverPhoto] = useState(null);
   const [photos, setPhotos] = useState([]); // Array of { file, preview }
+  const [comboPhotos, setComboPhotos] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -44,6 +46,14 @@ const CustomizationForm = () => {
 
   const removePhoto = (index) => {
     setPhotos(prev => {
+      const newPhotos = [...prev];
+      URL.revokeObjectURL(newPhotos[index].preview);
+      return newPhotos.filter((_, i) => i !== index);
+    });
+  };
+
+  const removeComboPhoto = (index) => {
+    setComboPhotos(prev => {
       const newPhotos = [...prev];
       URL.revokeObjectURL(newPhotos[index].preview);
       return newPhotos.filter((_, i) => i !== index);
@@ -133,6 +143,12 @@ const CustomizationForm = () => {
         toast.error('Please upload at least one photo');
         return;
       }
+      if (template.id === 'combo_mag_grid' || template.id === 'combo_mag_chaos') {
+        if (comboPhotos.length === 0) {
+          toast.error(`Please upload photos for ${template.id === 'combo_mag_grid' ? 'Pop Grid Frame' : 'Chaos Collage Frame'}`);
+          return;
+        }
+      }
     }
 
     setIsUploading(true);
@@ -162,6 +178,7 @@ const CustomizationForm = () => {
         
         let completed = 0;
         const photoUrls = [];
+        const comboPhotoUrls = [];
         
         // Process purely sequentially (1 by 1) to prevent "failed to fetch" network bandwidth saturation
         for (let i = 0; i < photos.length; i++) {
@@ -170,10 +187,21 @@ const CustomizationForm = () => {
           completed++;
           
           // Update progress
-          const realProgress = 30 + (completed / photos.length * 60);
+          const realProgress = 30 + (completed / (photos.length + comboPhotos.length) * 60);
           setUploadProgress(prev => Math.max(prev, realProgress));
         }
-        finalImages = isFrame ? photoUrls : [coverUrl, ...photoUrls];
+
+        const comboType = template.id === 'combo_mag_grid' ? 'popgrid' : 'chaoscollege';
+        for (let i = 0; i < comboPhotos.length; i++) {
+          const url = await uploadFile(comboPhotos[i].file, 'photos', comboType, formData, folderPath);
+          comboPhotoUrls.push(url);
+          completed++;
+          
+          const realProgress = 30 + (completed / (photos.length + comboPhotos.length) * 60);
+          setUploadProgress(prev => Math.max(prev, realProgress));
+        }
+
+        finalImages = isFrame ? [...photoUrls, ...comboPhotoUrls] : [coverUrl, ...photoUrls, ...comboPhotoUrls];
         clearInterval(progressInterval);
         setUploadProgress(100);
       } else {
@@ -475,6 +503,84 @@ const CustomizationForm = () => {
                   </div>
                 )}
               </div>
+
+              {(template.id === 'combo_mag_grid' || template.id === 'combo_mag_chaos') && (
+                <div style={{ margin: '2rem 0' }}>
+                  <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>
+                    {template.id === 'combo_mag_grid' ? 'Pop Grid Frame Photos' : 'Chaos Collage Frame Photos'} {template.id === 'combo_mag_grid' ? '(Max 10-15)' : ''}
+                  </h3>
+                  <div style={{ 
+                    border: '1px solid var(--border)', 
+                    borderRadius: 'var(--radius)', 
+                    padding: '2.5rem', 
+                    textAlign: 'center',
+                    backgroundColor: '#fcfcfc'
+                  }}>
+                    <input 
+                      type="file" 
+                      ref={comboInputRef}
+                      hidden 
+                      multiple 
+                      accept="image/*" 
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files);
+                        if (files.length === 0) return;
+                        
+                        if (comboPhotos.length + files.length > 50) {
+                          toast.error('Maximum 50 photos allowed for this section');
+                          return;
+                        }
+                        
+                        const newPhotos = files.map(file => ({
+                          file,
+                          preview: URL.createObjectURL(file)
+                        }));
+                        
+                        setComboPhotos(prev => [...prev, ...newPhotos]);
+                        toast.success(`${files.length} photos added!`);
+                      }} 
+                    />
+                    <button 
+                      type="button"
+                      className="btn btn-outline" 
+                      style={{ margin: '0 auto' }}
+                      onClick={() => comboInputRef.current.click()}
+                    >
+                      <ImageIcon size={18} /> Select Photos
+                    </button>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '1rem' }}>
+                      Selected: <span style={{ fontWeight: 'bold', color: 'var(--navy)' }}>{comboPhotos.length}</span> photos
+                    </p>
+                    {template.id === 'combo_mag_grid' && (
+                      <p style={{ fontSize: '0.8rem', color: 'var(--accent)', marginTop: '0.5rem', fontWeight: '500' }}>
+                        * Recommended: Please upload 10-15 photos for the Pop Grid Frame.
+                      </p>
+                    )}
+                  </div>
+      
+                  {comboPhotos.length > 0 && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '0.8rem', marginTop: '1.5rem' }}>
+                      {comboPhotos.map((photo, idx) => (
+                        <div key={idx} style={{ position: 'relative', aspectRatio: '1', borderRadius: '8px', overflow: 'hidden', border: '1px solid #eee' }}>
+                          <img src={photo.preview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Preview" />
+                          <button 
+                            type="button" 
+                            onClick={() => removeComboPhoto(idx)}
+                            style={{ 
+                              position: 'absolute', top: '5px', right: '5px', 
+                              background: 'rgba(255,255,255,0.8)', color: 'black', 
+                              border: 'none', borderRadius: '50%', padding: '4px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Per-product Custom Message */}
               {template.customizableField && (

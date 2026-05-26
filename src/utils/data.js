@@ -162,7 +162,7 @@ export const TEMPLATES = [
     image: '/products/MAGAZINE TEMPLATES/ROZANA-WEBSITE_page_1.jpg',
     description: 'Your camera roll, but make it iconic.',
     category: 'Magazine',
-    pages: Array.from({length: 24}, (_, i) => `/products/MAGAZINE TEMPLATES/ROZANA-WEBSITE_page_${i + 1}.jpg`),
+    pages: Array.from({length: 12}, (_, i) => `/products/MAGAZINE TEMPLATES/ROZANA-WEBSITE_page_${i + 1}.jpg`),
     details: {
       intro: "Your camera roll, but make it iconic.",
       included: [
@@ -200,7 +200,7 @@ export const TEMPLATES = [
     image: '/products/MAGAZINE TEMPLATES/SHAYARANA-WEBSITE_page_1.jpg',
     description: 'Your camera roll, but make it iconic.',
     category: 'Magazine',
-    pages: Array.from({length: 12}, (_, i) => `/products/MAGAZINE TEMPLATES/SHAYARANA-WEBSITE_page_${i + 1}.jpg`),
+    pages: Array.from({length: 11}, (_, i) => `/products/MAGAZINE TEMPLATES/SHAYARANA-WEBSITE_page_${i + 1}.jpg`),
     details: {
       intro: "Your camera roll, but make it iconic.",
       included: [
@@ -238,7 +238,7 @@ export const TEMPLATES = [
     image: '/products/MAGAZINE TEMPLATES/TERA MERA RISHTA-WEBSITE_page_1.jpg',
     description: 'Your camera roll, but make it iconic.',
     category: 'Magazine',
-    pages: Array.from({length: 16}, (_, i) => `/products/MAGAZINE TEMPLATES/TERA MERA RISHTA-WEBSITE_page_${i + 1}.jpg`),
+    pages: Array.from({length: 12}, (_, i) => `/products/MAGAZINE TEMPLATES/TERA MERA RISHTA-WEBSITE_page_${i + 1}.jpg`),
     details: {
       intro: "Your camera roll, but make it iconic.",
       included: [
@@ -396,6 +396,7 @@ export const TEMPLATES = [
     price10: 699,
     price12: 699,
     originalPrice: 899,
+    imageFit: 'contain',
     image: '/products/FRAMES/a4 frames website_page_7.jpg',
     gallery: [
       '/products/FRAMES/a4 frames website_page_7.jpg',
@@ -695,6 +696,42 @@ export const TEMPLATES = [
     }
   },
   {
+    id: 'hotwheels_bouquet',
+    name: 'Hotwheels Bouquet',
+    price10: 2300,
+    price12: 2300,
+    originalPrice: 2600,
+    isHotWheels: true,
+    imageFit: 'contain',
+    image: '/products/hotwheels_bouquet.jpeg',
+    gallery: [
+      '/products/hotwheels_bouquet.jpeg',
+      '/products/hotwheels_bouquet.mov'
+    ],
+    description: "A bouquet made with Hot Wheels, nostalgia, and love.",
+    category: 'Hamper',
+    details: {
+      intro: "For the boy who still gets excited over tiny cars like it’s childhood all over again. 🚗💙\nA bouquet made with Hot Wheels, nostalgia, and love, because flowers are pretty, but this feels more like him.\n\nEach bouquet is handcrafted with carefully wrapped Hot Wheels cars and premium bouquet styling for a clean, aesthetic look.",
+      included: [
+        "Handcrafted bouquet with Hot Wheels cars",
+        "Premium aesthetic bouquet styling",
+        "Cars will be added based on availability"
+      ],
+      required: [],
+      perfectFor: [
+        "Car Enthusiasts",
+        "Collectors",
+        "Partners",
+        "Best Friends"
+      ],
+      importantInfo: [
+        "Price: ₹2300 (including shipping)",
+        "Designs and car models may vary",
+        "A bouquet, but make it horsepower. 🏁"
+      ]
+    }
+  },
+  {
     id: 'calendar',
     name: 'Customised Calendar',
     price10: 999,
@@ -829,23 +866,26 @@ export const TEMPLATES = [
   },
   {
     id: 'combo_mag_grid',
-    name: 'Combo 1 — Customized Magazine + Pop Grid',
+    name: 'Combo 1 — Customized Magazine + Pop Grid Frame',
     price10: 1499,
     price12: 1499,
     originalPrice: 1699,
-    image: '/products/COMBO 1/5  7 inches frame.jpg',
+    image: '/products/COMBO 1/cover.png',
     description: 'A perfect blend of memories and aesthetics.',
     category: 'Combo',
-    pages: [
-      ...Array.from({length: 9}, (_, i) => `/products/COMBO 1/NORMAL TEMPLATE-WEBSITE_page_${i + 3}.jpg`),
-      '/products/COMBO 1/5  7 inches frame.jpg'
+    gallery: [
+      '/products/COMBO 1/cover.png',
+      '/products/COMBO 1/frame.png'
     ],
-    pageLabels: [
-      ...Array.from({length: 9}, () => 'Customized Magazine'),
+    galleryLabels: [
+      'Customized Magazine',
       'Pop Grid Frame'
     ],
+    magazinePages: [
+      ...Array.from({length: 16}, (_, i) => `/products/COMBO 1/magazine_page_${i + 1}.jpg`)
+    ],
     details: {
-      intro: "A perfect blend of memories and aesthetics.\nThis combo includes our signature customized magazine paired with a beautifully designed pop grid frame.",
+      intro: "A perfect blend of memories and aesthetics. This combo includes our signature customized magazine and a beautifully designed pop grid frame. The magazine captures your pictures and special moments in a visually stunning layout, while the frame adds a personal touch, creating a timeless keepsake to hold close.",
       included: [
         "1x Customized Magazine",
         "1x Pop Grid Frame",
@@ -865,23 +905,26 @@ export const TEMPLATES = [
   },
   {
     id: 'combo_mag_chaos',
-    name: 'Combo 2 — Customized Magazine + Chaos Collage',
+    name: 'Combo 2 — Customized Magazine + Chaos Collage Frame',
     price10: 1599,
     price12: 1599,
     originalPrice: 1799,
-    image: '/products/COMBO 2/a4 frames website.jpg',
+    image: '/products/COMBO 2/cover.png',
     description: 'A perfect combination of storytelling and creative memories.',
     category: 'Combo',
-    pages: [
-      ...Array.from({length: 9}, (_, i) => `/products/COMBO 2/NORMAL TEMPLATE-WEBSITE_page_${i + 3}.jpg`),
-      '/products/COMBO 2/a4 frames website.jpg'
+    gallery: [
+      '/products/COMBO 2/cover.png',
+      '/products/COMBO 2/frame.png'
     ],
-    pageLabels: [
-      ...Array.from({length: 9}, () => 'Customized Magazine'),
+    galleryLabels: [
+      'Customized Magazine',
       'Chaos Collage Frame'
     ],
+    magazinePages: [
+      ...Array.from({length: 16}, (_, i) => `/products/COMBO 2/magazine_page_${i + 1}.jpg`)
+    ],
     details: {
-      intro: "A perfect combination of storytelling and creative memories.\nThis combo includes our signature customized magazine along with a chaos collage frame.",
+      intro: "A perfect combination of storytelling and creative memories. This combo features our signature customized magazine paired with an aesthetic chaos collage frame. Your pictures and conversations are beautifully arranged in the magazine, while the collage frame brings your favorite moments together, preserving emotions in an unforgettable, artistic keepsake.",
       included: [
         "1x Customized Magazine",
         "1x Chaos Collage Frame",
@@ -905,20 +948,22 @@ export const TEMPLATES = [
     price10: 1499,
     price12: 1499,
     originalPrice: 1699,
-    image: '/products/COMBO 3/5  7 inches frame (1).jpg',
+    image: '/products/COMBO 3/cover.png',
     description: 'A unique combination created for people who love memories with a touch of personality and fun.',
     category: 'Combo',
     gallery: [
-      '/products/COMBO 3/NORMAL TEMPLATE-WEBSITE.jpg'
+      '/products/COMBO 3/cover.png',
+      '/products/COMBO 3/frame2.png'
     ],
-    pages: [
-      ...Array.from({length: 9}, (_, i) => `/products/COMBO 3/NORMAL TEMPLATE-WEBSITE_page_${i + 3}.jpg`)
+    galleryLabels: [
+      'Customized Magazine',
+      'Hot Wheels Frame'
     ],
-    pageLabels: [
-      ...Array.from({length: 9}, () => 'Customized Magazine')
+    magazinePages: [
+      ...Array.from({length: 16}, (_, i) => `/products/COMBO 3/magazine_page_${i + 1}.jpg`)
     ],
     details: {
-      intro: "A unique combination created for people who love memories with a touch of personality and fun.\nThis combo includes our signature customized magazine paired with a Hot Wheels car.",
+      intro: "A unique combination for those who love memories with a touch of fun. This combo pairs our customized magazine with a collectible Hot Wheels car. The magazine aesthetically captures your personal photos and messages, while the car adds a creative, playful element, making it the perfect memorable gift.",
       included: [
         "1x Customized Magazine",
         "1x Hot Wheels Car",
@@ -929,11 +974,10 @@ export const TEMPLATES = [
         "35-40 Photos"
       ],
       perfectFor: [
+        "Car Lovers",
         "Birthdays",
         "Anniversaries",
-        "Friendships",
-        "Car Lovers & Collectors",
-        "Surprising someone with something different"
+        "Surprising Someone Special"
       ]
     }
   },

@@ -27,6 +27,7 @@ const hw = (id, img, name, price) => ({
   name,
   price10: price,
   price12: price,
+  originalPrice: price + 200,
   image: `/products/HOTWHEELS/${price}/${img}.jpg`,
   description: HW_DESC,
   category: 'Hot Wheels',
@@ -37,6 +38,9 @@ const hw = (id, img, name, price) => ({
 });
 
 export const HOTWHEELS_TEMPLATES = [
+  // Featured / Cover
+  hw(52, 'IMG_5190', 'McLaren W1', 899),
+
   // ₹399 Tier (16 cars)
   hw(1, 'IMG_5134', 'Ford Mustang Mach-E 1400', 399),
   hw(2, 'IMG_5135', 'Maserati Shamal', 399),
@@ -95,7 +99,6 @@ export const HOTWHEELS_TEMPLATES = [
   hw(49, 'IMG_5187', 'LB-Works Lamborghini Huracán Coupé', 899),
   hw(50, 'IMG_5188', 'Visa Cash App RB Formula One Team', 899),
   hw(51, 'IMG_5189', 'Ferrari 12Cilindri', 899),
-  hw(52, 'IMG_5190', 'McLaren W1', 899),
   hw(53, 'IMG_5156', 'Porsche 911 Turbo Cabriolet (White)', 899),
   hw(54, 'IMG_5179', 'Porsche 911 Turbo Cabriolet (Maroon)', 899),
   hw(55, 'IMG_5182', 'Bugatti Bolide', 899),
