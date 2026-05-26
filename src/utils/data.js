@@ -330,6 +330,7 @@ export const TEMPLATES = [
       size: "A4 Size",
       price: "₹699",
       perfectFor: ["Couple Gifts", "Anniversary Surprises", "Song Dedications", "Romantic Memories"],
+      required: ["1 photo"],
       whatMakesItSpecial: ["Spotify-inspired aesthetic layout", "Personalized photo & song design", "Premium quality print & frame", "Minimal yet emotional vibe"]
     }
   },
@@ -357,6 +358,7 @@ export const TEMPLATES = [
       size: "A4 Size",
       price: "₹699",
       perfectFor: ["Best Friends", "Couple Gifts", "Birthday Surprises", "Friendship Memories"],
+      required: ["4-5 photos (Minimum 4 photos required)"],
       whatMakesItSpecial: ["Vintage-inspired hanging layout", "Soft aesthetic design", "Personalized text & memories", "Cozy Pinterest-style vibe"]
     }
   },
@@ -384,6 +386,7 @@ export const TEMPLATES = [
       size: "A4 Size",
       price: "₹699",
       perfectFor: ["Long Distance Couples", "Travel Memories", "Emotional Surprise Gifts", "Relationship Keepsakes"],
+      required: ["1-2 photos"],
       whatMakesItSpecial: ["Scrapbook-inspired aesthetic", "Travel & memory collage layout", "Personalized design elements", "Vintage emotional vibe"]
     }
   },
@@ -412,6 +415,7 @@ export const TEMPLATES = [
       size: "A4 Size",
       price: "₹699",
       perfectFor: ["Anniversary Gifts", "Couple Surprises", "Birthday Gifts", "Friendship Memories"],
+      required: ["6-8 photos (Minimum 6 photos required)"],
       whatMakesItSpecial: ["Sticker-inspired collage design", "Trendy Pinterest-style aesthetic", "Multiple personalized photos", "Fun & vibrant memory layout"]
     }
   },
@@ -439,6 +443,7 @@ export const TEMPLATES = [
       size: "A4 Size",
       price: "₹699",
       perfectFor: ["Wedding Memories", "Couple Gifts", "Romantic Surprises", "Soft Aesthetic Lovers"],
+      required: ["3-4 photos (Minimum 3 photos required)"],
       whatMakesItSpecial: ["Elegant scrapbook-inspired design", "Soft neutral tones", "Personalized text & layouts", "Premium aesthetic finish"]
     }
   },
@@ -466,6 +471,7 @@ export const TEMPLATES = [
       size: "8x8 Inches",
       price: "₹649",
       perfectFor: ["Best Friends", "Couple Memories", "Birthday Gifts", "Throwback Moments"],
+      required: ["3 photos"],
       whatMakesItSpecial: ["Vintage film-strip inspired layout", "Multiple photo placements", "Fun & nostalgic vibe", "Compact aesthetic decor piece"]
     }
   },
@@ -488,6 +494,7 @@ export const TEMPLATES = [
       size: "A4 Size",
       price: "₹699",
       perfectFor: ["Friendship Gifts", "Couple Gifts", "Memory Decor", "Minimal Aesthetic Lovers"],
+      required: ["4-6 photos"],
       whatMakesItSpecial: ["Notebook-inspired aesthetic", "Clean minimal design", "Emotional & personalized feel", "Trendy paper-plane elements"]
     }
   },
@@ -515,6 +522,7 @@ export const TEMPLATES = [
       size: "8x8 Inches",
       price: "₹649",
       perfectFor: ["Best Friend Gifts", "Birthday Surprises", "Friendship Day", "School/College Memories"],
+      required: ["4-5 photos"],
       whatMakesItSpecial: ["Scrapbook-inspired layout", "Personalized title & photos", "Warm nostalgic aesthetic", "Handmade memory-book feel"]
     }
   },
@@ -537,6 +545,7 @@ export const TEMPLATES = [
       size: "5x7 Inches",
       price: "₹549",
       perfectFor: ["Minimal Aesthetic Decor", "Friendship Memories", "Couple Photos", "Bedroom/Desk Decor"],
+      required: ["9 photos (Minimum 9 photos required)"],
       whatMakesItSpecial: ["Modern grid-style photo layout", "Elegant minimal vibe", "Compact & classy design", "Personalized memory aesthetic"]
     }
   },
@@ -564,6 +573,7 @@ export const TEMPLATES = [
       size: "8x8 Inches",
       price: "₹649",
       perfectFor: ["Wedding Memories", "Couple Gifts", "Anniversary Surprises", "Heart Collage Lovers"],
+      required: ["25-30 photos (Minimum 25 photos required)"],
       whatMakesItSpecial: ["Heart-shaped photo collage", "Bold contrast design", "Emotional & personalized feel", "Premium room decor piece"]
     }
   },
@@ -968,6 +978,39 @@ export const TEMPLATES = [
         "Birthdays",
         "Anniversaries",
         "Surprising Someone Special"
+      ]
+    }
+  },
+  {
+    id: 'hotwheels_bouquet',
+    name: 'Hot Wheels Bouquet',
+    price10: 2300,
+    price12: 2300,
+    originalPrice: 2600,
+    image: '/products/hotwheels_bouquet.jpg',
+    gallery: [
+      '/products/hotwheels_bouquet.jpg',
+      '/products/hotwheels_bouquet.gif'
+    ],
+    description: 'For the boy who still gets excited over tiny cars like it’s childhood all over again. 🚗💙\nA bouquet made with Hot Wheels, nostalgia, and love, because flowers are pretty, but this feels more like him.',
+    category: 'Bouquet',
+    details: {
+      intro: "For the boy who still gets excited over tiny cars like it’s childhood all over again. 🚗💙\nA bouquet made with Hot Wheels, nostalgia, and love, because flowers are pretty, but this feels more like him.\n\nEach bouquet is handcrafted with carefully wrapped Hot Wheels cars and premium bouquet styling for a clean, aesthetic look.",
+      included: [
+        "Price: ₹2300 (including shipping)",
+        "Cars will be added based on availability",
+        "Designs and car models may vary",
+        "Perfect for collectors, best friends, partners & car enthusiasts"
+      ],
+      required: [],
+      perfectFor: [
+        "Collectors",
+        "Best Friends",
+        "Partners",
+        "Car Enthusiasts"
+      ],
+      importantInfo: [
+        "A bouquet, but make it horsepower. 🏁"
       ]
     }
   },

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../supabase/config';
 import { formatDate } from '../../utils/helpers';
-import { CheckCircle, Truck, Printer, Mail } from 'lucide-react';
+import { CheckCircle, Truck, Printer, Mail, DownloadCloud } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 const AdminDashboard = () => {
   const { isAdmin } = useAuth();
@@ -96,6 +98,53 @@ const AdminDashboard = () => {
     }
   };
 
+  const downloadImagesAsZip = async (order) => {
+    let allUrls = [];
+    if (order.images && order.images.length > 0) allUrls = [...order.images];
+    if (order.cover_photo && !allUrls.includes(order.cover_photo)) {
+      allUrls.unshift(order.cover_photo); // Put cover photo first
+    }
+
+    if (allUrls.length === 0) {
+      toast.error('No images found for this order.');
+      return;
+    }
+
+    const toastId = toast.loading(`Zipping ${allUrls.length} images... Please wait.`);
+    
+    try {
+      const zip = new JSZip();
+      const safeName = order.customer_details.fullName ? order.customer_details.fullName.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'customer';
+      const folderName = `Order_${order.display_id || order.id.slice(0, 8)}_${safeName}`;
+      const folder = zip.folder(folderName);
+
+      const fetchPromises = allUrls.map(async (url, index) => {
+        try {
+          const response = await fetch(url);
+          const blob = await response.blob();
+          
+          let ext = url.split('.').pop().split('?')[0];
+          if (ext.length > 4 || ext.includes('/')) ext = 'webp'; 
+          
+          const filename = (url === order.cover_photo) ? `00_COVER.${ext}` : `image_${index.toString().padStart(2, '0')}.${ext}`;
+          folder.file(filename, blob);
+        } catch (err) {
+          console.error('Failed to fetch image:', url, err);
+        }
+      });
+
+      await Promise.all(fetchPromises);
+      
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      saveAs(zipBlob, `${folderName}.zip`);
+      
+      toast.success('Download complete!', { id: toastId });
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to create zip file.', { id: toastId });
+    }
+  };
+
   if (!isAdmin) return <Navigate to="/" />;
 
   return (
@@ -156,19 +205,29 @@ const AdminDashboard = () => {
                           <Mail size={12} /> Email
                         </button>
                       </div>
-                      <a 
-                        href={order.images?.[0]} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="btn btn-outline"
-                        style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
-                      >
-                        View Photos
-                      </a>
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <a 
+                          href={order.images?.[0] || order.cover_photo || '#'} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="btn btn-outline"
+                          style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
+                        >
+                          View 1st Photo
+                        </a>
+                        {(order.images?.length > 0 || order.cover_photo) && (
+                          <button 
+                            onClick={() => downloadImagesAsZip(order)}
+                            className="btn btn-outline"
+                            style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                          >
+                            <DownloadCloud size={12} /> Zip ({order.images?.length || 0})
+                          </button>
+                        )}
+                      </div>
                     </td>
                     <td style={{ padding: '1rem' }}>
                       <span style={{ fontWeight: '500' }}>{order.template_name}</span>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block' }}>{order.pages} Pages</span>
                     </td>
                     <td style={{ padding: '1rem', fontWeight: 'bold' }}>₹{order.price}</td>
                     <td style={{ padding: '1rem' }}>

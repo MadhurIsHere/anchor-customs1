@@ -172,7 +172,7 @@ const Navbar = () => {
           <Link to="/" onClick={() => setIsMenuOpen(false)}>Home</Link>
           <Link to="/faq" onClick={() => setIsMenuOpen(false)}>FAQ</Link>
           
-          <div style={{ margin: '0.5rem 0' }}>
+          <div>
             <button 
               onClick={() => setIsCategoriesDropdownOpen(!isCategoriesDropdownOpen)}
               style={{
@@ -182,7 +182,7 @@ const Navbar = () => {
                 width: '100%',
                 background: 'none',
                 border: 'none',
-                padding: '0.5rem 0',
+                padding: '0',
                 color: 'var(--text)',
                 fontSize: '1.1rem',
                 fontWeight: '600',

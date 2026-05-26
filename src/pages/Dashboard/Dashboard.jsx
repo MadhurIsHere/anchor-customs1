@@ -3,6 +3,7 @@ import { supabase } from '../../supabase/config';
 import { useAuth } from '../../context/AuthContext';
 import { formatDate } from '../../utils/helpers';
 import { Package, Clock, CheckCircle, ExternalLink } from 'lucide-react';
+import { TEMPLATES } from '../../utils/data';
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
@@ -46,7 +47,7 @@ const Dashboard = () => {
       <div className="container">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
           <div>
-            <h1>Hello, {currentUser?.user_metadata?.full_name || 'Customer'}</h1>
+            <h1 style={{ fontFamily: 'var(--font-sans)', fontWeight: 'bold' }}>Hello, {currentUser?.user_metadata?.full_name || 'Customer'}</h1>
             <p style={{ color: 'var(--text-muted)' }}>Manage your orders and account details</p>
           </div>
           <div className="card" style={{ padding: '1rem 2rem', background: 'var(--bg-offset)' }}>
@@ -55,7 +56,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Your Orders (Updated)</h2>
+        <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', fontFamily: 'var(--font-sans)' }}>Your Orders (Updated)</h2>
         
         {loading ? <p>Loading orders...</p> : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -98,8 +99,7 @@ const Dashboard = () => {
                 <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
                   <img src={order.images?.[0]} alt="Cover" style={{ width: '60px', height: '80px', objectFit: 'cover', borderRadius: '4px' }} />
                   <div style={{ flex: 1 }}>
-                    <h4 style={{ fontSize: '1.1rem' }}>{order.template_name}</h4>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{order.pages} Page Magazine</p>
+                    <h4 style={{ fontSize: '1.1rem', fontFamily: 'var(--font-sans)', fontWeight: 'bold' }}>{order.template_name}</h4>
                   </div>
                 </div>
               </div>

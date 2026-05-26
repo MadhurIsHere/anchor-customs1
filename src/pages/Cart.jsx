@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Trash2, ShoppingBag, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 const Cart = () => {
-  const { cartItems, removeFromCart, cartTotal } = useCart();
+  const { cartItems, removeFromCart, cartTotal, shippingTotal, finalTotal } = useCart();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
@@ -27,9 +27,9 @@ const Cart = () => {
             <ShoppingBag size={48} style={{ color: 'var(--accent)' }} />
           </div>
           <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 'bold', marginBottom: '1rem' }}>Your cart is empty</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: 'clamp(1rem, 2vw, 1.2rem)', marginBottom: '2.5rem', maxWidth: '400px', lineHeight: '1.4' }}>Ready to custom design your premium nostalgic print layout?</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: 'clamp(1rem, 2vw, 1.2rem)', marginBottom: '2.5rem', maxWidth: '400px', lineHeight: '1.4' }}>Ready to add some awesome items to your collection?</p>
           <Link to="/" className="btn btn-accent" style={{ padding: '1rem 2.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.8rem' }}>
-            Explore Products <ArrowRight size={18} />
+            Browse Products <ArrowRight size={18} />
           </Link>
         </div>
       </div>
@@ -39,6 +39,28 @@ const Cart = () => {
   return (
     <div className="section-padding">
       <div className="container">
+        <button 
+          onClick={() => window.history.state && window.history.state.idx > 0 ? navigate(-1) : navigate('/')} 
+          style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '0.5rem', 
+            marginBottom: '2rem', 
+            fontSize: '0.95rem', 
+            border: '1px solid var(--border)', 
+            background: '#fff', 
+            padding: '8px 16px',
+            borderRadius: '20px',
+            cursor: 'pointer', 
+            color: 'var(--navy)',
+            fontFamily: 'var(--font-sans)',
+            fontWeight: '600',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <ArrowLeft size={16} /> Back
+        </button>
         <h1 style={{ marginBottom: '3rem' }}>Your Shopping Cart</h1>
         
         <div className="cart-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'start' }}>
@@ -48,11 +70,6 @@ const Cart = () => {
                 <img src={item.images?.[0] || item.coverImage || item.coverPhoto} alt="Cover" className={item.templateId === 'free_gift_surprise' ? 'surprise-img' : ''} style={{ width: '100px', height: '130px', objectFit: item.templateId === 'free_gift_surprise' ? 'contain' : 'cover', padding: item.templateId === 'free_gift_surprise' ? '35px' : '0', background: item.templateId === 'free_gift_surprise' ? '#f5f5f5' : 'transparent', borderRadius: '4px' }} />
                 <div style={{ flex: 1 }}>
                   <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{item.templateName}</h3>
-                  {item.templateId !== 'free_gift_surprise' && (
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-                      {typeof item.pages === 'number' || (item.pages && !isNaN(Number(item.pages))) ? `${item.pages} Pages Magazine` : item.pages || ''}
-                    </p>
-                  )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: item.templateId === 'free_gift_surprise' ? '1rem' : '0' }}>
                     <span style={{ fontWeight: 'bold' }}>
                       {item.templateId === 'free_gift_surprise' ? 'FREE' : `₹${item.price}`}
@@ -78,11 +95,13 @@ const Cart = () => {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>Shipping</span>
-                <span style={{ color: '#00a86b' }}>FREE</span>
+                <span style={{ color: shippingTotal === 0 ? '#00a86b' : 'var(--text)' }}>
+                  {shippingTotal === 0 ? 'FREE' : `+ ₹${shippingTotal}`}
+                </span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border)', paddingTop: '1rem', fontWeight: 'bold', fontSize: '1.2rem' }}>
                 <span>Total</span>
-                <span>₹{cartTotal}</span>
+                <span>₹{finalTotal}</span>
               </div>
             </div>
             <button onClick={handleCheckout} className="btn btn-accent" style={{ width: '100%', padding: '1rem' }}>

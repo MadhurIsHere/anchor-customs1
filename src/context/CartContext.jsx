@@ -46,8 +46,26 @@ export const CartProvider = ({ children }) => {
 
   const cartTotal = cartItems.reduce((total, item) => total + item.price, 0);
 
+  const shippingTotal = cartItems.reduce((total, item) => {
+    const name = (item.templateName || '').toLowerCase();
+    const category = (item.category || '').toLowerCase();
+    
+    // Explicitly exclude Bouquets and Combos from shipping charge
+    if (name.includes('bouquet') || name.includes('combo') || category.includes('bouquet') || category.includes('combo')) {
+      return total;
+    }
+
+    // Apply ₹80 shipping if it's a frame, cap, or a hot wheel
+    if (name.includes('frame') || name.includes('cap') || name.includes('hot wheels') || name.includes('hotwheels') || item.isHotWheels || category.includes('hot wheels') || category.includes('frame') || category.includes('cap')) {
+      return total + 80;
+    }
+    return total;
+  }, 0);
+
+  const finalTotal = cartTotal + shippingTotal;
+
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart, cartTotal }}>
+    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart, cartTotal, shippingTotal, finalTotal }}>
       {children}
     </CartContext.Provider>
   );

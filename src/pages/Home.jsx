@@ -170,7 +170,7 @@ const Home = () => {
       {/* Editorial Hero Section */}
       <section style={{ 
         minHeight: isMobile ? 'auto' : '70vh',
-        backgroundColor: 'var(--primary-light)',
+        backgroundColor: 'var(--bg-offset)!',
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
@@ -319,26 +319,26 @@ const Home = () => {
         }}
       >
         <svg 
-          viewBox="0 0 1440 280" 
+          viewBox="0 0 1440 320" 
           width="100%" 
           height="100%" 
           style={{ display: 'block', overflow: 'visible' }}
         >
           {/* Shadow Ribbon underlay */}
           <path 
-            d="M -100,140 C 150,40 350,240 600,140 C 850,40 1050,240 1300,140 C 1550,40 1750,240 2000,140" 
+            d="M -100,160 C 150,60 350,260 600,160 C 850,60 1050,260 1300,160 C 1550,60 1750,260 2000,160" 
             fill="none" 
             stroke="rgba(0,0,0,0.06)" 
-            strokeWidth="90" 
+            strokeWidth={isMobile ? "130" : "90"} 
             strokeLinecap="round" 
           />
           {/* Main Beige/Brown Ribbon background */}
           <path 
             id="ribbonPath"
-            d="M -100,140 C 150,40 350,240 600,140 C 850,40 1050,240 1300,140 C 1550,40 1750,240 2000,140" 
+            d="M -100,160 C 150,60 350,260 600,160 C 850,60 1050,260 1300,160 C 1550,60 1750,260 2000,160" 
             fill="none" 
             stroke="var(--accent)" 
-            strokeWidth="80" 
+            strokeWidth={isMobile ? "120" : "80"} 
             strokeLinecap="round" 
           />
           {/* Text path */}
@@ -379,14 +379,13 @@ const Home = () => {
             fontFamily: 'var(--font-sans)'
           }}>
             <h2 style={{ 
-              fontSize: isMobile ? '2.2rem' : '4.5rem', 
-              fontWeight: 800, 
+              fontSize: isMobile ? '3.8rem' : '5.85rem', 
+              fontWeight: 'normal', 
               margin: 0, 
               letterSpacing: '1px',
               fontFamily: "'Alex Brush', cursive",
               width: '100%',
-              textAlign: 'center',
-              fontWeight: 400
+              textAlign: 'center'
             }}>Best Selling</h2>
           </div>
 
