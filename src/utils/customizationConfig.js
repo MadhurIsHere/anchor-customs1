@@ -19,10 +19,10 @@ export const getCustomizationConfig = (template) => {
     config.maxPhotos = 40;
   }
   // 2. Standing Magazine
-  else if (category === 'magazine' && name.includes('standing')) {
+  else if ((category === 'magazine' || category === 'standing magazine') && name.includes('standing')) {
     config.requiresCover = true;
     config.minPhotos = 15;
-    config.maxPhotos = 30;
+    config.maxPhotos = 25;
   }
   // 3. Spotify Code Frame
   else if (name.includes('spotify')) {

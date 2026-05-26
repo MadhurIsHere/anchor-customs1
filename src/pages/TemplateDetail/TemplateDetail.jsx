@@ -38,6 +38,7 @@ const TemplateDetail = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const isComboOrHamper = template && (template.category === 'Hamper' || template.category === 'Combo' || template.category === 'Combos');
   const needsImages = template && !template.isHotWheels && !['Apparel', 'Cap', 'Keychain', 'Bouquet'].includes(template.category);
+  const isCalendarLike = template && (template.category === 'Calendar' || template.category === 'Standing Magazine');
 
   const lastTapRef = useRef(0);
   const longPressTimeoutRef = useRef(null);
@@ -87,7 +88,7 @@ const TemplateDetail = () => {
   };
 
   if (!template) return <div>Template not found</div>;
-  const sliderImages = (template.category === 'Calendar' || template.category === 'Standing Magazine')
+  const sliderImages = isCalendarLike
     ? [] // Use flipbook
     : (template.gallery || [template.image]);
 
@@ -233,15 +234,11 @@ const TemplateDetail = () => {
     }
     if (config.maxPhotos > 0) {
       if (innerFiles.length < config.minPhotos) {
-        toast.error(`Please select at least ${config.minPhotos} inner photos.`); return;
+        toast.error(`Please select at least ${config.minPhotos} ${config.maxPhotos === 1 ? 'photo' : 'inner photos'}.`); return;
       }
       if (innerFiles.length > config.maxPhotos) {
-        toast.error(`You can select maximum ${config.maxPhotos} inner photos.`); return;
+        toast.error(`You can select maximum ${config.maxPhotos} ${config.maxPhotos === 1 ? 'photo' : 'inner photos'}.`); return;
       }
-    }
-    if (config.customTextFields.length > 0 && !orderForm.customizationMessage.trim()) {
-      toast.error(`Please fill out: ${config.customTextFields[0].label}`);
-      return;
     }
     
     setIsUploading(true);
@@ -304,7 +301,7 @@ const TemplateDetail = () => {
   let wrapperAspectRatio = isMobile ? '0.73' : '1.47';
   let wrapperMaxWidth = isMobile ? '100%' : '800px';
 
-  if (template.category === 'Calendar' || template.category==='Standing Magazine') {
+  if (isCalendarLike) {
     bookWidth = 280;
     bookHeight = 420;
     wrapperAspectRatio = '1.5';
@@ -418,141 +415,14 @@ const TemplateDetail = () => {
           }}>
             {/* Removed Elegant Tab Selector for Hampers & Combos */}
 
-            {/* STANDING MAGAZINE: Custom 2-page stacked vertical viewer with animation */}
-            {template.category === 'Standing Magazine' && template.pages && template.pages.length > 0 && (() => {
-              const pages = template.pages;
-              const totalSpreads = Math.ceil(pages.length / 2);
-              const topImg = pages[standingSpread * 2];
-              const bottomImg = pages[standingSpread * 2 + 1];
 
-              const goNext = () => {
-                setStandingDir(1);
-                setStandingSpread(s => s < totalSpreads - 1 ? s + 1 : 0);
-              };
-              const goPrev = () => {
-                setStandingDir(-1);
-                setStandingSpread(s => s > 0 ? s - 1 : totalSpreads - 1);
-              };
-              const goTo = (i) => {
-                setStandingDir(i > standingSpread ? 1 : -1);
-                setStandingSpread(i);
-              };
-
-              // 3D page-flip variants: next flips up (rotateX), prev flips down
-              const variants = {
-                enter: (dir) => ({
-                  rotateX: dir > 0 ? 90 : -90,
-                  opacity: 0,
-                  scale: 0.95,
-                }),
-                center: {
-                  rotateX: 0,
-                  opacity: 1,
-                  scale: 1,
-                },
-                exit: (dir) => ({
-                  rotateX: dir > 0 ? -90 : 90,
-                  opacity: 0,
-                  scale: 0.95,
-                }),
-              };
-
-              return (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', width: '100%', maxWidth: '420px' }}>
-                  {/* Spread counter */}
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                    Spread {standingSpread + 1} / {totalSpreads}
-                  </div>
-                  {/* 3D flip stacked pages viewer */}
-                  <div style={{ position: 'relative', width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.15)', borderRadius: '8px', background: '#fff', perspective: '1200px', perspectiveOrigin: '50% 50%' }}>
-                    <AnimatePresence custom={standingDir} mode="wait">
-                      <motion.div
-                        key={standingSpread}
-                        custom={standingDir}
-                        variants={variants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{
-                          duration: 0.45,
-                          ease: [0.25, 0.46, 0.45, 0.94],
-                        }}
-                        style={{
-                          width: '100%',
-                          transformOrigin: '50% 50%',
-                          backfaceVisibility: 'hidden',
-                          borderRadius: '8px',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        {/* Top page */}
-                        <div style={{ width: '100%', borderBottom: '2px solid #e0e0e0', overflow: 'hidden' }}>
-                          {topImg && (
-                            <img
-                              src={topImg}
-                              alt={`Page ${standingSpread * 2 + 1}`}
-                              loading="lazy"
-                              onClick={() => setSelectedImage(topImg)}
-                              style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover', cursor: 'zoom-in' }}
-                            />
-                          )}
-                        </div>
-                        {/* Bottom page */}
-                        <div style={{ width: '100%', overflow: 'hidden' }}>
-                          {bottomImg ? (
-                            <img
-                              src={bottomImg}
-                              alt={`Page ${standingSpread * 2 + 2}`}
-                              loading="lazy"
-                              onClick={() => setSelectedImage(bottomImg)}
-                              style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover', cursor: 'zoom-in' }}
-                            />
-                          ) : (
-                            <div style={{ width: '100%', background: '#f9f9f9', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '200px', color: '#ccc', fontSize: '0.85rem' }}>Back cover</div>
-                          )}
-                        </div>
-                      </motion.div>
-                    </AnimatePresence>
-                    {/* Prev arrow — outside AnimatePresence so it never animates away */}
-                    <button
-                      onClick={goPrev}
-                      onTouchStart={goPrev}
-                      style={{ position: 'absolute', top: '50%', left: '0.75rem', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.92)', border: 'none', borderRadius: '50%', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 99, boxShadow: '0 2px 8px rgba(0,0,0,0.2)', touchAction: 'manipulation' }}
-                      aria-label="Previous Spread"
-                    >
-                      <ChevronLeft size={24} color="#000" />
-                    </button>
-                    {/* Next arrow */}
-                    <button
-                      onClick={goNext}
-                      onTouchStart={goNext}
-                      style={{ position: 'absolute', top: '50%', right: '0.75rem', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.92)', border: 'none', borderRadius: '50%', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 99, boxShadow: '0 2px 8px rgba(0,0,0,0.2)', touchAction: 'manipulation' }}
-                      aria-label="Next Spread"
-                    >
-                      <ChevronRight size={24} color="#000" />
-                    </button>
-                  </div>
-                  {/* Dot indicators */}
-                  <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-                    {Array.from({ length: totalSpreads }).map((_, i) => (
-                      <div
-                        key={i}
-                        onClick={() => goTo(i)}
-                        style={{ width: i === standingSpread ? '20px' : '8px', height: '8px', borderRadius: '4px', background: i === standingSpread ? 'var(--accent)' : '#ddd', cursor: 'pointer', transition: 'all 0.3s ease' }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* RENDER INTERACTIVE FLIPBOOK PREVIEW (all categories except Standing Magazine) */}
-            {template.pages && template.pages.length > 0 && template.category !== 'Standing Magazine' && (
+            {/* RENDER INTERACTIVE FLIPBOOK PREVIEW (all categories including Standing Magazine) */}
+            {template.pages && template.pages.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isMobile ? '0.5rem' : '2rem', width: '100%', maxWidth: '800px' }}>
                 <div style={{ 
                   width: '100%', 
                   maxWidth: wrapperMaxWidth, 
-                  height: isMobile ? (template.category === 'Magazine' ? '50vh' : (template.category === 'Calendar' ? '60vh' : '40vh')) : 'auto',
+                  height: isMobile ? (template.category === 'Magazine' ? '50vh' : (isCalendarLike ? '60vh' : '40vh')) : 'auto',
                   aspectRatio: isMobile ? 'auto' : wrapperAspectRatio,
                   boxShadow: isMobile ? 'none' : '0 10px 30px rgba(0,0,0,0.15)', 
                   borderRadius: isMobile ? '0' : '4px',
@@ -560,8 +430,8 @@ const TemplateDetail = () => {
                   justifyContent: 'center',
                   alignItems: 'center',
                   overflow: 'hidden',
-                  transform: (template.category === 'Calendar') ? 'rotate(-90deg)' : 'none',
-                  margin: (template.category === 'Calendar') ? '4rem 0' : (isMobile ? '0' : '0'),
+                  transform: isCalendarLike ? 'rotate(-90deg)' : 'none',
+                  margin: isCalendarLike ? '4rem 0' : (isMobile ? '0' : '0'),
                   position: 'relative'
                 }}>
                   {displayLabels && displayLabels[currentPage] && (
@@ -595,10 +465,10 @@ const TemplateDetail = () => {
                     maxWidth={600}
                     minHeight={200}
                     maxHeight={800}
-                    drawShadow={!(template.category === 'Calendar')}
-                    maxShadowOpacity={(template.category === 'Calendar') ? 0 : 0.5}
+                    drawShadow={!isCalendarLike}
+                    maxShadowOpacity={isCalendarLike ? 0 : 0.5}
                     showCover={!isMobile}
-                    usePortrait={isMobile || template.category === 'Calendar'}
+                    usePortrait={isMobile || isCalendarLike}
                     mobileScrollSupport={true}
                     className="magazine-flipbook"
                   >
@@ -615,21 +485,21 @@ const TemplateDetail = () => {
                       onTouchStart={(e) => handlePageGesture(e, template.pages[0])}
                       onTouchEnd={handleTouchEnd}
                     >
-                      <div style={{ position: 'absolute', inset: 0, background: (template.category === 'Calendar') ? 'transparent' : 'linear-gradient(to right, rgba(0,0,0,0.3) 0%, rgba(255,255,255,0.2) 3%, transparent 10%)', zIndex: 10, pointerEvents: 'none' }}></div>
+                      <div style={{ position: 'absolute', inset: 0, background: isCalendarLike ? 'transparent' : 'linear-gradient(to right, rgba(0,0,0,0.3) 0%, rgba(255,255,255,0.2) 3%, transparent 10%)', zIndex: 10, pointerEvents: 'none' }}></div>
                       {displayPages[0] && displayPages[0] !== 'BLANK' && (
                         <img 
                           src={displayPages[0]} 
                           alt="Cover" 
                           style={{ 
-                            width: (template.category === 'Calendar') ? '420px' : '100%', 
-                            height: (template.category === 'Calendar') ? '280px' : '100%', 
+                            width: isCalendarLike ? '420px' : '100%', 
+                            height: isCalendarLike ? '280px' : '100%', 
                             objectFit: template.imageFit || 'cover',
-                            transform: (template.category === 'Calendar') ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
-                            position: (template.category === 'Calendar') ? 'absolute' : 'relative',
-                            top: (template.category === 'Calendar') ? '50%' : 'auto',
-                            left: (template.category === 'Calendar') ? '50%' : 'auto',
-                            minWidth: (template.category === 'Calendar') ? '420px' : 'none',
-                            minHeight: (template.category === 'Calendar') ? '280px' : 'none',
+                            transform: isCalendarLike ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
+                            position: isCalendarLike ? 'absolute' : 'relative',
+                            top: isCalendarLike ? '50%' : 'auto',
+                            left: isCalendarLike ? '50%' : 'auto',
+                            minWidth: isCalendarLike ? '420px' : 'none',
+                            minHeight: isCalendarLike ? '280px' : 'none',
                             padding: '1rem'
                           }} 
                         />
@@ -653,22 +523,22 @@ const TemplateDetail = () => {
                         onTouchStart={(e) => handlePageGesture(e, pageImg)}
                         onTouchEnd={handleTouchEnd}
                       >
-                        <div style={{ position: 'absolute', inset: 0, background: (template.category === 'Calendar') ? 'transparent' : (idx % 2 !== 0 ? 'linear-gradient(to right, rgba(0,0,0,0.1) 0%, transparent 10%)' : 'linear-gradient(to left, rgba(0,0,0,0.1) 0%, transparent 10%)'), zIndex: 10, pointerEvents: 'none' }}></div>
+                        <div style={{ position: 'absolute', inset: 0, background: isCalendarLike ? 'transparent' : (idx % 2 !== 0 ? 'linear-gradient(to right, rgba(0,0,0,0.1) 0%, transparent 10%)' : 'linear-gradient(to left, rgba(0,0,0,0.1) 0%, transparent 10%)'), zIndex: 10, pointerEvents: 'none' }}></div>
                         {pageImg && pageImg !== 'BLANK' && (
                           <img 
                             src={pageImg} 
                             alt={`Page ${idx + 2}`} 
                             loading="lazy" 
                             style={{ 
-                              width: (template.category === 'Calendar') ? '420px' : '100%', 
-                              height: (template.category === 'Calendar') ? '280px' : '100%', 
+                              width: isCalendarLike ? '420px' : '100%', 
+                              height: isCalendarLike ? '280px' : '100%', 
                               objectFit: template.imageFit || 'cover',
-                              transform: (template.category === 'Calendar') ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
-                              position: (template.category === 'Calendar') ? 'absolute' : 'relative',
-                              top: (template.category === 'Calendar') ? '50%' : 'auto',
-                              left: (template.category === 'Calendar') ? '50%' : 'auto',
-                              minWidth: (template.category === 'Calendar') ? '420px' : 'none',
-                              minHeight: (template.category === 'Calendar') ? '280px' : 'none',
+                              transform: isCalendarLike ? 'translate(-50%, -50%) rotate(90deg)' : 'none',
+                              position: isCalendarLike ? 'absolute' : 'relative',
+                              top: isCalendarLike ? '50%' : 'auto',
+                              left: isCalendarLike ? '50%' : 'auto',
+                              minWidth: isCalendarLike ? '420px' : 'none',
+                              minHeight: isCalendarLike ? '280px' : 'none',
                               padding: '1rem'
                             }} 
                           />
@@ -683,7 +553,7 @@ const TemplateDetail = () => {
                   <button onClick={prevButtonClick} className="btn btn-outline" style={{ padding: '0.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px' }} aria-label="Previous Page">
                     <ChevronLeft size={20} />
                   </button>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>{(template.category === 'Calendar') ? 'Flip Up to view pages' : 'Drag or Click to Flip'}</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>{isCalendarLike ? 'Flip Up to view pages' : 'Drag or Click to Flip'}</span>
                   <button onClick={nextButtonClick} className="btn btn-outline" style={{ padding: '0.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px' }} aria-label="Next Page">
                     <ChevronRight size={20} />
                   </button>
@@ -1269,17 +1139,21 @@ const TemplateDetail = () => {
 
                     {config.maxPhotos > 0 && (
                       <div>
-                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>Inner Photos (Min {config.minPhotos}, Max {config.maxPhotos}) *</label>
+                        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>
+                          {config.maxPhotos === 1 ? 'Photo Required 1 *' : `Inner Photos (Min ${config.minPhotos}, Max ${config.maxPhotos}) *`}
+                        </label>
                         <div style={{ border: '1px solid var(--border)', borderRadius: '20px', padding: '1.5rem', textAlign: 'center', background: '#fff' }}>
-                          <input type="file" accept="image/*" multiple onChange={(e) => setInnerFiles(prev => {
+                          <input type="file" accept="image/*" multiple={config.maxPhotos > 1} onChange={(e) => setInnerFiles(prev => {
                             const newFiles = Array.from(e.target.files);
                             const combined = [...prev, ...newFiles];
                             return combined.slice(0, config.maxPhotos);
                           })} style={{ display: 'none' }} id="innerPhotosInput" />
                           <label htmlFor="innerPhotosInput" style={{ display: 'inline-flex', padding: '0.6rem 1.5rem', border: '1px solid var(--accent)', borderRadius: '20px', cursor: 'pointer', color: 'var(--accent)', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                            🖼 Select Multiple Photos
+                            🖼 {config.maxPhotos === 1 ? 'Select Photo' : 'Select Multiple Photos'}
                           </label>
-                          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Selected: <strong>{innerFiles.length}</strong> photos</div>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                            Selected: <strong>{innerFiles.length}</strong> {config.maxPhotos === 1 ? 'photo' : 'photos'}
+                          </div>
                         </div>
                       </div>
                     )}
