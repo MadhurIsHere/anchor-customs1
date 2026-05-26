@@ -16,7 +16,7 @@ export const getCustomizationConfig = (template) => {
   if (category === 'magazine' && !name.includes('standing')) {
     config.requiresCover = true;
     config.minPhotos = 20;
-    config.maxPhotos = 30;
+    config.maxPhotos = 40;
   }
   // 2. Standing Magazine
   else if (category === 'magazine' && name.includes('standing')) {

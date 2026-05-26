@@ -5,7 +5,7 @@ import { loadScript } from '../../utils/helpers';
 import { supabase } from '../../supabase/config';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { CreditCard, CheckCircle, ArrowLeft } from 'lucide-react';
+import { CreditCard, CheckCircle, ArrowLeft, Package, MapPin } from 'lucide-react';
 
 const Checkout = () => {
   const { cartItems, cartTotal, shippingTotal, finalTotal, clearCart } = useCart();
@@ -13,11 +13,18 @@ const Checkout = () => {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [completedOrder, setCompletedOrder] = useState(null);
+
+  // Structured address form matching Buy Now flow
   const [shippingForm, setShippingForm] = useState({
     fullName: currentUser?.user_metadata?.full_name || '',
     email: currentUser?.email || '',
     mobile: '',
-    address: ''
+    house: '',
+    street: '',
+    city: '',
+    state: '',
+    pincode: ''
   });
   const [shippingDone, setShippingDone] = useState(false);
 
@@ -25,13 +32,12 @@ const Checkout = () => {
   React.useEffect(() => {
     const first = cartItems.find(i => i.customerDetails?.mobile || i.customerDetails?.address);
     if (first) {
-      setShippingForm({
+      setShippingForm(prev => ({
+        ...prev,
         fullName: first.customerDetails?.fullName || currentUser?.user_metadata?.full_name || '',
         email: first.customerDetails?.email || currentUser?.email || '',
-        mobile: first.customerDetails?.mobile || '',
-        address: first.customerDetails?.address || ''
-      });
-      if (first.customerDetails?.mobile && first.customerDetails?.address) setShippingDone(true);
+        mobile: first.customerDetails?.mobile || ''
+      }));
     }
   }, []);
 
@@ -39,10 +45,18 @@ const Checkout = () => {
     e.preventDefault();
     const m = shippingForm.mobile.replace(/[^0-9]/g, '');
     if (m.length < 10) { toast.error('Enter a valid 10-digit mobile number.'); return; }
-    if (!shippingForm.address.trim()) { toast.error('Please enter your delivery address.'); return; }
+    if (!shippingForm.fullName.trim()) { toast.error('Please enter your full name.'); return; }
+    if (!shippingForm.house.trim()) { toast.error('Please enter House / Flat / Apartment No.'); return; }
+    if (!shippingForm.street.trim()) { toast.error('Please enter Street / Area / Locality.'); return; }
+    if (!shippingForm.city.trim()) { toast.error('Please enter City.'); return; }
+    if (!shippingForm.state.trim()) { toast.error('Please enter State.'); return; }
+    if (!shippingForm.pincode.trim()) { toast.error('Please enter Pincode.'); return; }
     setShippingDone(true);
   };
 
+  const getFullAddress = () => {
+    return `${shippingForm.house}, ${shippingForm.street}, ${shippingForm.city}, ${shippingForm.state} - ${shippingForm.pincode}`;
+  };
 
   const saveOrderToSupabase = async (razorpayResponse) => {
     try {
@@ -53,79 +67,97 @@ const Checkout = () => {
 
       console.log('Starting order save process...');
 
-      const ordersToInsert = cartItems.map(item => {
-        const mergedCustomer = {
-          ...item.customerDetails,
-          ...shippingForm
-        };
+      // 1. Get next sequential order number (O_3442, O_3443, etc.)
+      const { data: counterData, error: counterError } = await supabase
+        .rpc('get_next_order_number');
 
-        return {
-          user_id: currentUser.id,
-          template_id: item.templateId,
-          template_name: item.templateName,
-          pages: isNaN(parseInt(item.pages)) ? 0 : parseInt(item.pages),
-          price: item.price,
-          customer_details: mergedCustomer,
-          full_name: mergedCustomer.fullName,
-          email: mergedCustomer.email,
-          mobile_number: mergedCustomer.mobile || mergedCustomer.whatsapp,
-          shipping_address: mergedCustomer.address,
-          images: item.images,
-          cloudinary_image_urls: item.images,
-          payment_id: razorpayResponse.razorpay_payment_id,
-          payment_status: 'paid',
-          order_status: 'received',
-          cover_photo: item.coverPhoto || null,
-          custom_text: mergedCustomer.customText || mergedCustomer.customizationMessage || null,
-          special_notes: mergedCustomer.specialNotes || null
-        };
-      });
-
-      console.log('Inserting into Supabase...', ordersToInsert.length, 'items');
-
-      const { data, error } = await supabase
-        .from('orders')
-        .insert(ordersToInsert)
-        .select();
-
-      if (error) {
-        console.error('Supabase Error:', error);
-        throw new Error('Supabase Error: ' + error.message);
+      if (counterError) {
+        console.error('Counter error:', counterError);
+        throw new Error('Failed to generate order number: ' + counterError.message);
       }
 
-      console.log('Order saved to Supabase successfully!');
+      const displayId = counterData; // e.g. "O_3442"
+      console.log('Generated Order ID:', displayId);
 
+      // 2. Create single order in orders_v2
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders_v2')
+        .insert({
+          display_id: displayId,
+          user_id: currentUser.id,
+          full_name: shippingForm.fullName,
+          email: shippingForm.email,
+          mobile: shippingForm.mobile,
+          shipping_address: {
+            house: shippingForm.house,
+            street: shippingForm.street,
+            city: shippingForm.city,
+            state: shippingForm.state,
+            pincode: shippingForm.pincode,
+            full: getFullAddress()
+          },
+          payment_id: razorpayResponse.razorpay_payment_id,
+          payment_status: 'paid',
+          subtotal: cartTotal,
+          shipping_cost: shippingTotal,
+          total_amount: finalTotal,
+          order_status: 'received'
+        })
+        .select()
+        .single();
 
+      if (orderError) {
+        console.error('Order insert error:', orderError);
+        throw new Error('Failed to create order: ' + orderError.message);
+      }
 
-      // Send Email Confirmation
+      console.log('Order created:', orderData.id);
+
+      // 3. Insert all cart items as order_items
+      const itemsToInsert = cartItems.map(item => ({
+        order_id: orderData.id,
+        template_id: item.templateId,
+        template_name: item.templateName,
+        category: item.category || '',
+        quantity: 1,
+        price: item.price,
+        custom_text: item.customerDetails?.customText || null,
+        special_instructions: item.customerDetails?.specialNotes || null,
+        cover_photo: item.coverPhoto || null,
+        images: item.images || []
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(itemsToInsert);
+
+      if (itemsError) {
+        console.error('Order items insert error:', itemsError);
+        throw new Error('Failed to save order items: ' + itemsError.message);
+      }
+
+      console.log('Order items saved:', itemsToInsert.length, 'items');
+
+      // 4. Send Email Confirmation
       try {
-        const customerDetails = cartItems[0]?.customerDetails;
-        const customerEmail = customerDetails?.email || currentUser?.email;
-        console.log('--- DEBUG EMAIL INFO ---');
-        console.log('Customer Email:', customerEmail);
-        console.log('Inserted Data (needs to be array with >0 items):', data);
+        const customerEmail = shippingForm.email || currentUser?.email;
         
-        if (customerEmail && data && data.length > 0) {
-          console.log('Sending Email confirmation via Vercel...');
-          const orderIdsStr = data.map(o => o.display_id || `#${o.id.slice(0, 8)}`).join(', ');
-          const orderedItems = data.map(o => ({
-            id: o.display_id || `#${o.id.slice(0, 8)}`,
-            name: o.template_name,
-            pages: o.pages,
-            price: o.price
+        if (customerEmail) {
+          console.log('Sending email confirmation...');
+          const orderedItems = cartItems.map(item => ({
+            name: item.templateName,
+            price: item.price
           }));
 
           const response = await fetch('/api/send-order-email', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               email: customerEmail,
-              customerName: customerDetails?.fullName || currentUser?.user_metadata?.full_name || 'Customer',
-              mobile: customerDetails?.mobile || shippingForm.mobile || '',
-              address: customerDetails?.address || shippingForm.address || '',
-              orderIds: orderIdsStr,
+              customerName: shippingForm.fullName,
+              mobile: shippingForm.mobile,
+              address: getFullAddress(),
+              orderIds: displayId,
               items: orderedItems,
               totalPrice: finalTotal
             })
@@ -133,45 +165,30 @@ const Checkout = () => {
 
           if (!response.ok) {
             const errorData = await response.json();
-            console.error('Vercel Email confirmation failed:', JSON.stringify(errorData));
-            toast.error('Email failed: ' + JSON.stringify(errorData));
+            console.error('Email failed:', errorData);
           } else {
-            console.log('✓ Email confirmation sent successfully via Vercel.');
+            console.log('✓ Email sent successfully.');
           }
         }
       } catch (emailErr) {
-        console.error('Failed to send Email confirmation:', emailErr);
+        console.error('Email send failed:', emailErr);
       }
 
+      // 5. Show success with order details
+      setCompletedOrder({
+        displayId,
+        items: cartItems,
+        subtotal: cartTotal,
+        total: finalTotal,
+        shipping: shippingTotal,
+        date: new Date()
+      });
       setIsSuccess(true);
       clearCart();
       toast.success('Order Placed Successfully!');
-      setTimeout(() => navigate('/dashboard'), 3000);
     } catch (error) {
       console.error('Save Flow Failed:', error);
       toast.error('Error: ' + error.message);
-    }
-  };
-
-  const verifyPayment = async (paymentResponse, orderId) => {
-    try {
-      console.log('Sending to backend for verification...');
-      
-      const { data, error } = await supabase.functions.invoke('verify-payment', {
-        body: { 
-          razorpay_order_id: paymentResponse.razorpay_order_id,
-          razorpay_payment_id: paymentResponse.razorpay_payment_id,
-          razorpay_signature: paymentResponse.razorpay_signature,
-          order_id: orderId 
-        }
-      });
-
-      if (error || !data.success) throw new Error(error?.message || 'Verification failed');
-      
-      return true;
-    } catch (err) {
-      console.error('Verification failed:', err);
-      return false;
     }
   };
 
@@ -185,7 +202,6 @@ const Checkout = () => {
     }
 
     try {
-      // 1. Load Razorpay Script
       const res = await loadScript('https://checkout.razorpay.com/v1/checkout.js');
       if (!res) {
         toast.error('Razorpay SDK failed to load. Are you online?');
@@ -193,20 +209,19 @@ const Checkout = () => {
         return;
       }
 
-      // 2. Open Razorpay Popup
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_your_key', 
         amount: finalTotal * 100,
         currency: 'INR',
         name: 'Anchor Customs',
-        description: 'Photo Magazine Order',
+        description: `Order - ${cartItems.length} item(s)`,
         handler: async function (response) {
-          // Send to our secure function to verify and save
           await saveOrderToSupabase(response);
         },
         prefill: {
-          name: currentUser?.user_metadata?.full_name || '',
-          email: currentUser?.email || '',
+          name: shippingForm.fullName || currentUser?.user_metadata?.full_name || '',
+          email: shippingForm.email || currentUser?.email || '',
+          contact: shippingForm.mobile || ''
         },
         theme: {
           color: '#1a2238',
@@ -235,17 +250,98 @@ const Checkout = () => {
     );
   }
 
-  if (isSuccess) {
+  // ── SUCCESS SCREEN (Order Preview) ──
+  if (isSuccess && completedOrder) {
     return (
       <div className="section-padding" style={{ textAlign: 'center' }}>
-        <div className="container">
-          <CheckCircle size={80} style={{ color: '#00a86b', marginBottom: '2rem' }} />
-          <h1>Order Placed Successfully!</h1>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Thank you for choosing Anchor Customs. You will be redirected to your dashboard soon.</p>
+        <div className="container" style={{ maxWidth: '600px' }}>
+          <CheckCircle size={80} style={{ color: '#00a86b', marginBottom: '1.5rem' }} />
+          <h1 style={{ marginBottom: '0.5rem', fontFamily: 'var(--font-serif)' }}>Order Placed Successfully!</h1>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Thank you for choosing Anchor Customs.</p>
+          
+          {/* Order Card */}
+          <div className="card" style={{ padding: '2rem', textAlign: 'left', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <div>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>Order ID</span>
+                <span style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--navy)' }}>{completedOrder.displayId}</span>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>Status</span>
+                <span style={{ color: '#3498db', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.85rem' }}>Received</span>
+              </div>
+            </div>
+
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700, marginBottom: '0.8rem', display: 'block' }}>Products</span>
+              {completedOrder.items.map((item, idx) => (
+                <div key={idx} style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '1rem', 
+                  padding: '0.8rem 0',
+                  borderBottom: idx < completedOrder.items.length - 1 ? '1px solid var(--border)' : 'none'
+                }}>
+                  <img 
+                    src={item.images?.[0] || item.coverPhoto || item.coverImage} 
+                    alt={item.templateName}
+                    style={{ width: '50px', height: '65px', objectFit: 'cover', borderRadius: '6px', flexShrink: 0 }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--navy)' }}>{item.templateName}</span>
+                  </div>
+                  <span style={{ fontWeight: 700, color: 'var(--accent)', whiteSpace: 'nowrap' }}>
+                    {item.price === 0 ? 'FREE' : `₹${item.price}`}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem', marginTop: '0.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.3rem' }}>
+                <span>Subtotal</span><span>₹{completedOrder.subtotal}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+                <span>Shipping</span><span>{completedOrder.shipping === 0 ? 'FREE' : `₹${completedOrder.shipping}`}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '1.15rem', borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
+                <span>Total</span><span>₹{completedOrder.total}</span>
+              </div>
+            </div>
+          </div>
+
+          <button 
+            onClick={() => navigate('/dashboard')} 
+            className="btn btn-primary" 
+            style={{ padding: '0.9rem 2rem', fontSize: '1rem' }}
+          >
+            Go to My Orders →
+          </button>
         </div>
       </div>
     );
   }
+
+  // ── INPUT FIELD STYLE ──
+  const inputStyle = {
+    width: '100%',
+    padding: '0.75rem 1rem',
+    border: '1.5px solid var(--border)',
+    borderRadius: '20px',
+    fontSize: '0.95rem',
+    boxSizing: 'border-box',
+    outline: 'none',
+    transition: 'border-color 0.2s ease'
+  };
+
+  const labelStyle = {
+    display: 'block',
+    fontSize: '0.82rem',
+    fontWeight: 700,
+    marginBottom: '0.3rem',
+    color: 'var(--navy)',
+    textTransform: 'uppercase'
+  };
 
   return (
     <div className="section-padding">
@@ -272,6 +368,8 @@ const Checkout = () => {
         >
           <ArrowLeft size={16} /> Back
         </button>
+
+        {/* ── SHIPPING DETAILS ── */}
         <div className="card" style={{ padding: '2rem', marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
             <h2 style={{ margin: 0, fontSize: '1.3rem', color: 'var(--navy)', fontFamily: 'var(--font-serif)' }}>
@@ -281,33 +379,72 @@ const Checkout = () => {
               <button onClick={() => setShippingDone(false)} style={{ background: 'none', border: '1px solid var(--accent)', borderRadius: '6px', padding: '0.3rem 0.7rem', color: 'var(--accent)', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700 }}>Edit</button>
             )}
           </div>
+
           {shippingDone ? (
             <div style={{ fontSize: '0.92rem', color: 'var(--text-muted)', lineHeight: '1.8' }}>
               <p style={{ margin: 0 }}><strong style={{ color: 'var(--navy)' }}>{shippingForm.fullName}</strong> · {shippingForm.email}</p>
               <p style={{ margin: 0 }}>📱 {shippingForm.mobile}</p>
-              <p style={{ margin: 0 }}>📍 {shippingForm.address}</p>
+              <p style={{ margin: 0 }}>📍 {getFullAddress()}</p>
             </div>
           ) : (
-            <form onSubmit={handleShippingSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-              {[{ label: 'Full Name', key: 'fullName', type: 'text' }, { label: 'Email', key: 'email', type: 'email' }].map(({ label, key, type }) => (
-                <div key={key}>
-                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)' }}>{label} *</label>
-                  <input type={type} value={shippingForm[key]} onChange={(e) => setShippingForm(p => ({...p, [key]: e.target.value}))} required style={{ width: '100%', padding: '0.7rem 0.9rem', border: '1.5px solid var(--border)', borderRadius: '8px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+            <form onSubmit={handleShippingSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {/* Row 1: Name & Email */}
+              <div style={{ display: 'flex', gap: '1rem', flexDirection: window.innerWidth <= 768 ? 'column' : 'row' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={labelStyle}>Full Name *</label>
+                  <input type="text" value={shippingForm.fullName} onChange={(e) => setShippingForm(p => ({...p, fullName: e.target.value}))} placeholder="e.g. John Doe" required style={inputStyle} />
                 </div>
-              ))}
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)' }}>Mobile Number * <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(WhatsApp)</span></label>
-                <input type="tel" value={shippingForm.mobile} onChange={(e) => setShippingForm(p => ({...p, mobile: e.target.value}))} placeholder="10-digit mobile number" maxLength={15} required style={{ width: '100%', padding: '0.7rem 0.9rem', border: '1.5px solid var(--accent)', borderRadius: '8px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                <div style={{ flex: 1 }}>
+                  <label style={labelStyle}>Email *</label>
+                  <input type="email" value={shippingForm.email} onChange={(e) => setShippingForm(p => ({...p, email: e.target.value}))} placeholder="e.g. john@example.com" required style={inputStyle} />
+                </div>
               </div>
+
+              {/* Row 2: Mobile */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)' }}>Delivery Address *</label>
-                <textarea value={shippingForm.address} onChange={(e) => setShippingForm(p => ({...p, address: e.target.value}))} rows={3} placeholder="House no., street, city, state, pincode" required style={{ width: '100%', padding: '0.7rem 0.9rem', border: '1.5px solid var(--border)', borderRadius: '8px', fontSize: '0.95rem', resize: 'vertical', boxSizing: 'border-box' }} />
+                <label style={labelStyle}>Mobile Number * <span style={{ color: 'var(--text-muted)', fontWeight: 400, textTransform: 'none' }}>(WhatsApp)</span></label>
+                <input type="tel" value={shippingForm.mobile} onChange={(e) => setShippingForm(p => ({...p, mobile: e.target.value}))} placeholder="10-digit mobile number" maxLength={10} required style={{ ...inputStyle, borderColor: 'var(--accent)' }} />
               </div>
-              <button type="submit" className="btn btn-primary" style={{ padding: '0.9rem', fontSize: '0.95rem' }}>Save & Continue →</button>
+
+              {/* Address Section */}
+              <div>
+                <h3 style={{ fontSize: '1rem', color: 'var(--navy)', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <MapPin size={16} /> Delivery Address
+                </h3>
+                
+                <div style={{ display: 'flex', gap: '1rem', flexDirection: window.innerWidth <= 768 ? 'column' : 'row', marginBottom: '1rem' }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={labelStyle}>House / Flat / Apartment No. *</label>
+                    <input type="text" value={shippingForm.house} onChange={(e) => setShippingForm(p => ({...p, house: e.target.value}))} placeholder="e.g. Flat 101, Building A" required style={inputStyle} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label style={labelStyle}>Street / Area / Locality *</label>
+                    <input type="text" value={shippingForm.street} onChange={(e) => setShippingForm(p => ({...p, street: e.target.value}))} placeholder="e.g. Sector 15, Park Road" required style={inputStyle} />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '1rem', flexDirection: window.innerWidth <= 768 ? 'column' : 'row' }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={labelStyle}>City *</label>
+                    <input type="text" value={shippingForm.city} onChange={(e) => setShippingForm(p => ({...p, city: e.target.value}))} placeholder="e.g. New Delhi" required style={inputStyle} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label style={labelStyle}>State *</label>
+                    <input type="text" value={shippingForm.state} onChange={(e) => setShippingForm(p => ({...p, state: e.target.value}))} placeholder="e.g. Delhi" required style={inputStyle} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label style={labelStyle}>Pincode *</label>
+                    <input type="text" value={shippingForm.pincode} onChange={(e) => setShippingForm(p => ({...p, pincode: e.target.value}))} placeholder="6-digit PIN" maxLength={6} required style={inputStyle} />
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" className="btn btn-primary" style={{ padding: '0.9rem', fontSize: '0.95rem', borderRadius: '20px' }}>Save & Continue →</button>
             </form>
           )}
         </div>
 
+        {/* ── FINAL CHECKOUT ── */}
         <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
           <CreditCard size={48} style={{ marginBottom: '1.5rem', color: 'var(--accent)' }} />
           <h1 style={{ marginBottom: '1rem' }}>Final Checkout</h1>
@@ -361,11 +498,14 @@ const Checkout = () => {
             ))}
           </div>
 
-          <div style={{ textAlign: 'left', background: 'var(--bg-offset)', padding: '1.5rem', borderRadius: 'var(--radius)', marginBottom: '2rem' }}>
-            <h3 style={{ fontSize: '1rem', marginBottom: '1rem' }}>Shipping to:</h3>
-            <p style={{ fontSize: '0.9rem' }}>{cartItems[0]?.customerDetails?.fullName}</p>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{cartItems[0]?.customerDetails?.address}</p>
-          </div>
+          {/* Shipping Preview */}
+          {shippingDone && (
+            <div style={{ textAlign: 'left', background: 'var(--bg-offset)', padding: '1.5rem', borderRadius: 'var(--radius)', marginBottom: '2rem' }}>
+              <h3 style={{ fontSize: '1rem', marginBottom: '1rem' }}>Shipping to:</h3>
+              <p style={{ fontSize: '0.9rem', fontWeight: 600 }}>{shippingForm.fullName}</p>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{getFullAddress()}</p>
+            </div>
+          )}
 
           {finalTotal <= 0 && (
             <div style={{

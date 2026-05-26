@@ -46,21 +46,27 @@ export const CartProvider = ({ children }) => {
 
   const cartTotal = cartItems.reduce((total, item) => total + item.price, 0);
 
-  const shippingTotal = cartItems.reduce((total, item) => {
-    const name = (item.templateName || '').toLowerCase();
-    const category = (item.category || '').toLowerCase();
-    
-    // Explicitly exclude Bouquets and Combos from shipping charge
-    if (name.includes('bouquet') || name.includes('combo') || category.includes('bouquet') || category.includes('combo')) {
-      return total;
-    }
+  // Flat ₹80 shipping if ANY qualifying item exists (not per item)
+  const shippingTotal = (() => {
+    const hasShippableItem = cartItems.some(item => {
+      const name = (item.templateName || '').toLowerCase();
+      const category = (item.category || '').toLowerCase();
+      
+      // Exclude Bouquets and Combos from triggering shipping
+      if (name.includes('bouquet') || name.includes('combo') || 
+          category.includes('bouquet') || category.includes('combo')) {
+        return false;
+      }
 
-    // Apply ₹80 shipping if it's a frame, cap, or a hot wheel
-    if (name.includes('frame') || name.includes('cap') || name.includes('hot wheels') || name.includes('hotwheels') || item.isHotWheels || category.includes('hot wheels') || category.includes('frame') || category.includes('cap')) {
-      return total + 80;
-    }
-    return total;
-  }, 0);
+      // Check for shippable categories: frames, caps, hot wheels
+      return name.includes('frame') || name.includes('cap') || 
+             name.includes('hot wheels') || name.includes('hotwheels') || 
+             item.isHotWheels || 
+             category.includes('hot wheels') || category.includes('frame') || 
+             category.includes('cap');
+    });
+    return hasShippableItem ? 80 : 0;
+  })();
 
   const finalTotal = cartTotal + shippingTotal;
 

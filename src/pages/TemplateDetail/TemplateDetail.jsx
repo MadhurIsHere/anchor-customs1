@@ -1287,9 +1287,9 @@ const TemplateDetail = () => {
                     {config.customTextFields.map((field, idx) => (
                       <div key={idx}>
                         <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>
-                          {field.icon} {field.label} *
+                          {field.icon} {field.label} (Optional)
                         </label>
-                        <input type="text" value={orderForm.customizationMessage} onChange={(e) => setOrderForm(p => ({ ...p, customizationMessage: e.target.value }))} placeholder={field.placeholder} required style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid var(--border)', borderRadius: '20px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
+                        <input type="text" value={orderForm.customizationMessage} onChange={(e) => setOrderForm(p => ({ ...p, customizationMessage: e.target.value }))} placeholder={field.placeholder} style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid var(--border)', borderRadius: '20px', fontSize: '0.95rem', boxSizing: 'border-box' }} />
                       </div>
                     ))}
 

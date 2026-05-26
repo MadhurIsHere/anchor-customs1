@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../../supabase/config';
 import { useAuth } from '../../context/AuthContext';
 import { formatDate } from '../../utils/helpers';
-import { Package, Clock, CheckCircle, ExternalLink } from 'lucide-react';
-import { TEMPLATES } from '../../utils/data';
+import { Package, Clock, CheckCircle, Truck, MapPin } from 'lucide-react';
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
@@ -14,16 +13,20 @@ const Dashboard = () => {
     const fetchOrders = async () => {
       if (!currentUser) return;
       try {
+        // Fetch from orders_v2 with joined order_items
         const { data, error } = await supabase
-          .from('orders')
-          .select('*')
+          .from('orders_v2')
+          .select(`
+            *,
+            order_items (*)
+          `)
           .eq('user_id', currentUser.id)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
         setOrders(data || []);
       } catch (error) {
-        console.error(error);
+        console.error('Error fetching orders:', error);
       } finally {
         setLoading(false);
       }
@@ -42,10 +45,20 @@ const Dashboard = () => {
     }
   };
 
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'received': return <Clock size={14} />;
+      case 'printing': return <Package size={14} />;
+      case 'shipped': return <Truck size={14} />;
+      case 'delivered': return <CheckCircle size={14} />;
+      default: return <Clock size={14} />;
+    }
+  };
+
   return (
     <div className="section-padding">
       <div className="container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h1 style={{ fontFamily: 'var(--font-sans)', fontWeight: 'bold' }}>Hello, {currentUser?.user_metadata?.full_name || 'Customer'}</h1>
             <p style={{ color: 'var(--text-muted)' }}>Manage your orders and account details</p>
@@ -56,7 +69,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', fontFamily: 'var(--font-sans)' }}>Your Orders (Updated)</h2>
+        <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', fontFamily: 'var(--font-sans)' }}>Your Orders</h2>
         
         {loading ? <p>Loading orders...</p> : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -67,17 +80,18 @@ const Dashboard = () => {
               </div>
             ) : orders.map(order => (
               <div key={order.id} className="card" style={{ padding: '1.5rem' }}>
+                {/* Order Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
                   <div>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block' }}>Order Date</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>Order ID</span>
+                    <span style={{ fontWeight: '800', color: 'var(--navy)', fontSize: '1.1rem' }}>{order.display_id}</span>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>Date</span>
                     <span style={{ fontWeight: '500' }}>{formatDate(order.created_at)}</span>
                   </div>
                   <div>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block' }}>Order ID</span>
-                    <span style={{ fontWeight: '600', color: 'var(--navy)' }}>{order.display_id || `#${order.id.slice(0, 8)}`}</span>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block' }}>Status</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>Status</span>
                     <span style={{ 
                       color: getStatusColor(order.order_status), 
                       fontWeight: 'bold', 
@@ -87,21 +101,57 @@ const Dashboard = () => {
                       alignItems: 'center',
                       gap: '0.4rem'
                     }}>
-                      <Clock size={14} /> {order.order_status}
+                      {getStatusIcon(order.order_status)} {order.order_status}
                     </span>
                   </div>
                   <div>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block' }}>Total</span>
-                    <span style={{ fontWeight: 'bold' }}>₹{order.price}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>Total</span>
+                    <span style={{ fontWeight: 'bold', fontSize: '1.05rem' }}>₹{order.total_amount}</span>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-                  <img src={order.images?.[0]} alt="Cover" style={{ width: '60px', height: '80px', objectFit: 'cover', borderRadius: '4px' }} />
-                  <div style={{ flex: 1 }}>
-                    <h4 style={{ fontSize: '1.1rem', fontFamily: 'var(--font-sans)', fontWeight: 'bold' }}>{order.template_name}</h4>
-                  </div>
+                {/* Products List */}
+                <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700, marginBottom: '0.8rem', display: 'block' }}>
+                    {order.order_items?.length || 0} Product{(order.order_items?.length || 0) !== 1 ? 's' : ''}
+                  </span>
+                  
+                  {order.order_items?.map((item, idx) => (
+                    <div key={item.id} style={{ 
+                      display: 'flex', 
+                      gap: '1rem', 
+                      alignItems: 'center',
+                      padding: '0.7rem 0',
+                      borderBottom: idx < order.order_items.length - 1 ? '1px solid var(--border)' : 'none'
+                    }}>
+                      {(item.cover_photo || (item.images && item.images.length > 0)) && (
+                        <img 
+                          src={item.cover_photo || item.images?.[0]} 
+                          alt={item.template_name}
+                          style={{ width: '50px', height: '65px', objectFit: 'cover', borderRadius: '6px', flexShrink: 0 }} 
+                        />
+                      )}
+                      <div style={{ flex: 1 }}>
+                        <h4 style={{ fontSize: '0.95rem', fontFamily: 'var(--font-sans)', fontWeight: 'bold', margin: 0 }}>{item.template_name}</h4>
+                        {item.custom_text && (
+                          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>✨ {item.custom_text}</p>
+                        )}
+                      </div>
+                      <span style={{ fontWeight: '700', color: 'var(--accent)', fontSize: '0.95rem', whiteSpace: 'nowrap' }}>
+                        {item.price === 0 ? 'FREE' : `₹${item.price}`}
+                      </span>
+                    </div>
+                  ))}
                 </div>
+
+                {/* Shipping Address */}
+                {order.shipping_address && (
+                  <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.8rem', marginTop: '0.5rem' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                      <MapPin size={12} /> {order.shipping_address.full || `${order.shipping_address.house}, ${order.shipping_address.street}, ${order.shipping_address.city}, ${order.shipping_address.state} - ${order.shipping_address.pincode}`}
+                    </span>
+                  </div>
+                )}
               </div>
             ))}
           </div>

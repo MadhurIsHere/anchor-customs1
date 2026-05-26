@@ -15,8 +15,10 @@ export default async function handler(req, res) {
 
   const itemsList = items.map(item => `
     <tr>
-      <td style="padding: 10px; border-bottom: 1px solid #ddd;">${item.name} (${item.pages} pages)</td>
-      <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">₹${item.price}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #ddd;">${item.name}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">
+        ${item.price === 0 ? '<span style="color: #00a86b; font-weight: bold;">FREE</span>' : `₹${item.price}`}
+      </td>
     </tr>
   `).join('');
 
@@ -28,7 +30,7 @@ export default async function handler(req, res) {
       
       <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
         <h3 style="margin-top: 0;">Order Summary</h3>
-        <p><strong>Order ID(s):</strong> ${orderIds}</p>
+        <p><strong>Order ID:</strong> ${orderIds}</p>
         
         <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
           <thead>
@@ -53,7 +55,7 @@ export default async function handler(req, res) {
         <h3 style="margin-top: 0; color: #1a2238;">Shipping Details</h3>
         <p><strong>Name:</strong> ${customerName}</p>
         <p><strong>Mobile:</strong> ${mobile}</p>
-        <p><strong>Address:</strong><br/>${address.replace(/\n/g, '<br/>')}</p>
+        <p><strong>Address:</strong><br/>${address ? address.replace(/\n/g, '<br/>') : 'N/A'}</p>
       </div>
       
       <p>You will receive another email when your order status updates.</p>
@@ -65,7 +67,7 @@ export default async function handler(req, res) {
     const data = await resend.emails.send({
       from: 'Anchor Customs <orders@madhurrastogi.in>',
       to: email,
-      subject: 'Order Confirmation - Anchor Customs',
+      subject: `Order Confirmation ${orderIds} - Anchor Customs`,
       html: htmlContent,
     });
 
