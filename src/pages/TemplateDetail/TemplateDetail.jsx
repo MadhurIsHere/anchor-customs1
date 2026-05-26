@@ -285,7 +285,8 @@ const TemplateDetail = () => {
         toast.success('Added to cart! 🛒');
       }
     } catch (error) {
-      toast.error('Failed to upload images. Check your connection or try again.');
+      console.error('Submit order form error:', error);
+      toast.error(`Failed: ${error.message || 'Check your connection or try again.'}`);
     } finally {
       setIsUploading(false);
     }
