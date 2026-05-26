@@ -248,11 +248,16 @@ const TemplateDetail = () => {
       
       if (needsImages) {
         if (coverFile) {
+          toast.loading('Uploading cover photo...', { id: 'upload-toast' });
           const cUrl = await uploadToCloudinary(coverFile);
           coverUrl = cUrl || template.image;
         }
         if (innerFiles.length > 0) {
-          innerUrls = await Promise.all(innerFiles.map(file => uploadToCloudinary(file)));
+          for (let i = 0; i < innerFiles.length; i++) {
+            toast.loading(`Uploading photo ${i + 1} of ${innerFiles.length}...`, { id: 'upload-toast' });
+            const url = await uploadToCloudinary(innerFiles[i]);
+            innerUrls.push(url);
+          }
         }
       }
       
@@ -288,6 +293,7 @@ const TemplateDetail = () => {
       console.error('Submit order form error:', error);
       toast.error(`Failed: ${error.message || 'Check your connection or try again.'}`);
     } finally {
+      toast.dismiss('upload-toast');
       setIsUploading(false);
     }
   };
