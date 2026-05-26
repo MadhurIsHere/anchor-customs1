@@ -1,6 +1,7 @@
 import imageCompression from 'browser-image-compression';
 
 let heic2anyModule = null;
+let exifrModule = null;
 
 const getHeic2any = async () => {
   if (!heic2anyModule) {
@@ -11,11 +12,20 @@ const getHeic2any = async () => {
   return heic2anyModule;
 };
 
+const getExifr = async () => {
+  if (!exifrModule) {
+    console.log('Loading exifr dynamically...');
+    const mod = await import('exifr');
+    exifrModule = mod.default || mod;
+  }
+  return exifrModule;
+};
+
 const isImageFile = (file) => {
   if (!file) return false;
   if (file.type && file.type.startsWith('image/')) return true;
   const ext = file.name ? file.name.split('.').pop().toLowerCase() : '';
-  return ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif', 'bmp'].includes(ext);
+  return ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif', 'bmp', 'dng'].includes(ext);
 };
 
 const compressImageCanvas = (file, maxWidth = 1600, maxHeight = 1600, quality = 0.75) => {
@@ -75,12 +85,47 @@ export const uploadToCloudinary = async (file) => {
 
   try {
     let fileToUpload = file;
+    
+    const isDNG = file && (
+      (file.type && (file.type.includes('dng') || file.type.includes('tiff'))) ||
+      (file.name && file.name.toLowerCase().endsWith('.dng'))
+    );
+
     const isHEIC = file && (
       (file.type && (file.type.includes('heic') || file.type.includes('heif'))) ||
       (file.name && (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')))
     );
 
-    // 1. If it's an HEIC file, convert it to JPEG first
+    // 1. If it's a DNG RAW file, extract the embedded JPEG thumbnail/preview first
+    if (isDNG) {
+      try {
+        console.log('Detected DNG RAW file, starting extraction of embedded JPEG preview...');
+        const exifr = await getExifr();
+        const thumbnailBytes = await exifr.thumbnail(file);
+        
+        if (thumbnailBytes) {
+          const blob = new Blob([thumbnailBytes], { type: 'image/jpeg' });
+          const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+          
+          fileToUpload = new File([blob], newName, {
+            type: 'image/jpeg',
+            lastModified: Date.now()
+          });
+          
+          console.log('DNG thumbnail extraction successful. Extracted file:', {
+            name: fileToUpload.name,
+            type: fileToUpload.type,
+            size: fileToUpload.size
+          });
+        } else {
+          console.warn('No embedded thumbnail found in DNG file.');
+        }
+      } catch (dngError) {
+        console.error('DNG thumbnail extraction failed:', dngError);
+      }
+    }
+
+    // 2. If it's an HEIC file, convert it to JPEG first
     if (isHEIC) {
       try {
         console.log('Detected HEIC file, starting conversion to JPEG...');

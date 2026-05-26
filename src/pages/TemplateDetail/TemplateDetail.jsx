@@ -1136,7 +1136,7 @@ const TemplateDetail = () => {
                     {config.requiresCover && (
                       <div>
                         <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.3rem', color: 'var(--navy)', textTransform: 'uppercase' }}>Cover Photo *</label>
-                        <input type="file" accept="image/*" onChange={(e) => setCoverFile(e.target.files[0])} style={{ display: 'none' }} id="coverPhotoInput" />
+                        <input type="file" accept="image/*,.heic,.heif,.dng" onChange={(e) => setCoverFile(e.target.files[0])} style={{ display: 'none' }} id="coverPhotoInput" />
                         <label htmlFor="coverPhotoInput" style={{ display: 'inline-flex', padding: '0.6rem 1.5rem', border: '1px solid var(--accent)', borderRadius: '20px', cursor: 'pointer', color: 'var(--accent)', alignItems: 'center', gap: '0.5rem' }}>
                           ↑ Choose Cover
                         </label>
@@ -1150,7 +1150,7 @@ const TemplateDetail = () => {
                           {config.maxPhotos === 1 ? 'Photo Required 1 *' : `Inner Photos (Min ${config.minPhotos}, Max ${config.maxPhotos}) *`}
                         </label>
                         <div style={{ border: '1px solid var(--border)', borderRadius: '20px', padding: '1.5rem', textAlign: 'center', background: '#fff' }}>
-                          <input type="file" accept="image/*" multiple={config.maxPhotos > 1} onChange={(e) => setInnerFiles(prev => {
+                          <input type="file" accept="image/*,.heic,.heif,.dng" multiple={config.maxPhotos > 1} onChange={(e) => setInnerFiles(prev => {
                             const newFiles = Array.from(e.target.files);
                             const combined = [...prev, ...newFiles];
                             return combined.slice(0, config.maxPhotos);
