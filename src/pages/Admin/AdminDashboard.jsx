@@ -228,7 +228,6 @@ const AdminDashboard = () => {
                     </td>
                     <td style={{ padding: '1rem' }}>
                       <span style={{ fontWeight: '500' }}>{order.template_name}</span>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block' }}>{order.pages} Pages</span>
                     </td>
                     <td style={{ padding: '1rem', fontWeight: 'bold' }}>₹{order.price}</td>
                     <td style={{ padding: '1rem' }}>

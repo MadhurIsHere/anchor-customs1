@@ -7,7 +7,7 @@ const FAQ = () => {
   const faqs = [
     { q: 'How long does delivery take?', a: 'Orders are generally delivered within 8-10 working days across India.' },
     { q: 'Is my privacy protected?', a: 'Absolutely! We value your trust. Your photos will never be posted publicly without your explicit permission.' },
-    { q: 'Do you offer free shipping?', a: 'Yes! We proudly offer 100% free shipping across India on all our products.' },
+    { q: 'What are your shipping charges?', a: 'We offer FREE shipping across India on most of our products! A flat ₹80 shipping charge applies only for Hot Wheels, Caps, and Frames.' },
     { q: 'Refund Policy', a: 'NO REFUND POLICY. Returns are only accepted when the product is delivered damaged. Important: Please make a continuous, unedited video while opening the parcel showing the seal from the outer packaging.' }
   ];
 

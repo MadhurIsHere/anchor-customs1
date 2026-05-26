@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { TEMPLATES } from '../../utils/data';
 import { ArrowRight, ChevronLeft, ChevronRight, ArrowLeft, ShoppingCart, AlertTriangle, Heart, Maximize2, X, CheckCircle, User, Smartphone, MapPin, Search } from 'lucide-react';
 import { getCustomizationConfig } from '../../utils/customizationConfig';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import HTMLFlipBook from 'react-pageflip';
 import { supabase } from '../../supabase/config';
 import { useCart } from '../../context/CartContext';
@@ -23,6 +23,8 @@ const TemplateDetail = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
+  const [standingSpread, setStandingSpread] = useState(0);
+  const [standingDir, setStandingDir] = useState(1); // 1 = forward, -1 = backward
   const [selectedImage, setSelectedImage] = useState(null);
   const [showBuyNowModal, setShowBuyNowModal] = useState(false);
   const [showCartModal, setShowCartModal] = useState(false);
@@ -35,7 +37,7 @@ const TemplateDetail = () => {
   const miniBookRef = useRef();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const isComboOrHamper = template && (template.category === 'Hamper' || template.category === 'Combo' || template.category === 'Combos');
-  const needsImages = template && !template.isHotWheels && !['Apparel', 'Cap', 'Keychain'].includes(template.category);
+  const needsImages = template && !template.isHotWheels && !['Apparel', 'Cap', 'Keychain', 'Bouquet'].includes(template.category);
 
   const lastTapRef = useRef(0);
   const longPressTimeoutRef = useRef(null);
@@ -123,20 +125,29 @@ const TemplateDetail = () => {
   // Hot Wheels: check stock via Supabase orders
   useEffect(() => {
     if (template?.isHotWheels) {
+      if (!currentUser) {
+        setIsSoldOut(false);
+        setCheckingStock(false);
+        return;
+      }
       setCheckingStock(true);
       supabase
         .from('orders')
         .select('id')
         .eq('template_id', template.id)
+        .eq('user_id', currentUser.id)
         .eq('payment_status', 'paid')
         .limit(1)
         .then(({ data }) => {
           if (data && data.length > 0) setIsSoldOut(true);
+          else setIsSoldOut(false);
           setCheckingStock(false);
         })
         .catch(() => setCheckingStock(false));
     }
-  }, [template]);
+  }, [template, currentUser]);
+
+  const alreadyInCart = cartItems.some(item => item.templateId === template?.id);
 
   const handleAddHotWheelsToCart = () => {
     if (!currentUser) {
@@ -145,10 +156,9 @@ const TemplateDetail = () => {
       return;
     }
     if (isSoldOut) {
-      toast.error('Sorry, this item is sold out!');
+      toast.error('You have already purchased this Hot Wheels model! (Limit 1 per account)');
       return;
     }
-    const alreadyInCart = cartItems.some(item => item.templateId === template.id);
     if (alreadyInCart) {
       toast.error('This Hot Wheels car is already in your cart!');
       return;
@@ -197,7 +207,8 @@ const TemplateDetail = () => {
 
   const handleBuyNowClick = () => {
     if (!currentUser) { toast.error('Please login to purchase.'); navigate('/login'); return; }
-    if (template.isHotWheels && isSoldOut) { toast.error('Sorry, this item is sold out!'); return; }
+    if (template.isHotWheels && isSoldOut) { toast.error('You have already purchased this Hot Wheels model! (Limit 1 per account)'); return; }
+    if (template.isHotWheels && alreadyInCart) { navigate('/checkout'); return; }
     setOrderForm({ fullName: currentUser?.user_metadata?.full_name || '', email: currentUser?.email || '', whatsapp: '', house: '', street: '', city: '', state: '', pincode: '', specialNotes: '', customizationMessage: '' });
     setCoverFile(null);
     setInnerFiles([]);
@@ -253,6 +264,8 @@ const TemplateDetail = () => {
       addToCart({ 
         templateId: template.id, 
         templateName: template.name, 
+        category: template.category,
+        isHotWheels: template.isHotWheels,
         pages: parseInt(selectedOption), 
         price: currentPrice, 
         images: innerUrls, 
@@ -405,8 +418,136 @@ const TemplateDetail = () => {
           }}>
             {/* Removed Elegant Tab Selector for Hampers & Combos */}
 
-            {/* RENDER INTERACTIVE FLIPBOOK PREVIEW */}
-            {template.pages && template.pages.length > 0 && (
+            {/* STANDING MAGAZINE: Custom 2-page stacked vertical viewer with animation */}
+            {template.category === 'Standing Magazine' && template.pages && template.pages.length > 0 && (() => {
+              const pages = template.pages;
+              const totalSpreads = Math.ceil(pages.length / 2);
+              const topImg = pages[standingSpread * 2];
+              const bottomImg = pages[standingSpread * 2 + 1];
+
+              const goNext = () => {
+                setStandingDir(1);
+                setStandingSpread(s => s < totalSpreads - 1 ? s + 1 : 0);
+              };
+              const goPrev = () => {
+                setStandingDir(-1);
+                setStandingSpread(s => s > 0 ? s - 1 : totalSpreads - 1);
+              };
+              const goTo = (i) => {
+                setStandingDir(i > standingSpread ? 1 : -1);
+                setStandingSpread(i);
+              };
+
+              // 3D page-flip variants: next flips up (rotateX), prev flips down
+              const variants = {
+                enter: (dir) => ({
+                  rotateX: dir > 0 ? 90 : -90,
+                  opacity: 0,
+                  scale: 0.95,
+                }),
+                center: {
+                  rotateX: 0,
+                  opacity: 1,
+                  scale: 1,
+                },
+                exit: (dir) => ({
+                  rotateX: dir > 0 ? -90 : 90,
+                  opacity: 0,
+                  scale: 0.95,
+                }),
+              };
+
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', width: '100%', maxWidth: '420px' }}>
+                  {/* Spread counter */}
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    Spread {standingSpread + 1} / {totalSpreads}
+                  </div>
+                  {/* 3D flip stacked pages viewer */}
+                  <div style={{ position: 'relative', width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.15)', borderRadius: '8px', background: '#fff', perspective: '1200px', perspectiveOrigin: '50% 50%' }}>
+                    <AnimatePresence custom={standingDir} mode="wait">
+                      <motion.div
+                        key={standingSpread}
+                        custom={standingDir}
+                        variants={variants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        transition={{
+                          duration: 0.45,
+                          ease: [0.25, 0.46, 0.45, 0.94],
+                        }}
+                        style={{
+                          width: '100%',
+                          transformOrigin: '50% 50%',
+                          backfaceVisibility: 'hidden',
+                          borderRadius: '8px',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {/* Top page */}
+                        <div style={{ width: '100%', borderBottom: '2px solid #e0e0e0', overflow: 'hidden' }}>
+                          {topImg && (
+                            <img
+                              src={topImg}
+                              alt={`Page ${standingSpread * 2 + 1}`}
+                              loading="lazy"
+                              onClick={() => setSelectedImage(topImg)}
+                              style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover', cursor: 'zoom-in' }}
+                            />
+                          )}
+                        </div>
+                        {/* Bottom page */}
+                        <div style={{ width: '100%', overflow: 'hidden' }}>
+                          {bottomImg ? (
+                            <img
+                              src={bottomImg}
+                              alt={`Page ${standingSpread * 2 + 2}`}
+                              loading="lazy"
+                              onClick={() => setSelectedImage(bottomImg)}
+                              style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover', cursor: 'zoom-in' }}
+                            />
+                          ) : (
+                            <div style={{ width: '100%', background: '#f9f9f9', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '200px', color: '#ccc', fontSize: '0.85rem' }}>Back cover</div>
+                          )}
+                        </div>
+                      </motion.div>
+                    </AnimatePresence>
+                    {/* Prev arrow — outside AnimatePresence so it never animates away */}
+                    <button
+                      onClick={goPrev}
+                      onTouchStart={goPrev}
+                      style={{ position: 'absolute', top: '50%', left: '0.75rem', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.92)', border: 'none', borderRadius: '50%', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 99, boxShadow: '0 2px 8px rgba(0,0,0,0.2)', touchAction: 'manipulation' }}
+                      aria-label="Previous Spread"
+                    >
+                      <ChevronLeft size={24} color="#000" />
+                    </button>
+                    {/* Next arrow */}
+                    <button
+                      onClick={goNext}
+                      onTouchStart={goNext}
+                      style={{ position: 'absolute', top: '50%', right: '0.75rem', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.92)', border: 'none', borderRadius: '50%', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 99, boxShadow: '0 2px 8px rgba(0,0,0,0.2)', touchAction: 'manipulation' }}
+                      aria-label="Next Spread"
+                    >
+                      <ChevronRight size={24} color="#000" />
+                    </button>
+                  </div>
+                  {/* Dot indicators */}
+                  <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                    {Array.from({ length: totalSpreads }).map((_, i) => (
+                      <div
+                        key={i}
+                        onClick={() => goTo(i)}
+                        style={{ width: i === standingSpread ? '20px' : '8px', height: '8px', borderRadius: '4px', background: i === standingSpread ? 'var(--accent)' : '#ddd', cursor: 'pointer', transition: 'all 0.3s ease' }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* RENDER INTERACTIVE FLIPBOOK PREVIEW (all categories except Standing Magazine) */}
+            {template.pages && template.pages.length > 0 && template.category !== 'Standing Magazine' && (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isMobile ? '0.5rem' : '2rem', width: '100%', maxWidth: '800px' }}>
                 <div style={{ 
                   width: '100%', 
@@ -583,6 +724,69 @@ const TemplateDetail = () => {
                     />
                   ) : template.magazinePages && currentSlide === 0 ? (
                     <div style={{ position: 'relative', width: '100%', aspectRatio: isMobile ? '0.73' : '1.47', background: '#fdfdfd', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                      {/* Buttons are OUTSIDE the flipbook container so the library cannot intercept their touch events */}
+                      <button 
+                        onTouchStart={(e) => { 
+                          e.stopPropagation(); 
+                          const pf = miniBookRef.current?.pageFlip();
+                          if (pf) {
+                            if (pf.getCurrentPageIndex() === 0) {
+                              setCurrentSlide(sliderImages.length - 1);
+                            } else {
+                              pf.flipPrev();
+                            }
+                          }
+                        }}
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          const pf = miniBookRef.current?.pageFlip();
+                          if (pf) {
+                            if (pf.getCurrentPageIndex() === 0) {
+                              setCurrentSlide(sliderImages.length - 1);
+                            } else {
+                              pf.flipPrev();
+                            }
+                          }
+                        }}
+                        style={{ position: 'absolute', top: '50%', left: '1rem', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 99999, boxShadow: '0 2px 8px rgba(0,0,0,0.25)', touchAction: 'manipulation' }}
+                        aria-label="Previous Magazine Page"
+                      >
+                        <ChevronLeft size={24} color="#000" />
+                      </button>
+                      <button 
+                        onTouchStart={(e) => { 
+                          e.stopPropagation(); 
+                          const pf = miniBookRef.current?.pageFlip();
+                          if (pf) {
+                            const currentIdx = pf.getCurrentPageIndex();
+                            const pageCount = pf.getPageCount();
+                            const isAtEnd = currentIdx + (isMobile ? 1 : 2) >= pageCount;
+                            if (isAtEnd) {
+                              setCurrentSlide(1);
+                            } else {
+                              pf.flipNext();
+                            }
+                          }
+                        }}
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          const pf = miniBookRef.current?.pageFlip();
+                          if (pf) {
+                            const currentIdx = pf.getCurrentPageIndex();
+                            const pageCount = pf.getPageCount();
+                            const isAtEnd = currentIdx + (isMobile ? 1 : 2) >= pageCount;
+                            if (isAtEnd) {
+                              setCurrentSlide(1);
+                            } else {
+                              pf.flipNext();
+                            }
+                          }
+                        }}
+                        style={{ position: 'absolute', top: '50%', right: '1rem', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 99999, boxShadow: '0 2px 8px rgba(0,0,0,0.25)', touchAction: 'manipulation' }}
+                        aria-label="Next Magazine Page"
+                      >
+                        <ChevronRight size={24} color="#000" />
+                      </button>
                       <HTMLFlipBook 
                         width={isMobile ? 300 : 280} 
                         height={isMobile ? 424 : 380} 
@@ -595,7 +799,7 @@ const TemplateDetail = () => {
                         usePortrait={isMobile}
                         drawShadow={true}
                         maxShadowOpacity={0.5}
-                        mobileScrollSupport={true}
+                        mobileScrollSupport={false}
                         className="flipbook-wrapper"
                         ref={miniBookRef}
                       >
@@ -611,20 +815,6 @@ const TemplateDetail = () => {
                           </div>
                         ))}
                       </HTMLFlipBook>
-                      <button 
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); miniBookRef.current?.pageFlip()?.flipPrev(); }}
-                        style={{ position: 'absolute', bottom: '1rem', left: '1rem', background: '#000', border: 'none', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 15, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }}
-                        aria-label="Previous Magazine Page"
-                      >
-                        <ChevronLeft size={20} color="#fff" />
-                      </button>
-                      <button 
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); miniBookRef.current?.pageFlip()?.flipNext(); }}
-                        style={{ position: 'absolute', bottom: '1rem', right: '1rem', background: '#000', border: 'none', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 15, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }}
-                        aria-label="Next Magazine Page"
-                      >
-                        <ChevronRight size={20} color="#fff" />
-                      </button>
                     </div>
                   ) : (
                     <img 
@@ -634,6 +824,25 @@ const TemplateDetail = () => {
                       onClick={() => setSelectedImage(sliderImages[currentSlide])}
                       style={{ width: '100%', height: 'auto', display: 'block', objectFit: template.imageFit || 'cover', cursor: 'zoom-in' }} 
                     />
+                  )}
+                  
+                  {sliderImages.length > 1 && !(template.magazinePages && currentSlide === 0) && (
+                    <>
+                      <button 
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setCurrentSlide((prev) => (prev > 0 ? prev - 1 : sliderImages.length - 1)); }}
+                        style={{ position: 'absolute', top: '50%', left: '1rem', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.8)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+                        aria-label="Previous Slide"
+                      >
+                        <ChevronLeft size={24} color="#000" />
+                      </button>
+                      <button 
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setCurrentSlide((prev) => (prev < sliderImages.length - 1 ? prev + 1 : 0)); }}
+                        style={{ position: 'absolute', top: '50%', right: '1rem', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.8)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+                        aria-label="Next Slide"
+                      >
+                        <ChevronRight size={24} color="#000" />
+                      </button>
+                    </>
                   )}
                   
                   {sliderImages.length > 1 && (
@@ -730,6 +939,20 @@ const TemplateDetail = () => {
                   </>
                 )}
               </div>
+              
+              <div style={{ marginTop: '0.8rem', fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: '500' }}>
+                {(!template.name?.toLowerCase().includes('bouquet') && !template.name?.toLowerCase().includes('combo') && !template.category?.toLowerCase().includes('bouquet') && !template.category?.toLowerCase().includes('combo') && (
+                  template.name?.toLowerCase().includes('frame') || 
+                  template.name?.toLowerCase().includes('cap') || 
+                  template.name?.toLowerCase().includes('hot wheels') || 
+                  template.name?.toLowerCase().includes('hotwheels') ||
+                  template.isHotWheels ||
+                  template.category?.toLowerCase().includes('hot wheels') ||
+                  template.category?.toLowerCase().includes('frame') ||
+                  template.category?.toLowerCase().includes('cap')))
+                  ? '🚚 ₹80 Shipping Charge applies at checkout.'
+                  : '✨ FREE Shipping across India!'}
+              </div>
             </div>
 
             <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', marginBottom: isMobile ? '0.5rem' : '2rem', lineHeight: '1.5' }}>
@@ -809,7 +1032,7 @@ const TemplateDetail = () => {
                   className="btn btn-outline"
                   style={{ flex: 1, padding: isMobile ? '0.6rem' : '1.1rem', fontSize: isMobile ? '0.85rem' : '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', opacity: (template.isHotWheels && isSoldOut) ? 0.5 : 1, cursor: (template.isHotWheels && isSoldOut) ? 'not-allowed' : 'pointer' }}
                 >
-                  {checkingStock ? 'Checking...' : (template.isHotWheels && isSoldOut) ? '❌ Sold Out' : !currentUser ? <><ShoppingCart size={16} /> Login to Add</> : <><ShoppingCart size={16} /> Add to Cart</>}
+                  {checkingStock ? 'Checking...' : (template.isHotWheels && isSoldOut) ? '❌ Out of Stock' : !currentUser ? <><ShoppingCart size={16} /> Login to Add</> : <><ShoppingCart size={16} /> Add to Cart</>}
                 </button>
                 <button
                   onClick={handleBuyNowClick}

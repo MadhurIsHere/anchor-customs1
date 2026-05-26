@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 import { CreditCard, CheckCircle, ArrowLeft } from 'lucide-react';
 
 const Checkout = () => {
-  const { cartItems, cartTotal, clearCart } = useCart();
+  const { cartItems, cartTotal, shippingTotal, finalTotal, clearCart } = useCart();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -127,7 +127,7 @@ const Checkout = () => {
               address: customerDetails?.address || shippingForm.address || '',
               orderIds: orderIdsStr,
               items: orderedItems,
-              totalPrice: cartTotal
+              totalPrice: finalTotal
             })
           });
 
@@ -178,7 +178,7 @@ const Checkout = () => {
   const handlePayment = async () => {
     setIsProcessing(true);
     
-    if (cartTotal <= 0) {
+    if (finalTotal <= 0) {
       toast.error('Please add at least one paid item to checkout with your free gift.');
       setIsProcessing(false);
       return;
@@ -196,7 +196,7 @@ const Checkout = () => {
       // 2. Open Razorpay Popup
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_your_key', 
-        amount: cartTotal * 100,
+        amount: finalTotal * 100,
         currency: 'INR',
         name: 'Anchor Customs',
         description: 'Photo Magazine Order',
@@ -251,7 +251,7 @@ const Checkout = () => {
     <div className="section-padding">
       <div className="container" style={{ maxWidth: '600px' }}>
         <button 
-          onClick={() => navigate(-1)} 
+          onClick={() => window.history.state && window.history.state.idx > 0 ? navigate(-1) : navigate('/')} 
           style={{ 
             display: 'inline-flex', 
             alignItems: 'center', 
@@ -311,7 +311,11 @@ const Checkout = () => {
         <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>
           <CreditCard size={48} style={{ marginBottom: '1.5rem', color: 'var(--accent)' }} />
           <h1 style={{ marginBottom: '1rem' }}>Final Checkout</h1>
-          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>You are about to pay ₹{cartTotal} for {cartItems.length} item(s).</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '2rem' }}>
+            <p style={{ color: 'var(--text-muted)', margin: 0 }}>Subtotal: ₹{cartTotal}</p>
+            <p style={{ color: 'var(--text-muted)', margin: 0 }}>Shipping: {shippingTotal === 0 ? 'FREE' : `+ ₹${shippingTotal}`}</p>
+            <p style={{ color: 'var(--text)', fontWeight: 'bold', fontSize: '1.2rem', marginTop: '0.5rem' }}>Total: ₹{finalTotal} for {cartItems.length} item(s).</p>
+          </div>
           
           {/* Order Summary */}
           <div style={{ textAlign: 'left', background: 'var(--bg-offset)', padding: '1.5rem', borderRadius: 'var(--radius)', marginBottom: '1.5rem' }}>
@@ -363,7 +367,7 @@ const Checkout = () => {
             <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{cartItems[0]?.customerDetails?.address}</p>
           </div>
 
-          {cartTotal <= 0 && (
+          {finalTotal <= 0 && (
             <div style={{
               background: 'rgba(255,0,0,0.05)',
               border: '1px solid rgba(255,0,0,0.2)',
@@ -379,9 +383,9 @@ const Checkout = () => {
 
           <button 
             onClick={handlePayment} 
-            disabled={isProcessing || cartTotal <= 0 || !shippingDone}
+            disabled={isProcessing || finalTotal <= 0 || !shippingDone}
             className="btn btn-primary" 
-            style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', opacity: (cartTotal <= 0 || !shippingDone) ? 0.5 : 1 }}
+            style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', opacity: (finalTotal <= 0 || !shippingDone) ? 0.5 : 1 }}
           >
             {!shippingDone ? '⬆️ Fill Shipping Details First' : isProcessing ? 'Initializing...' : 'Pay Now with Razorpay'}
           </button>

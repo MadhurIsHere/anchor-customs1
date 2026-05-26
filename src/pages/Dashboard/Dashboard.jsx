@@ -3,6 +3,7 @@ import { supabase } from '../../supabase/config';
 import { useAuth } from '../../context/AuthContext';
 import { formatDate } from '../../utils/helpers';
 import { Package, Clock, CheckCircle, ExternalLink } from 'lucide-react';
+import { TEMPLATES } from '../../utils/data';
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
@@ -99,7 +100,6 @@ const Dashboard = () => {
                   <img src={order.images?.[0]} alt="Cover" style={{ width: '60px', height: '80px', objectFit: 'cover', borderRadius: '4px' }} />
                   <div style={{ flex: 1 }}>
                     <h4 style={{ fontSize: '1.1rem', fontFamily: 'var(--font-sans)', fontWeight: 'bold' }}>{order.template_name}</h4>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{order.pages} Page Magazine</p>
                   </div>
                 </div>
               </div>

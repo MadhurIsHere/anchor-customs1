@@ -171,6 +171,7 @@ export const getCustomizationConfig = (template) => {
   else if (category.includes('hot wheels') || name.includes('bouquet') || name.includes('kaleshi')) {
     config.minPhotos = 0;
     config.maxPhotos = 0;
+    config.allowSpecialInstructions = false;
   }
 
   return config;

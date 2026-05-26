@@ -379,14 +379,13 @@ const Home = () => {
             fontFamily: 'var(--font-sans)'
           }}>
             <h2 style={{ 
-              fontSize: isMobile ? '2.2rem' : '4.5rem', 
-              fontWeight: 800, 
+              fontSize: isMobile ? '3.8rem' : '5.85rem', 
+              fontWeight: 'normal', 
               margin: 0, 
               letterSpacing: '1px',
               fontFamily: "'Alex Brush', cursive",
               width: '100%',
-              textAlign: 'center',
-              fontWeight: 400
+              textAlign: 'center'
             }}>Best Selling</h2>
           </div>
 

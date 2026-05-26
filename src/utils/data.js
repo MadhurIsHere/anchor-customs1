@@ -937,6 +937,39 @@ export const TEMPLATES = [
       ]
     }
   },
+  {
+    id: 'hotwheels_bouquet',
+    name: 'Hot Wheels Bouquet',
+    price10: 2300,
+    price12: 2300,
+    originalPrice: 2600,
+    image: '/products/hotwheels_bouquet.jpg',
+    gallery: [
+      '/products/hotwheels_bouquet.jpg',
+      '/products/hotwheels_bouquet.gif'
+    ],
+    description: 'For the boy who still gets excited over tiny cars like it’s childhood all over again. 🚗💙\nA bouquet made with Hot Wheels, nostalgia, and love, because flowers are pretty, but this feels more like him.',
+    category: 'Bouquet',
+    details: {
+      intro: "For the boy who still gets excited over tiny cars like it’s childhood all over again. 🚗💙\nA bouquet made with Hot Wheels, nostalgia, and love, because flowers are pretty, but this feels more like him.\n\nEach bouquet is handcrafted with carefully wrapped Hot Wheels cars and premium bouquet styling for a clean, aesthetic look.",
+      included: [
+        "Price: ₹2300 (including shipping)",
+        "Cars will be added based on availability",
+        "Designs and car models may vary",
+        "Perfect for collectors, best friends, partners & car enthusiasts"
+      ],
+      required: [],
+      perfectFor: [
+        "Collectors",
+        "Best Friends",
+        "Partners",
+        "Car Enthusiasts"
+      ],
+      importantInfo: [
+        "A bouquet, but make it horsepower. 🏁"
+      ]
+    }
+  },
 
   // Hot Wheels products
   ...HOTWHEELS_TEMPLATES
