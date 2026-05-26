@@ -686,50 +686,56 @@ const Home = () => {
           {isMobile ? (
             <div style={{ 
               display: 'flex', 
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', position: 'relative' }}>
+              flexDirection: 'row', 
+              justifyContent: 'space-between', 
+              alignItems: 'flex-start', 
+              width: '100%', 
+              gap: '1rem', 
+              marginTop: '1rem' 
+            }}>
               
-              {/* Text Column */}
-              <div style={{ width: '100%', zIndex: 2, position: 'relative', textAlign: 'center', marginBottom: '2.5rem' }}>
+              {/* Left Column (Text) */}
+              <div style={{ width: '48%', zIndex: 2, position: 'relative' }}>
                 <h3 style={{
                   fontFamily: 'var(--font-serif)',
-                  fontSize: '2rem',
+                  fontSize: '1.6rem',
                   color: 'var(--text)',
                   fontWeight: 900,
-                  marginBottom: '1rem',
+                  marginBottom: '0.8rem',
                   lineHeight: 1.2
                 }}>About Us</h3>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.95rem', fontWeight: 500, marginBottom: 0, lineHeight: 1.6, padding: '0 10px' }}>
-                  <p style={{ marginBottom: '1rem' }}>At Anchor Customs, we turn memories into keepsakes that last forever.</p>
-                  <p style={{ marginBottom: '1rem' }}>We create personalized gifts designed to feel meaningful, aesthetic, and truly personal, from customized magazines and photo frames to scrapbooks and collectible pieces. Every product is made with creativity, attention to detail, and emotion at its core.</p>
-                  <p style={{ marginBottom: '1rem' }}>With 4000+ customized orders delivered, our goal is to make gifting more memorable and special for every person who shops with us.</p>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 500, marginBottom: 0, lineHeight: 1.6 }}>
+                  <p style={{ marginBottom: '0.8rem' }}>At Anchor Customs, we turn memories into keepsakes that last forever.</p>
+                  <p style={{ marginBottom: '0.8rem' }}>We create personalized gifts designed to feel meaningful, aesthetic, and truly personal, from customized magazines and photo frames to scrapbooks and collectible pieces. Every product is made with creativity, attention to detail, and emotion at its core.</p>
+                  <p style={{ marginBottom: '0.8rem' }}>With 4000+ customized orders delivered, our goal is to make gifting more memorable and special for every person who shops with us.</p>
                   <p style={{ marginBottom: 0 }}>We're constantly working on new ideas, products, and experiences to bring even more creativity into personalized gifting, one memory at a time.</p>
                 </div>
               </div>
 
-              {/* Collage container for mockups */}
-              <div style={{ position: 'relative', width: '100%', height: '320px', zIndex: 3 }}>
+              {/* Right Column (Relative Collage container for mockups) */}
+              <div style={{ position: 'relative', width: '48%', height: '280px', zIndex: 3 }}>
                 <motion.div 
-                  animate={{ y: [0, -15, 0], rotate: [0, -6, 0] }}
+                  animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
                   transition={{ duration: 6, repeat: Infinity }}
-                  style={{ position: 'absolute', top: '10%', left: '8%', zIndex: 2, filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.15))' }}
+                  style={{ position: 'absolute', top: '30%', left: '0%', zIndex: 2, filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.15))' }}
                 >
-                  <img src="/products/MAGAZINE TEMPLATES/LE DOOBA-WEBSITE.jpg" alt="mockup 1" style={{ width: '120px', borderRadius: '12px', border: '3px solid white' }} />
+                  <img src="/products/MAGAZINE TEMPLATES/LE DOOBA-WEBSITE.jpg" alt="mockup 1" style={{ width: '60px', borderRadius: '12px', border: '2px solid white' }} />
                 </motion.div>
                 
                 <motion.div 
-                  animate={{ y: [0, 20, 0], rotate: [0, 5, 0] }}
+                  animate={{ y: [0, 20, 0], rotate: [0, -5, 0] }}
                   transition={{ duration: 8, repeat: Infinity }}
-                  style={{ position: 'absolute', top: '0%', right: '5%', zIndex: 3, filter: 'drop-shadow(0 20px 30px rgba(0,0,0,0.2))' }}
+                  style={{ position: 'absolute', top: '55%', right: '0%', zIndex: 3, filter: 'drop-shadow(0 20px 30px rgba(0,0,0,0.2))' }}
                 >
-                  <img src="/products/hamper_cover.jpg" alt="Hamper Cover" style={{ width: '160px', borderRadius: '12px', border: '4px solid white', display: 'block' }} />
+                  <img src="/products/hamper_cover.jpg" alt="Hamper Cover" style={{ width: '90px', borderRadius: '12px', border: '3px solid white', display: 'block' }} />
                 </motion.div>
 
                 <motion.div 
-                  animate={{ y: [0, -10, 0], rotate: [0, -3, 0] }}
+                  animate={{ y: [0, -10, 0], rotate: [0, 8, 0] }}
                   transition={{ duration: 7, repeat: Infinity }}
-                  style={{ position: 'absolute', bottom: '5%', left: '30%', zIndex: 4, filter: 'drop-shadow(0 15px 25px rgba(0,0,0,0.1))' }}
+                  style={{ position: 'absolute', top: '110%', left: '15%', zIndex: 2, filter: 'drop-shadow(0 15px 25px rgba(0,0,0,0.1))' }}
                 >
-                  <img src="/products/FRAMES/a4 frames website_page_7.jpg" alt="Chaos Collage Frame" style={{ width: '130px', borderRadius: '12px', border: '3px solid white' }} />
+                  <img src="/products/FRAMES/a4 frames website_page_7.jpg" alt="Chaos Collage Frame" style={{ width: '75px', borderRadius: '12px', border: '2.5px solid white' }} />
                 </motion.div>
               </div>
 
