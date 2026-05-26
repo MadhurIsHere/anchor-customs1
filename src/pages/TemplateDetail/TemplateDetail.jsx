@@ -822,7 +822,14 @@ const TemplateDetail = () => {
                       alt={`${template.name} view ${currentSlide + 1}`} 
                       loading="lazy"
                       onClick={() => setSelectedImage(sliderImages[currentSlide])}
-                      style={{ width: '100%', height: 'auto', display: 'block', objectFit: template.imageFit || 'cover', cursor: 'zoom-in' }} 
+                      style={{ 
+                        width: '100%', 
+                        height: template.aspectRatio ? '100%' : 'auto', 
+                        aspectRatio: template.aspectRatio || 'auto',
+                        display: 'block', 
+                        objectFit: template.imageFit || 'cover', 
+                        cursor: 'zoom-in' 
+                      }} 
                     />
                   )}
                   

@@ -702,11 +702,12 @@ export const TEMPLATES = [
     price12: 2300,
     originalPrice: 2600,
     isHotWheels: true,
-    imageFit: 'contain',
+    imageFit: 'cover',
+    aspectRatio: '3/4',
     image: '/products/hotwheels_bouquet.jpeg',
     gallery: [
       '/products/hotwheels_bouquet.jpeg',
-      '/products/hotwheels_bouquet.mov'
+      '/products/hotwheels_bouquet.gif'
     ],
     description: "A bouquet made with Hot Wheels, nostalgia, and love.",
     category: 'Hamper',
