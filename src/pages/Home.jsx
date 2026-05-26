@@ -344,7 +344,7 @@ const Home = () => {
           {/* Text path */}
           <text 
             fill="white" 
-            fontSize={isMobile ? "20" : "18"} 
+            fontSize={isMobile ? "30" : "24"} 
             fontWeight="900" 
             letterSpacing="3"
             style={{ fontFamily: 'var(--font-sans)', textTransform: 'uppercase' }}
@@ -379,7 +379,7 @@ const Home = () => {
             fontFamily: 'var(--font-sans)'
           }}>
             <h2 style={{ 
-              fontSize: isMobile ? '2.2rem' : '4.5rem', 
+              fontSize: isMobile ? '3.5rem' : '6rem', 
               fontWeight: 800, 
               margin: 0, 
               letterSpacing: '1px',
@@ -406,7 +406,7 @@ const Home = () => {
               {
                 title: 'Photo Frames',
                 categoryStr: 'Photo Frames',
-                coverImage: TEMPLATES.find(t => t.id === 'frame_chaos')?.image
+                coverImage: '/products/FRAMES/a4 frames website_page_7.jpg'
               },
               {
                 title: 'Combos',
@@ -534,24 +534,7 @@ const Home = () => {
                         marginBottom: isMobile ? '0.8rem' : '1.5rem',
                         position: 'relative'
                       }}>
-                        <div style={{ 
-                          position: 'absolute', 
-                          top: isMobile ? '0.8rem' : '2rem', 
-                          left: '50%', 
-                          transform: 'translateX(-50%)',
-                          background: 'rgba(255,255,255,0.6)', 
-                          color: 'var(--accent)',
-                          padding: isMobile ? '0.2rem 0.6rem' : '0.4rem 1.2rem', 
-                          borderRadius: '30px', 
-                          fontSize: isMobile ? '0.55rem' : '0.85rem', 
-                          fontWeight: 800,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.4rem',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          <Star size={isMobile ? 10 : 14} fill="var(--accent)" /> {items.length} PRODUCTS
-                        </div>
+
                         {coverTemplate.image?.match(/\.(mp4|mov)$/i) ? (
                           <video 
                             src={coverTemplate.image} 

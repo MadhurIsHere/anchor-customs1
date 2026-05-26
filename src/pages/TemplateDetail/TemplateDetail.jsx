@@ -726,18 +726,8 @@ const TemplateDetail = () => {
                     <div style={{ position: 'relative', width: '100%', aspectRatio: isMobile ? '0.73' : '1.47', background: '#fdfdfd', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                       {/* Buttons are OUTSIDE the flipbook container so the library cannot intercept their touch events */}
                       <button 
-                        onTouchStart={(e) => { 
-                          e.stopPropagation(); 
-                          const pf = miniBookRef.current?.pageFlip();
-                          if (pf) {
-                            if (pf.getCurrentPageIndex() === 0) {
-                              setCurrentSlide(sliderImages.length - 1);
-                            } else {
-                              pf.flipPrev();
-                            }
-                          }
-                        }}
                         onClick={(e) => { 
+                          e.preventDefault();
                           e.stopPropagation(); 
                           const pf = miniBookRef.current?.pageFlip();
                           if (pf) {
@@ -754,27 +744,14 @@ const TemplateDetail = () => {
                         <ChevronLeft size={24} color="#000" />
                       </button>
                       <button 
-                        onTouchStart={(e) => { 
-                          e.stopPropagation(); 
-                          const pf = miniBookRef.current?.pageFlip();
-                          if (pf) {
-                            const currentIdx = pf.getCurrentPageIndex();
-                            const pageCount = pf.getPageCount();
-                            const isAtEnd = currentIdx + (isMobile ? 1 : 2) >= pageCount;
-                            if (isAtEnd) {
-                              setCurrentSlide(1);
-                            } else {
-                              pf.flipNext();
-                            }
-                          }
-                        }}
                         onClick={(e) => { 
+                          e.preventDefault();
                           e.stopPropagation(); 
                           const pf = miniBookRef.current?.pageFlip();
                           if (pf) {
                             const currentIdx = pf.getCurrentPageIndex();
-                            const pageCount = pf.getPageCount();
-                            const isAtEnd = currentIdx + (isMobile ? 1 : 2) >= pageCount;
+                            const actualPageCount = template.magazinePages ? template.magazinePages.length : pf.getPageCount();
+                            const isAtEnd = currentIdx + (isMobile ? 1 : 2) >= actualPageCount;
                             if (isAtEnd) {
                               setCurrentSlide(1);
                             } else {
@@ -795,7 +772,7 @@ const TemplateDetail = () => {
                         maxWidth={600}
                         minHeight={200}
                         maxHeight={800}
-                        showCover={!isMobile}
+                        showCover={false}
                         usePortrait={isMobile}
                         drawShadow={true}
                         maxShadowOpacity={0.5}

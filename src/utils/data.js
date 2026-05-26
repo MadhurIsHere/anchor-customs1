@@ -396,8 +396,7 @@ export const TEMPLATES = [
     price10: 699,
     price12: 699,
     originalPrice: 899,
-    imageFit: 'contain',
-    image: '/products/FRAMES/a4 frames website_page_7.jpg',
+    image: '/products/FRAMES/ChaosCollage-cover.jpg',
     gallery: [
       '/products/FRAMES/a4 frames website_page_7.jpg',
       '/products/FRAMES/a4 frames website_page_8.jpg',
@@ -743,7 +742,6 @@ export const TEMPLATES = [
     description: 'Start every month with a memory that makes you smile ✨',
     category: 'Calendar',
     popular: false,
-    imageFit: 'contain',
     pageBg: '#fdfdfd',
     pages: Array.from({length: 14}, (_, i) => `/products/CUSTOMISED CALENDAR/customized calendar_page_${i + 1}.jpg`),
     details: {
