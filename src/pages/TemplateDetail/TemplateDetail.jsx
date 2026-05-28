@@ -247,15 +247,19 @@ const TemplateDetail = () => {
       let innerUrls = [];
       
       if (needsImages) {
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+        const customerName = (orderForm.fullName || currentUser?.user_metadata?.full_name || 'customer').replace(/\s+/g, '_');
+        const orderFolder = `orders/${customerName}_${dateStr}/${template.name.replace(/\s+/g, '_')}`;
         if (coverFile) {
           toast.loading('Uploading cover photo...', { id: 'upload-toast' });
-          const cUrl = await uploadToCloudinary(coverFile);
+          const cUrl = await uploadToCloudinary(coverFile, orderFolder);
           coverUrl = cUrl || template.image;
         }
         if (innerFiles.length > 0) {
           for (let i = 0; i < innerFiles.length; i++) {
             toast.loading(`Uploading photo ${i + 1} of ${innerFiles.length}...`, { id: 'upload-toast' });
-            const url = await uploadToCloudinary(innerFiles[i]);
+            const url = await uploadToCloudinary(innerFiles[i], orderFolder);
             innerUrls.push(url);
           }
         }

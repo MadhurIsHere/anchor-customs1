@@ -75,7 +75,7 @@ const compressImageCanvas = (file, maxWidth = 1600, maxHeight = 1600, quality = 
   });
 };
 
-export const uploadToCloudinary = async (file) => {
+export const uploadToCloudinary = async (file, folder = null) => {
   console.log('uploadToCloudinary starting for file:', {
     name: file?.name,
     type: file?.type,
@@ -191,6 +191,9 @@ export const uploadToCloudinary = async (file) => {
     const formData = new FormData();
     formData.append('file', fileToUpload);
     formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+    if (folder) {
+      formData.append('folder', folder);
+    }
 
     console.log('Sending upload request to Cloudinary...');
     const response = await fetch(

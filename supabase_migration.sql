@@ -3,7 +3,7 @@
 -- Run this in Supabase SQL Editor (Dashboard)
 -- ============================================
 
--- 1. Order counter (starts at 3441 so first order = O_3442)
+-- 1. Order counter (starts at 3441 so first order = #3442)
 CREATE TABLE IF NOT EXISTS order_counter (
   id INT PRIMARY KEY DEFAULT 1,
   current_number INT NOT NULL DEFAULT 3441
@@ -72,7 +72,7 @@ BEGIN
   SET current_number = current_number + 1
   WHERE id = 1
   RETURNING current_number INTO next_num;
-  RETURN 'O_' || next_num::TEXT;
+  RETURN '#' || next_num::TEXT;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -134,5 +134,5 @@ CREATE POLICY "authenticated_use_counter" ON order_counter
 -- ============================================
 -- DONE! Verify by running:
 -- SELECT get_next_order_number();
--- Should return 'O_3442'
+-- Should return '#3442'
 -- ============================================

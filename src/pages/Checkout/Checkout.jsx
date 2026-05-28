@@ -67,7 +67,7 @@ const Checkout = () => {
 
       console.log('Starting order save process...');
 
-      // 1. Get next sequential order number (O_3442, O_3443, etc.)
+      // 1. Get next sequential order number (#3442, #3443, etc.)
       const { data: counterData, error: counterError } = await supabase
         .rpc('get_next_order_number');
 
@@ -76,7 +76,7 @@ const Checkout = () => {
         throw new Error('Failed to generate order number: ' + counterError.message);
       }
 
-      const displayId = counterData; // e.g. "O_3442"
+      const displayId = counterData; // e.g. "#3442"
       console.log('Generated Order ID:', displayId);
 
       // 2. Create single order in orders_v2
@@ -530,21 +530,7 @@ const Checkout = () => {
             {!shippingDone ? '⬆️ Fill Shipping Details First' : isProcessing ? 'Initializing...' : 'Pay Now with Razorpay'}
           </button>
 
-          {/* Professional Demo Mode for Client Review */}
-          <button 
-            type="button"
-            onClick={() => saveOrderToSupabase({ razorpay_payment_id: 'demo_client_review_' + Date.now() })}
-            className="btn btn-outline"
-            style={{ 
-              marginTop: '1.5rem', 
-              width: '100%',
-              fontSize: '0.9rem', 
-              opacity: 0.8,
-              borderStyle: 'dashed'
-            }}
-          >
-            Review Mode: Simulate Successful Payment
-          </button>
+
           
           <p style={{ marginTop: '1.5rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
             Secure payment powered by Razorpay.
